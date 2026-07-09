@@ -1,10 +1,11 @@
-import { getBooks } from "@/lib/data";
+import { getBooks, getCollections } from "@/lib/data";
 import { BookCard } from "@/components/storefront/BookCard";
+import { CollectionCard } from "@/components/storefront/CollectionCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const books = await getBooks();
+  const [books, collections] = await Promise.all([getBooks(), getCollections()]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -19,10 +20,28 @@ export default async function HomePage() {
         </p>
       </section>
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-        {books.map((book) => (
-          <BookCard key={book.id} book={book} />
-        ))}
+      {collections.length > 0 && (
+        <section className="mb-14">
+          <h2 className="mb-5 text-xl font-extrabold text-ink sm:text-2xl">
+            مجموعات بأسعار مميزة
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-5">
+            {collections.map((collection) => (
+              <CollectionCard key={collection.id} collection={collection} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section>
+        <h2 className="mb-5 text-xl font-extrabold text-ink sm:text-2xl">
+          الكتب الفردية
+        </h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
+          {books.map((book) => (
+            <BookCard key={book.id} book={book} />
+          ))}
+        </div>
       </section>
     </div>
   );

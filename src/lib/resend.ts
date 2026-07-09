@@ -5,6 +5,7 @@ const resend = process.env.RESEND_API_KEY
   : null;
 
 type OrderEmailItem = { title: string; quantity: number; unitPriceNis: number };
+type OrderEmailCollectionItem = OrderEmailItem & { bookTitles: string[] };
 
 export async function sendOrderNotification(order: {
   id: string;
@@ -15,6 +16,7 @@ export async function sendOrderNotification(order: {
   notes?: string | null;
   totalNis: number;
   items: OrderEmailItem[];
+  collectionItems?: OrderEmailCollectionItem[];
 }) {
   if (!resend) {
     console.warn("RESEND_API_KEY not set — skipping order notification email");
@@ -37,6 +39,15 @@ export async function sendOrderNotification(order: {
     )
     .join("");
 
+  const collectionItemsHtml = (order.collectionItems ?? [])
+    .map(
+      (i) =>
+        `<tr><td style="padding:4px 8px"><strong>${i.title}</strong> (مجموعة)<br/><span style="color:#666;font-size:13px">${i.bookTitles.join("، ")}</span></td><td style="padding:4px 8px">×${i.quantity}</td><td style="padding:4px 8px">${
+          i.unitPriceNis * i.quantity
+        } ₪</td></tr>`
+    )
+    .join("");
+
   try {
     await resend.emails.send({
       from,
@@ -50,7 +61,7 @@ export async function sendOrderNotification(order: {
           ${order.email ? `<p><strong>البريد الإلكتروني:</strong> ${order.email}</p>` : ""}
           <p><strong>المدينة:</strong> ${order.city}</p>
           ${order.notes ? `<p><strong>ملاحظات:</strong> ${order.notes}</p>` : ""}
-          <table style="border-collapse:collapse;margin-top:12px">${itemsHtml}</table>
+          <table style="border-collapse:collapse;margin-top:12px">${itemsHtml}${collectionItemsHtml}</table>
           <p style="margin-top:12px"><strong>الإجمالي: ${order.totalNis} ₪</strong></p>
           <p style="margin-top:16px;color:#666">رقم الطلب: ${order.id}</p>
         </div>

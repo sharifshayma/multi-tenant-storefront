@@ -9,19 +9,49 @@ datasource db {
 }
 
 model Book {
-  id          String      @id @default(cuid())
-  slug        String      @unique
-  title       String
-  description String      @db.Text
-  priceNis    Int         @default(40)
-  coverImage  String
-  position    Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  media       BookMedia[]
-  orderItems  OrderItem[]
+  id                       String                    @id @default(cuid())
+  slug                     String                    @unique
+  title                    String
+  description              String                    @db.Text
+  priceNis                 Int                       @default(40)
+  coverImage               String
+  position                 Int                       @default(0)
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  media                    BookMedia[]
+  orderItems               OrderItem[]
+  collectionBooks          CollectionBook[]
+  orderCollectionItemBooks OrderCollectionItemBook[]
 
   @@index([position])
+}
+
+model Collection {
+  id            String                 @id @default(cuid())
+  slug          String                 @unique
+  title         String
+  description   String                 @db.Text
+  priceNis      Int
+  isCustom      Boolean                @default(false)
+  requiredCount Int?
+  position      Int                    @default(0)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  books         CollectionBook[]
+  orderItems    OrderCollectionItem[]
+
+  @@index([position])
+}
+
+model CollectionBook {
+  id           String     @id @default(cuid())
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  bookId       String
+  book         Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  sortOrder    Int        @default(0)
+
+  @@unique([collectionId, bookId])
 }
 
 enum MediaType {
@@ -48,17 +78,18 @@ enum OrderStatus {
 }
 
 model Order {
-  id           String      @id @default(cuid())
-  customerName String
-  phone        String
-  email        String?
-  city         String
-  notes        String?     @db.Text
-  totalNis     Int
-  status       OrderStatus @default(NEW)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  items        OrderItem[]
+  id              String                 @id @default(cuid())
+  customerName    String
+  phone           String
+  email           String?
+  city            String
+  notes           String?                @db.Text
+  totalNis        Int
+  status          OrderStatus            @default(NEW)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  items           OrderItem[]
+  collectionItems OrderCollectionItem[]
 
   @@index([status])
   @@index([createdAt])
@@ -72,4 +103,23 @@ model OrderItem {
   book         Book   @relation(fields: [bookId], references: [id])
   quantity     Int
   unitPriceNis Int
+}
+
+model OrderCollectionItem {
+  id            String                    @id @default(cuid())
+  orderId       String
+  order         Order                     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  collectionId  String
+  collection    Collection                @relation(fields: [collectionId], references: [id])
+  quantity      Int
+  unitPriceNis  Int
+  selectedBooks OrderCollectionItemBook[]
+}
+
+model OrderCollectionItemBook {
+  id                    String              @id @default(cuid())
+  orderCollectionItemId String
+  orderCollectionItem   OrderCollectionItem @relation(fields: [orderCollectionItemId], references: [id], onDelete: Cascade)
+  bookId                String
+  book                  Book                @relation(fields: [bookId], references: [id])
 }

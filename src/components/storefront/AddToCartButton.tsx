@@ -13,7 +13,7 @@ export function AddToCartButton({
   book: BookSummary;
   size?: "sm" | "md" | "lg";
 }) {
-  const { addItem } = useCart();
+  const { addBook } = useCart();
   const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
 
@@ -41,7 +41,7 @@ export function AddToCartButton({
       <Button
         size={size}
         onClick={() => {
-          addItem(
+          addBook(
             {
               bookId: book.id,
               slug: book.slug,

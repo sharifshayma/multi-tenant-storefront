@@ -94,6 +94,47 @@ const books = [
   },
 ];
 
+const collections = [
+  {
+    slug: "women-leaders",
+    title: "قائدات ملهمات",
+    description:
+      "خمس قصص عن نساء عربيات غيّرن مجالاتهن بالشجاعة والإصرار — من القانون والعمارة إلى الرياضة والفن.",
+    priceNis: 175,
+    bookSlugs: ["amal-clooney", "huda-kattan", "zaha-hadid", "yusra-mardini", "rama-duwaji"],
+  },
+  {
+    slug: "science",
+    title: "علماء ومبتكرون",
+    description: "أربع قصص عن عقول عربية أبدعت في العلم والفضاء والتكنولوجيا.",
+    priceNis: 140,
+    bookSlugs: ["farouk-el-baz", "hazza-al-mansouri", "omar-yaghi", "amjad-massad"],
+  },
+  {
+    slug: "activism",
+    title: "أصوات التغيير",
+    description: "أربع قصص عن أشخاص استخدموا أصواتهم للدفاع عن العدالة والهوية والإنسانية.",
+    priceNis: 140,
+    bookSlugs: ["amal-clooney", "yusra-mardini", "rama-duwaji", "edward-said"],
+  },
+  {
+    slug: "sports",
+    title: "أبطال الرياضة",
+    description: "أربع قصص عن أبطال عرب أثبتوا للعالم قوة الإصرار في الملاعب.",
+    priceNis: 140,
+    bookSlugs: ["mo-salah", "achraf-hakimi", "yusra-mardini", "salem-saleh"],
+  },
+];
+
+const customCollection = {
+  slug: "build-your-own",
+  title: "اختاري ٥ كتب بنفسك",
+  description:
+    "اختاري أي ٥ كتب من السلسلة بسعر مخفّض — نفس القصص المفضلة لديكِ، بسعر أفضل.",
+  priceNis: 175,
+  requiredCount: 5,
+};
+
 async function main() {
   for (let i = 0; i < books.length; i++) {
     const book = books[i];
@@ -114,6 +155,65 @@ async function main() {
     });
   }
   console.log(`Seeded ${books.length} books.`);
+
+  for (let i = 0; i < collections.length; i++) {
+    const c = collections[i];
+    const collection = await prisma.collection.upsert({
+      where: { slug: c.slug },
+      update: {
+        title: c.title,
+        description: c.description,
+        priceNis: c.priceNis,
+        position: i,
+      },
+      create: {
+        slug: c.slug,
+        title: c.title,
+        description: c.description,
+        priceNis: c.priceNis,
+        position: i,
+      },
+    });
+
+    const bookRecords = await prisma.book.findMany({
+      where: { slug: { in: c.bookSlugs } },
+      select: { id: true, slug: true },
+    });
+    const bookIdBySlug = new Map(bookRecords.map((b) => [b.slug, b.id]));
+
+    for (let j = 0; j < c.bookSlugs.length; j++) {
+      const bookId = bookIdBySlug.get(c.bookSlugs[j]);
+      if (!bookId) continue;
+      await prisma.collectionBook.upsert({
+        where: { collectionId_bookId: { collectionId: collection.id, bookId } },
+        update: { sortOrder: j },
+        create: { collectionId: collection.id, bookId, sortOrder: j },
+      });
+    }
+  }
+  console.log(`Seeded ${collections.length} fixed collections.`);
+
+  await prisma.collection.upsert({
+    where: { slug: customCollection.slug },
+    update: {
+      title: customCollection.title,
+      description: customCollection.description,
+      priceNis: customCollection.priceNis,
+      isCustom: true,
+      requiredCount: customCollection.requiredCount,
+      position: collections.length,
+    },
+    create: {
+      slug: customCollection.slug,
+      title: customCollection.title,
+      description: customCollection.description,
+      priceNis: customCollection.priceNis,
+      isCustom: true,
+      requiredCount: customCollection.requiredCount,
+      position: collections.length,
+    },
+  });
+  console.log("Seeded custom build-your-own collection.");
 }
 
 main()

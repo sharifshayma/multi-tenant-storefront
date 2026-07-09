@@ -19,7 +19,19 @@ export const checkoutSchema = z.object({
         quantity: z.number().int().min(1),
       })
     )
-    .min(1, "السلة فارغة"),
+    .default([]),
+  collections: z
+    .array(
+      z.object({
+        collectionId: z.string(),
+        quantity: z.number().int().min(1),
+        selectedBookIds: z.array(z.string()).min(1),
+      })
+    )
+    .default([]),
+}).refine((data) => data.items.length > 0 || data.collections.length > 0, {
+  message: "السلة فارغة",
+  path: ["items"],
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2, Package } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { Price } from "@/components/ui/Price";
 import { Button } from "@/components/ui/Button";
@@ -33,7 +33,16 @@ export default function CartPage() {
 
     const input = {
       ...form,
-      items: items.map((i) => ({ bookId: i.bookId, quantity: i.quantity })),
+      items: items
+        .filter((i) => i.kind === "book")
+        .map((i) => ({ bookId: i.bookId, quantity: i.quantity })),
+      collections: items
+        .filter((i) => i.kind === "collection")
+        .map((i) => ({
+          collectionId: i.collectionId,
+          quantity: i.quantity,
+          selectedBookIds: i.selectedBooks.map((b) => b.bookId),
+        })),
     };
 
     const parsed = checkoutSchema.safeParse(input);
@@ -81,26 +90,37 @@ export default function CartPage() {
         <div className="flex flex-col gap-4">
           {items.map((item) => (
             <div
-              key={item.bookId}
+              key={item.id}
               className="flex items-center gap-4 rounded-2xl border border-border bg-card p-3"
             >
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white">
-                <Image
-                  src={item.coverImage}
-                  alt={item.title}
-                  fill
-                  sizes="64px"
-                  className="object-contain p-1"
-                />
-              </div>
+              {item.kind === "book" ? (
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white">
+                  <Image
+                    src={item.coverImage}
+                    alt={item.title}
+                    fill
+                    sizes="64px"
+                    className="object-contain p-1"
+                  />
+                </div>
+              ) : (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gold/20 text-brand">
+                  <Package className="h-7 w-7" />
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-bold">{item.title}</p>
+                {item.kind === "collection" && (
+                  <p className="truncate text-xs text-muted">
+                    {item.selectedBooks.map((b) => b.title).join("، ")}
+                  </p>
+                )}
                 <Price nis={item.priceNis} className="text-sm text-muted" />
               </div>
               <div className="flex items-center rounded-full border border-border bg-white">
                 <button
                   type="button"
-                  onClick={() => updateQty(item.bookId, item.quantity - 1)}
+                  onClick={() => updateQty(item.id, item.quantity - 1)}
                   className="flex h-8 w-8 items-center justify-center text-muted hover:text-ink"
                 >
                   <Minus className="h-3.5 w-3.5" />
@@ -110,7 +130,7 @@ export default function CartPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => updateQty(item.bookId, item.quantity + 1)}
+                  onClick={() => updateQty(item.id, item.quantity + 1)}
                   className="flex h-8 w-8 items-center justify-center text-muted hover:text-ink"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -118,7 +138,7 @@ export default function CartPage() {
               </div>
               <button
                 type="button"
-                onClick={() => removeItem(item.bookId)}
+                onClick={() => removeItem(item.id)}
                 className="text-muted hover:text-red-600"
                 aria-label="إزالة"
               >
