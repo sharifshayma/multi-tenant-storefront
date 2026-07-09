@@ -28,7 +28,7 @@ export default async function AdminOrdersPage({
   const orders = await prisma.order.findMany({
     where: filter ? { status: filter } : undefined,
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { items: true } } },
+    include: { _count: { select: { items: true, collectionItems: true } } },
   });
 
   return (
@@ -83,7 +83,7 @@ export default async function AdminOrdersPage({
                     {order.phone}
                   </td>
                   <td className="p-3">{order.city}</td>
-                  <td className="p-3">{order._count.items}</td>
+                  <td className="p-3">{order._count.items + order._count.collectionItems}</td>
                   <td className="p-3">
                     <Price nis={order.totalNis} />
                   </td>

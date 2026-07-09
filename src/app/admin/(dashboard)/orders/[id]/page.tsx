@@ -15,7 +15,12 @@ export default async function AdminOrderDetailPage({
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: { include: { book: true } } },
+    include: {
+      items: { include: { book: true } },
+      collectionItems: {
+        include: { collection: true, selectedBooks: { include: { book: true } } },
+      },
+    },
   });
   if (!order) notFound();
 
@@ -81,7 +86,7 @@ export default async function AdminOrderDetailPage({
         </div>
 
         <div className="rounded-2xl border border-border bg-white p-5">
-          <h2 className="mb-3 font-extrabold">الكتب المطلوبة</h2>
+          <h2 className="mb-3 font-extrabold">الكتب والمجموعات المطلوبة</h2>
           <div className="flex flex-col divide-y divide-border">
             {order.items.map((item) => (
               <div key={item.id} className="flex justify-between py-2 text-sm">
@@ -89,6 +94,19 @@ export default async function AdminOrderDetailPage({
                   {item.book.title} × {item.quantity}
                 </span>
                 <Price nis={item.unitPriceNis * item.quantity} />
+              </div>
+            ))}
+            {order.collectionItems.map((item) => (
+              <div key={item.id} className="flex flex-col gap-1 py-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="font-bold">
+                    {item.collection.title} (مجموعة) × {item.quantity}
+                  </span>
+                  <Price nis={item.unitPriceNis * item.quantity} />
+                </div>
+                <span className="text-xs text-muted">
+                  {item.selectedBooks.map((sb) => sb.book.title).join("، ")}
+                </span>
               </div>
             ))}
           </div>

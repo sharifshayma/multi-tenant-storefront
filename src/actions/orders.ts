@@ -54,10 +54,68 @@ export async function createOrder(
     });
   }
 
-  const totalNis = orderItems.reduce(
-    (sum, i) => sum + i.unitPriceNis * i.quantity,
-    0
-  );
+  const collectionIds = data.collections.map((c) => c.collectionId);
+  const collections = await prisma.collection.findMany({
+    where: { id: { in: collectionIds } },
+    include: { books: { select: { bookId: true } } },
+  });
+  const collectionMap = new Map(collections.map((c) => [c.id, c]));
+
+  const allBookIds = new Set<string>();
+  for (const c of data.collections) for (const id of c.selectedBookIds) allBookIds.add(id);
+  const selectedBookRecords = await prisma.book.findMany({
+    where: { id: { in: [...allBookIds] } },
+    select: { id: true, title: true },
+  });
+  const selectedBookMap = new Map(selectedBookRecords.map((b) => [b.id, b]));
+
+  const orderCollectionItems: {
+    collectionId: string;
+    quantity: number;
+    unitPriceNis: number;
+    title: string;
+    bookIds: string[];
+    bookTitles: string[];
+  }[] = [];
+
+  for (const item of data.collections) {
+    const collection = collectionMap.get(item.collectionId);
+    if (!collection) {
+      return { ok: false, error: "إحدى المجموعات لم تعد متوفرة" };
+    }
+
+    let bookIds: string[];
+    if (collection.isCustom) {
+      const requiredCount = collection.requiredCount ?? item.selectedBookIds.length;
+      const uniqueIds = [...new Set(item.selectedBookIds)];
+      if (uniqueIds.length !== requiredCount) {
+        return {
+          ok: false,
+          error: `الرجاء اختيار ${requiredCount} كتب مختلفة لمجموعة "${collection.title}"`,
+        };
+      }
+      if (!uniqueIds.every((id) => selectedBookMap.has(id))) {
+        return { ok: false, error: "أحد الكتب المختارة لم يعد متوفراً" };
+      }
+      bookIds = uniqueIds;
+    } else {
+      // Fixed collections: always use the admin-defined set, never trust client selection
+      bookIds = collection.books.map((b) => b.bookId);
+    }
+
+    orderCollectionItems.push({
+      collectionId: collection.id,
+      quantity: item.quantity,
+      unitPriceNis: collection.priceNis,
+      title: collection.title,
+      bookIds,
+      bookTitles: bookIds.map((id) => selectedBookMap.get(id)?.title ?? bookMap.get(id)?.title ?? ""),
+    });
+  }
+
+  const totalNis =
+    orderItems.reduce((sum, i) => sum + i.unitPriceNis * i.quantity, 0) +
+    orderCollectionItems.reduce((sum, i) => sum + i.unitPriceNis * i.quantity, 0);
 
   const order = await prisma.order.create({
     data: {
@@ -72,6 +130,16 @@ export async function createOrder(
           bookId: i.bookId,
           quantity: i.quantity,
           unitPriceNis: i.unitPriceNis,
+        })),
+      },
+      collectionItems: {
+        create: orderCollectionItems.map((i) => ({
+          collectionId: i.collectionId,
+          quantity: i.quantity,
+          unitPriceNis: i.unitPriceNis,
+          selectedBooks: {
+            create: i.bookIds.map((bookId) => ({ bookId })),
+          },
         })),
       },
     },
@@ -90,6 +158,12 @@ export async function createOrder(
         title: i.title,
         quantity: i.quantity,
         unitPriceNis: i.unitPriceNis,
+      })),
+      collectionItems: orderCollectionItems.map((i) => ({
+        title: i.title,
+        quantity: i.quantity,
+        unitPriceNis: i.unitPriceNis,
+        bookTitles: i.bookTitles,
       })),
     });
   } catch (err) {

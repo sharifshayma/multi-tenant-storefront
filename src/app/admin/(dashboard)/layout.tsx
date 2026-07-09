@@ -21,6 +21,9 @@ export default function DashboardLayout({
               <Link href="/admin/books" className="hover:text-ink">
                 الكتب والوسائط
               </Link>
+              <Link href="/admin/collections" className="hover:text-ink">
+                المجموعات
+              </Link>
             </nav>
           </div>
           <LogoutButton />
