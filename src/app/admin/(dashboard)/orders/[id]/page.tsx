@@ -41,7 +41,7 @@ export default async function AdminOrderDetailPage({
         <OrderStatusSelect orderId={order.id} status={order.status} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-white p-5">
           <h2 className="mb-3 font-extrabold">بيانات العميل</h2>
           <dl className="flex flex-col gap-2 text-sm">

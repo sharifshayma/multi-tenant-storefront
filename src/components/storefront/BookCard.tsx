@@ -28,7 +28,7 @@ export function BookCard({ book }: { book: BookSummary }) {
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           <Price nis={book.priceNis} className="text-lg font-extrabold text-brand" />
         </div>
-        <AddToCartButton book={book} size="sm" />
+        <AddToCartButton book={book} size="sm" compact />
       </div>
     </div>
   );
