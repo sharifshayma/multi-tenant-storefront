@@ -40,7 +40,7 @@ export default async function CollectionPage({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <div className="grid gap-8 md:grid-cols-2 md:gap-12">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
         <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border">
           <CollectionCollage books={collection.books} />
         </div>

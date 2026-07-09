@@ -86,7 +86,7 @@ export default function CartPage() {
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <h1 className="mb-6 text-2xl font-extrabold">السلة والدفع</h1>
 
-      <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.2fr_1fr]">
         <div className="flex flex-col gap-4">
           {items.map((item) => (
             <div

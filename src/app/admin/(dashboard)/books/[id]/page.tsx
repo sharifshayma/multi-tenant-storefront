@@ -31,7 +31,7 @@ export default async function AdminBookDetailPage({
         العودة إلى الكتب
       </Link>
 
-      <div className="grid gap-6 md:grid-cols-[auto_1fr]">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-[auto_1fr]">
         <div className="relative h-40 w-40 shrink-0 overflow-hidden rounded-2xl border border-border bg-white">
           <Image
             src={book.coverImage}
