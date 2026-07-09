@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Book {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  title       String
+  description String      @db.Text
+  priceNis    Int         @default(40)
+  coverImage  String
+  position    Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  media       BookMedia[]
+  orderItems  OrderItem[]
+
+  @@index([position])
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model BookMedia {
+  id        String    @id @default(cuid())
+  bookId    String
+  book      Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  type      MediaType
+  url       String
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  @@index([bookId, sortOrder])
+}
+
+enum OrderStatus {
+  NEW
+  CONTACTED
+  FULFILLED
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  customerName String
+  phone        String
+  email        String?
+  city         String
+  notes        String?     @db.Text
+  totalNis     Int
+  status       OrderStatus @default(NEW)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id           String @id @default(cuid())
+  orderId      String
+  order        Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  bookId       String
+  book         Book   @relation(fields: [bookId], references: [id])
+  quantity     Int
+  unitPriceNis Int
+}
