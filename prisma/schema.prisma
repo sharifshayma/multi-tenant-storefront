@@ -73,8 +73,10 @@ model BookMedia {
 
 enum OrderStatus {
   NEW
-  CONTACTED
-  FULFILLED
+  CONFIRMED
+  IN_PROGRESS
+  SHIPPED
+  DELIVERED
 }
 
 model Order {

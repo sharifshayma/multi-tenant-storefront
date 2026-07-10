@@ -2,16 +2,16 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Price } from "@/components/ui/Price";
+import { DeleteOrderButton } from "@/components/admin/DeleteOrderButton";
 import { cn } from "@/lib/utils";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/order-status";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
 const tabs: { value: OrderStatus | "ALL"; label: string }[] = [
   { value: "ALL", label: "الكل" },
-  { value: "NEW", label: "جديد" },
-  { value: "CONTACTED", label: "تم التواصل" },
-  { value: "FULFILLED", label: "تم التسليم" },
+  ...ORDER_STATUSES.map((value) => ({ value, label: ORDER_STATUS_LABELS[value] })),
 ];
 
 export default async function AdminOrdersPage({
@@ -21,7 +21,7 @@ export default async function AdminOrdersPage({
 }) {
   const { status } = await searchParams;
   const filter =
-    status && ["NEW", "CONTACTED", "FULFILLED"].includes(status)
+    status && ORDER_STATUSES.includes(status as OrderStatus)
       ? (status as OrderStatus)
       : undefined;
 
@@ -35,7 +35,7 @@ export default async function AdminOrdersPage({
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-extrabold">الطلبات</h1>
 
-      <div className="flex gap-2 border-b border-border pb-2">
+      <div className="flex flex-wrap gap-2 border-b border-border pb-2">
         {tabs.map((tab) => (
           <Link
             key={tab.value}
@@ -66,6 +66,7 @@ export default async function AdminOrdersPage({
                 <th className="p-3">الإجمالي</th>
                 <th className="p-3">التاريخ</th>
                 <th className="p-3">الحالة</th>
+                <th className="p-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -95,6 +96,9 @@ export default async function AdminOrdersPage({
                   </td>
                   <td className="p-3">
                     <StatusBadge status={order.status} />
+                  </td>
+                  <td className="p-3">
+                    <DeleteOrderButton orderId={order.id} />
                   </td>
                 </tr>
               ))}

@@ -181,3 +181,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${orderId}`);
 }
+
+export async function deleteOrder(orderId: string) {
+  await requireAdmin();
+  await prisma.order.delete({ where: { id: orderId } });
+  revalidatePath("/admin/orders");
+}

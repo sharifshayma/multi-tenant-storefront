@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Price } from "@/components/ui/Price";
-import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
+import { OrderStatusManager } from "@/components/admin/OrderStatusManager";
 
 export const dynamic = "force-dynamic";
 
@@ -34,12 +34,23 @@ export default async function AdminOrderDetailPage({
         العودة إلى الطلبات
       </Link>
 
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-extrabold">
-          طلب #{order.id.slice(0, 8)}
-        </h1>
-        <OrderStatusSelect orderId={order.id} status={order.status} />
-      </div>
+      <h1 className="text-2xl font-extrabold">طلب #{order.id.slice(0, 8)}</h1>
+
+      <OrderStatusManager
+        order={{
+          id: order.id,
+          status: order.status,
+          customerName: order.customerName,
+          totalNis: order.totalNis,
+          items: order.items.map((i) => ({ title: i.book.title, quantity: i.quantity })),
+          collectionItems: order.collectionItems.map((i) => ({
+            title: i.collection.title,
+            quantity: i.quantity,
+          })),
+        }}
+        phone={order.phone}
+        email={order.email}
+      />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-white p-5">
