@@ -55,56 +55,90 @@ export default async function AdminOrdersPage({
       {orders.length === 0 ? (
         <p className="text-muted">لا توجد طلبات.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-white">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-right text-muted">
-                <th className="p-3">الاسم</th>
-                <th className="p-3">الهاتف</th>
-                <th className="p-3">المدينة</th>
-                <th className="p-3">الكتب</th>
-                <th className="p-3">الإجمالي</th>
-                <th className="p-3">التاريخ</th>
-                <th className="p-3">الحالة</th>
-                <th className="p-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id} className="border-b border-border last:border-0">
-                  <td className="p-3">
-                    <Link
-                      href={`/admin/orders/${order.id}`}
-                      className="font-bold text-brand hover:underline"
-                    >
-                      {order.customerName}
-                    </Link>
-                  </td>
-                  <td className="p-3" dir="ltr">
-                    {order.phone}
-                  </td>
-                  <td className="p-3">{order.city}</td>
-                  <td className="p-3">{order._count.items + order._count.collectionItems}</td>
-                  <td className="p-3">
-                    <Price nis={order.totalNis} />
-                  </td>
-                  <td className="p-3 text-muted">
-                    {new Intl.DateTimeFormat("ar", {
-                      dateStyle: "short",
-                      timeStyle: "short",
-                    }).format(order.createdAt)}
-                  </td>
-                  <td className="p-3">
-                    <StatusBadge status={order.status} />
-                  </td>
-                  <td className="p-3">
-                    <DeleteOrderButton orderId={order.id} />
-                  </td>
+        <>
+          {/* Mobile: stacked cards */}
+          <div className="flex flex-col gap-3 sm:hidden">
+            {orders.map((order) => (
+              <div key={order.id} className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <Link
+                    href={`/admin/orders/${order.id}`}
+                    className="font-bold text-brand hover:underline"
+                  >
+                    {order.customerName}
+                  </Link>
+                  <StatusBadge status={order.status} />
+                </div>
+                <div className="flex items-center justify-between text-sm text-muted">
+                  <span dir="ltr">{order.phone}</span>
+                  <span>{order.city}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted">
+                    {order._count.items + order._count.collectionItems} كتب ·{" "}
+                    {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(order.createdAt)}
+                  </span>
+                  <Price nis={order.totalNis} className="font-extrabold text-brand" />
+                </div>
+                <div className="flex justify-end pt-1">
+                  <DeleteOrderButton orderId={order.id} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-right text-muted">
+                  <th className="p-3">الاسم</th>
+                  <th className="p-3">الهاتف</th>
+                  <th className="p-3">المدينة</th>
+                  <th className="p-3">الكتب</th>
+                  <th className="p-3">الإجمالي</th>
+                  <th className="p-3">التاريخ</th>
+                  <th className="p-3">الحالة</th>
+                  <th className="p-3"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.id} className="border-b border-border last:border-0">
+                    <td className="p-3">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="font-bold text-brand hover:underline"
+                      >
+                        {order.customerName}
+                      </Link>
+                    </td>
+                    <td className="p-3" dir="ltr">
+                      {order.phone}
+                    </td>
+                    <td className="p-3">{order.city}</td>
+                    <td className="p-3">{order._count.items + order._count.collectionItems}</td>
+                    <td className="p-3">
+                      <Price nis={order.totalNis} />
+                    </td>
+                    <td className="p-3 text-muted">
+                      {new Intl.DateTimeFormat("ar", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      }).format(order.createdAt)}
+                    </td>
+                    <td className="p-3">
+                      <StatusBadge status={order.status} />
+                    </td>
+                    <td className="p-3">
+                      <DeleteOrderButton orderId={order.id} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

@@ -9,23 +9,21 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-6">
-            <Link href="/admin" className="font-extrabold text-brand">
-              لوحة التحكم
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
+          <Link href="/admin" className="shrink-0 font-extrabold text-brand">
+            لوحة التحكم
+          </Link>
+          <nav className="flex min-w-0 flex-1 items-center gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-muted">
+            <Link href="/admin/orders" className="shrink-0 hover:text-ink">
+              الطلبات
             </Link>
-            <nav className="flex items-center gap-4 text-sm font-bold text-muted">
-              <Link href="/admin/orders" className="hover:text-ink">
-                الطلبات
-              </Link>
-              <Link href="/admin/books" className="hover:text-ink">
-                الكتب والوسائط
-              </Link>
-              <Link href="/admin/collections" className="hover:text-ink">
-                المجموعات
-              </Link>
-            </nav>
-          </div>
+            <Link href="/admin/books" className="shrink-0 hover:text-ink">
+              الكتب والوسائط
+            </Link>
+            <Link href="/admin/collections" className="shrink-0 hover:text-ink">
+              المجموعات
+            </Link>
+          </nav>
           <LogoutButton />
         </div>
       </header>
