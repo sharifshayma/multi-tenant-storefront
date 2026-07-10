@@ -85,3 +85,55 @@ export async function getCollectionBySlug(slug: string): Promise<CollectionSumma
   });
   return collection ? toCollectionSummary(collection) : null;
 }
+
+export type BookDemand = {
+  id: string;
+  slug: string;
+  title: string;
+  coverImage: string;
+  directCount: number;
+  collectionCount: number;
+  totalCount: number;
+};
+
+/**
+ * Ranks books by total order demand, descending. A book ordered directly and
+ * a book ordered as part of a collection both count toward its total —
+ * double counting is intentional here, this measures demand signal per
+ * book/story, not literal inventory drawn down.
+ */
+export async function getBookDemand(): Promise<BookDemand[]> {
+  const [books, directItems, collectionBookItems] = await Promise.all([
+    prisma.book.findMany({ select: { id: true, slug: true, title: true, coverImage: true } }),
+    prisma.orderItem.findMany({ select: { bookId: true, quantity: true } }),
+    prisma.orderCollectionItemBook.findMany({
+      select: { bookId: true, orderCollectionItem: { select: { quantity: true } } },
+    }),
+  ]);
+
+  const direct = new Map<string, number>();
+  for (const item of directItems) {
+    direct.set(item.bookId, (direct.get(item.bookId) ?? 0) + item.quantity);
+  }
+
+  const viaCollections = new Map<string, number>();
+  for (const item of collectionBookItems) {
+    viaCollections.set(
+      item.bookId,
+      (viaCollections.get(item.bookId) ?? 0) + item.orderCollectionItem.quantity
+    );
+  }
+
+  return books
+    .map((book) => {
+      const directCount = direct.get(book.id) ?? 0;
+      const collectionCount = viaCollections.get(book.id) ?? 0;
+      return {
+        ...book,
+        directCount,
+        collectionCount,
+        totalCount: directCount + collectionCount,
+      };
+    })
+    .sort((a, b) => b.totalCount - a.totalCount);
+}
