@@ -11,30 +11,34 @@ export type MessageOrder = {
   collectionItems: MessageOrderCollectionItem[];
 };
 
-function itemsList(order: MessageOrder): string {
+function itemsBlock(order: MessageOrder): string {
   const lines = [
-    ...order.items.map((i) => `${i.title} ×${i.quantity}`),
-    ...order.collectionItems.map((i) => `${i.title} (مجموعة) ×${i.quantity}`),
+    ...order.items.map((i) => `• ${i.title} ×${i.quantity}`),
+    ...order.collectionItems.map((i) => `• ${i.title} (مجموعة) ×${i.quantity}`),
   ];
-  return lines.join("، ");
+  return lines.join("\n");
+}
+
+function orderSummary(order: MessageOrder): string {
+  const shortId = order.id.slice(0, 8);
+  return `طلبك رقم #${shortId}:\n${itemsBlock(order)}\nالإجمالي: ${order.totalNis} شيكل`;
 }
 
 export function getStatusMessage(status: OrderStatus, order: MessageOrder): string {
   const name = order.customerName;
-  const shortId = order.id.slice(0, 8);
-  const items = itemsList(order);
+  const summary = orderSummary(order);
 
   switch (status) {
     case "NEW":
-      return `مرحباً ${name}، استلمنا طلبك رقم #${shortId} وسنتواصل معك قريباً لتأكيده. 📚\nجذور عربية، أجنحة عالمية`;
+      return `مرحباً ${name} 👋\n${summary}\n\nاستلمنا طلبك وسنتواصل معك قريباً لتأكيده. 📚`;
     case "CONFIRMED":
-      return `مرحباً ${name}، تم تأكيد طلبك رقم #${shortId} (${items}) بقيمة ${order.totalNis} شيكل. سنبدأ بتجهيزه قريباً. شكراً لطلبك من جذور عربية، أجنحة عالمية 💛`;
+      return `مرحباً ${name} 👋\n${summary}\n\nتم تأكيد طلبك وسنبدأ بتجهيزه قريباً. شكراً لطلبك من جذور عربية، أجنحة عالمية 💛`;
     case "IN_PROGRESS":
-      return `مرحباً ${name}، طلبك رقم #${shortId} قيد التجهيز الآن 📦. سنعلمك فور شحنه بإذن الله.`;
+      return `مرحباً ${name} 👋\n${summary}\n\nطلبك قيد التجهيز الآن 📦. سنعلمك فور شحنه بإذن الله.`;
     case "SHIPPED":
-      return `مرحباً ${name}، تم شحن طلبك رقم #${shortId} وهو في طريقه إليك الآن 🚚. سنتواصل معك عند الوصول.`;
+      return `مرحباً ${name} 👋\n${summary}\n\nتم شحن طلبك وهو في طريقه إليك الآن 🚚. سنتواصل معك عند الوصول.`;
     case "DELIVERED":
-      return `مرحباً ${name}، نتمنى أن تكونوا استمتعتم بالكتب! 💛 شكراً لطلبك من جذور عربية، أجنحة عالمية. يسعدنا سماع رأيكم في أي وقت.`;
+      return `مرحباً ${name} 👋\n${summary}\n\nنتمنى أن تكونوا استمتعتم بالكتب! 💛 شكراً لطلبك من جذور عربية، أجنحة عالمية. يسعدنا سماع رأيكم في أي وقت.`;
     default:
       return "";
   }
