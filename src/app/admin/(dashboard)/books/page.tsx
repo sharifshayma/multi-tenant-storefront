@@ -30,46 +30,70 @@ export default async function AdminBooksPage() {
         {demand.every((d) => d.totalCount === 0) ? (
           <p className="text-muted">لا توجد طلبات بعد.</p>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-border bg-white">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-right text-muted">
-                  <th className="p-3">#</th>
-                  <th className="p-3">الكتاب</th>
-                  <th className="p-3">طلبات مباشرة</th>
-                  <th className="p-3">ضمن مجموعات</th>
-                  <th className="p-3">الإجمالي</th>
-                </tr>
-              </thead>
-              <tbody>
-                {demand.map((d, i) => (
-                  <tr key={d.id} className="border-b border-border last:border-0">
-                    <td className="p-3 text-muted">{i + 1}</td>
-                    <td className="p-3">
-                      <Link
-                        href={`/admin/books/${d.id}`}
-                        className="flex items-center gap-3 font-bold text-brand hover:underline"
-                      >
-                        <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-paper">
-                          <Image src={d.coverImage} alt={d.title} fill sizes="40px" className="object-contain p-0.5" />
-                        </span>
-                        <span className="line-clamp-1">{d.title}</span>
-                      </Link>
-                    </td>
-                    <td className="p-3">{d.directCount}</td>
-                    <td className="p-3">{d.collectionCount}</td>
-                    <td className="p-3 font-extrabold text-brand">{d.totalCount}</td>
+          <>
+            {/* Mobile: stacked cards */}
+            <div className="flex flex-col gap-2 sm:hidden">
+              {demand.map((d, i) => (
+                <Link
+                  key={d.id}
+                  href={`/admin/books/${d.id}`}
+                  className="flex items-center gap-3 rounded-xl border border-border bg-white p-3"
+                >
+                  <span className="w-4 shrink-0 text-sm text-muted">{i + 1}</span>
+                  <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-paper">
+                    <Image src={d.coverImage} alt={d.title} fill sizes="40px" className="object-contain p-0.5" />
+                  </span>
+                  <span className="line-clamp-1 min-w-0 flex-1 text-sm font-bold text-brand">{d.title}</span>
+                  <span className="shrink-0 text-end">
+                    <span className="block font-extrabold text-brand">{d.totalCount}</span>
+                    <span className="block text-xs text-muted">{d.directCount}+{d.collectionCount}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-right text-muted">
+                    <th className="p-3">#</th>
+                    <th className="p-3">الكتاب</th>
+                    <th className="p-3">طلبات مباشرة</th>
+                    <th className="p-3">ضمن مجموعات</th>
+                    <th className="p-3">الإجمالي</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {demand.map((d, i) => (
+                    <tr key={d.id} className="border-b border-border last:border-0">
+                      <td className="p-3 text-muted">{i + 1}</td>
+                      <td className="p-3">
+                        <Link
+                          href={`/admin/books/${d.id}`}
+                          className="flex items-center gap-3 font-bold text-brand hover:underline"
+                        >
+                          <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-paper">
+                            <Image src={d.coverImage} alt={d.title} fill sizes="40px" className="object-contain p-0.5" />
+                          </span>
+                          <span className="line-clamp-1">{d.title}</span>
+                        </Link>
+                      </td>
+                      <td className="p-3">{d.directCount}</td>
+                      <td className="p-3">{d.collectionCount}</td>
+                      <td className="p-3 font-extrabold text-brand">{d.totalCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-extrabold">الكتب والوسائط</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {books.map((book) => (
             <Link
               key={book.id}
