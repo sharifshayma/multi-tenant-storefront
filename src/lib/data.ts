@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { BookDetail, BookSummary, CollectionSummary } from "@/lib/types";
+import type { OrderStatus } from "@prisma/client";
 
 export async function getBooks(): Promise<BookSummary[]> {
   return prisma.book.findMany({
@@ -136,4 +137,51 @@ export async function getBookDemand(): Promise<BookDemand[]> {
       };
     })
     .sort((a, b) => b.totalCount - a.totalCount);
+}
+
+export type PrintListEntry = {
+  id: string;
+  slug: string;
+  title: string;
+  coverImage: string;
+  quantity: number;
+};
+
+/**
+ * How many physical copies of each book are needed, counting only orders in
+ * the given status (defaults to CONFIRMED — the point at which an order is
+ * locked in and ready to prepare). A book counts once per unit needed,
+ * whether ordered on its own or as part of a collection.
+ */
+export async function getPrintList(status: OrderStatus = "CONFIRMED"): Promise<PrintListEntry[]> {
+  const [books, directItems, collectionBookItems] = await Promise.all([
+    prisma.book.findMany({
+      orderBy: { position: "asc" },
+      select: { id: true, slug: true, title: true, coverImage: true },
+    }),
+    prisma.orderItem.findMany({
+      where: { order: { status } },
+      select: { bookId: true, quantity: true },
+    }),
+    prisma.orderCollectionItemBook.findMany({
+      where: { orderCollectionItem: { order: { status } } },
+      select: { bookId: true, orderCollectionItem: { select: { quantity: true } } },
+    }),
+  ]);
+
+  const counts = new Map<string, number>();
+  for (const item of directItems) {
+    counts.set(item.bookId, (counts.get(item.bookId) ?? 0) + item.quantity);
+  }
+  for (const item of collectionBookItems) {
+    counts.set(
+      item.bookId,
+      (counts.get(item.bookId) ?? 0) + item.orderCollectionItem.quantity
+    );
+  }
+
+  return books
+    .map((book) => ({ ...book, quantity: counts.get(book.id) ?? 0 }))
+    .filter((book) => book.quantity > 0)
+    .sort((a, b) => b.quantity - a.quantity);
 }

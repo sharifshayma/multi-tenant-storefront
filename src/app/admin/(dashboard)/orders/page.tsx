@@ -1,10 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Price } from "@/components/ui/Price";
 import { DeleteOrderButton } from "@/components/admin/DeleteOrderButton";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/order-status";
+import { getPrintList } from "@/lib/data";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -25,15 +27,57 @@ export default async function AdminOrdersPage({
       ? (status as OrderStatus)
       : undefined;
 
-  const orders = await prisma.order.findMany({
-    where: filter ? { status: filter } : undefined,
-    orderBy: { createdAt: "desc" },
-    include: { _count: { select: { items: true, collectionItems: true } } },
-  });
+  const [orders, printList] = await Promise.all([
+    prisma.order.findMany({
+      where: filter ? { status: filter } : undefined,
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { items: true, collectionItems: true } } },
+    }),
+    getPrintList("CONFIRMED"),
+  ]);
+  const totalCopies = printList.reduce((sum, b) => sum + b.quantity, 0);
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-extrabold">الطلبات</h1>
+
+      <div className="rounded-2xl border-2 border-gold/40 bg-gold/10 p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-extrabold">قائمة الطباعة</h2>
+            <p className="text-sm text-muted">عدد النسخ المطلوبة لكل كتاب في الطلبات المؤكدة (مؤكد)</p>
+          </div>
+          {printList.length > 0 && (
+            <span className="rounded-full bg-brand px-3 py-1 text-sm font-extrabold text-white">
+              {totalCopies} نسخة إجمالاً
+            </span>
+          )}
+        </div>
+        {printList.length === 0 ? (
+          <p className="text-sm text-muted">لا توجد طلبات مؤكدة حالياً.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {printList.map((book) => (
+              <div
+                key={book.id}
+                className="flex items-center gap-2 rounded-xl border border-border bg-white p-2"
+              >
+                <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-paper">
+                  <Image
+                    src={book.coverImage}
+                    alt={book.title}
+                    fill
+                    sizes="40px"
+                    className="object-contain p-0.5"
+                  />
+                </span>
+                <span className="line-clamp-2 min-w-0 flex-1 text-xs font-bold">{book.title}</span>
+                <span className="shrink-0 text-lg font-extrabold text-brand">{book.quantity}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-2 border-b border-border pb-2">
         {tabs.map((tab) => (
