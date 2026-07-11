@@ -240,6 +240,55 @@ export async function getFinanceSummary(): Promise<FinanceSummary> {
   return { totalRevenue, totalExpense, net: totalRevenue - totalExpense };
 }
 
+export type ForecastedRevenueOrder = {
+  id: string;
+  customerName: string;
+  status: OrderStatus;
+  outstandingNis: number;
+};
+
+export type ForecastedRevenue = {
+  totalNis: number;
+  orders: ForecastedRevenueOrder[];
+};
+
+/**
+ * Money still expected from orders that are NEW or CONFIRMED but not fully
+ * recorded as revenue yet — i.e. what's left to collect on orders in the
+ * pipeline. A projection, not booked income: excludes orders already paid
+ * in full, and nets out any partial payment already logged.
+ */
+export async function getForecastedRevenue(): Promise<ForecastedRevenue> {
+  const orders = await prisma.order.findMany({
+    where: { status: { in: ["NEW", "CONFIRMED"] } },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      customerName: true,
+      status: true,
+      totalNis: true,
+      transactions: { where: { type: "REVENUE" }, select: { amountNis: true } },
+    },
+  });
+
+  const result: ForecastedRevenueOrder[] = [];
+  let totalNis = 0;
+  for (const order of orders) {
+    const paid = order.transactions.reduce((sum, t) => sum + t.amountNis, 0);
+    const outstanding = Math.max(0, order.totalNis - paid);
+    if (outstanding > 0) {
+      result.push({
+        id: order.id,
+        customerName: order.customerName,
+        status: order.status,
+        outstandingNis: outstanding,
+      });
+      totalNis += outstanding;
+    }
+  }
+  return { totalNis, orders: result };
+}
+
 /** Amount paid so far per order, keyed by orderId — the sum of REVENUE transactions linked to it. Used for the payment badge on the orders list. */
 export async function getOrderPaymentTotals(): Promise<Map<string, number>> {
   const sums = await prisma.transaction.groupBy({

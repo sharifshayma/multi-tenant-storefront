@@ -1,20 +1,22 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { getFinanceSummary, getOrdersForSelect } from "@/lib/data";
+import { getFinanceSummary, getOrdersForSelect, getForecastedRevenue } from "@/lib/data";
 import { TransactionForm } from "@/components/admin/TransactionForm";
 import { DeleteTransactionButton } from "@/components/admin/DeleteTransactionButton";
 import { Price } from "@/components/ui/Price";
+import { StatusBadge } from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminFinancePage() {
-  const [summary, orders, transactions] = await Promise.all([
+  const [summary, orders, transactions, forecast] = await Promise.all([
     getFinanceSummary(),
     getOrdersForSelect(),
     prisma.transaction.findMany({
       orderBy: { date: "desc" },
       include: { order: { select: { id: true, customerName: true } } },
     }),
+    getForecastedRevenue(),
   ]);
 
   return (
@@ -37,6 +39,41 @@ export default async function AdminFinancePage() {
             className={`mt-2 block text-2xl font-extrabold ${summary.net >= 0 ? "text-brand" : "text-red-600"}`}
           />
         </div>
+      </div>
+
+      <div className="rounded-2xl border-2 border-gold/40 bg-gold/10 p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-extrabold">الإيرادات المتوقعة</h2>
+            <p className="text-sm text-muted">
+              من الطلبات الجديدة والمؤكدة التي لم تُسجَّل كإيراد بعد (غير مدفوعة أو مدفوعة جزئياً) — تقدير، وليس إيراداً فعلياً
+            </p>
+          </div>
+          {forecast.orders.length > 0 && (
+            <span className="rounded-full bg-brand px-3 py-1 text-sm font-extrabold text-white">
+              <Price nis={forecast.totalNis} />
+            </span>
+          )}
+        </div>
+        {forecast.orders.length === 0 ? (
+          <p className="text-sm text-muted">لا توجد إيرادات متوقعة حالياً.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {forecast.orders.map((o) => (
+              <Link
+                key={o.id}
+                href={`/admin/orders/${o.id}`}
+                className="flex items-center justify-between rounded-xl border border-border bg-white p-3 text-sm hover:shadow-sm"
+              >
+                <span className="font-bold text-brand">{o.customerName}</span>
+                <span className="flex items-center gap-2">
+                  <StatusBadge status={o.status} />
+                  <Price nis={o.outstandingNis} className="font-extrabold text-brand" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       <TransactionForm orders={orders} />
