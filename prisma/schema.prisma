@@ -16,6 +16,7 @@ model Book {
   priceNis                 Int                       @default(40)
   coverImage               String
   position                 Int                       @default(0)
+  isArchived               Boolean                   @default(false)
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
   media                    BookMedia[]
@@ -25,6 +26,7 @@ model Book {
   stockMovements           StockMovement[]
 
   @@index([position])
+  @@index([isArchived])
 }
 
 model Collection {

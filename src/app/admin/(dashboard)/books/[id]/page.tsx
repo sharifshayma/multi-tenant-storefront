@@ -7,6 +7,7 @@ import { getBookOrderHistory } from "@/lib/data";
 import { BookEditForm } from "@/components/admin/BookEditForm";
 import { MediaUploader } from "@/components/admin/MediaUploader";
 import { MediaList } from "@/components/admin/MediaList";
+import { ArchiveToggleButton } from "@/components/admin/ArchiveToggleButton";
 import { StatusBadge } from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
@@ -28,13 +29,22 @@ export default async function AdminBookDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Link
-        href="/admin/books"
-        className="flex items-center gap-1 text-sm font-bold text-muted hover:text-ink"
-      >
-        <ArrowRight className="h-4 w-4" />
-        العودة إلى الكتب
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href="/admin/books"
+          className="flex items-center gap-1 text-sm font-bold text-muted hover:text-ink"
+        >
+          <ArrowRight className="h-4 w-4" />
+          العودة إلى الكتب
+        </Link>
+        <ArchiveToggleButton bookId={book.id} isArchived={book.isArchived} />
+      </div>
+
+      {book.isArchived && (
+        <p className="rounded-xl bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800">
+          هذا الكتاب مؤرشف حالياً ولا يظهر للعملاء في المتجر.
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[auto_1fr]">
         <div className="relative h-40 w-40 shrink-0 overflow-hidden rounded-2xl border border-border bg-white">
