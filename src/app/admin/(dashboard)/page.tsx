@@ -1,15 +1,21 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getFinanceSummary, getStockLevels } from "@/lib/data";
+import { Price } from "@/components/ui/Price";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
-  const [newCount, totalCount, bookCount, collectionCount] = await Promise.all([
+  const [newCount, totalCount, bookCount, collectionCount, finance, stockLevels] = await Promise.all([
     prisma.order.count({ where: { status: "NEW" } }),
     prisma.order.count(),
     prisma.book.count(),
     prisma.collection.count(),
+    getFinanceSummary(),
+    getStockLevels(),
   ]);
+
+  const totalStockUnits = stockLevels.reduce((sum, b) => sum + b.currentStock, 0);
 
   return (
     <div className="flex flex-col gap-6">
@@ -42,6 +48,23 @@ export default async function AdminHomePage() {
         >
           <p className="text-sm text-muted">المجموعات</p>
           <p className="mt-2 text-3xl font-extrabold">{collectionCount}</p>
+        </Link>
+        <Link
+          href="/admin/finance"
+          className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
+        >
+          <p className="text-sm text-muted">الصافي المالي</p>
+          <Price
+            nis={finance.net}
+            className={`mt-2 block text-3xl font-extrabold ${finance.net >= 0 ? "text-brand" : "text-red-600"}`}
+          />
+        </Link>
+        <Link
+          href="/admin/stock"
+          className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
+        >
+          <p className="text-sm text-muted">إجمالي المخزون</p>
+          <p className="mt-2 text-3xl font-extrabold">{totalStockUnits}</p>
         </Link>
       </div>
     </div>

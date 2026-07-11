@@ -185,3 +185,57 @@ export async function getPrintList(status: OrderStatus = "CONFIRMED"): Promise<P
     .filter((book) => book.quantity > 0)
     .sort((a, b) => b.quantity - a.quantity);
 }
+
+export type StockLevel = {
+  id: string;
+  slug: string;
+  title: string;
+  coverImage: string;
+  priceNis: number;
+  currentStock: number;
+};
+
+/** Current stock per book, computed as the running sum of all stock movements (an append-only ledger, never a mutable counter). */
+export async function getStockLevels(): Promise<StockLevel[]> {
+  const [books, sums] = await Promise.all([
+    prisma.book.findMany({
+      orderBy: { position: "asc" },
+      select: { id: true, slug: true, title: true, coverImage: true, priceNis: true },
+    }),
+    prisma.stockMovement.groupBy({ by: ["bookId"], _sum: { quantity: true } }),
+  ]);
+  const stockByBook = new Map(sums.map((s) => [s.bookId, s._sum.quantity ?? 0]));
+  return books.map((book) => ({ ...book, currentStock: stockByBook.get(book.id) ?? 0 }));
+}
+
+export type OrderOption = {
+  id: string;
+  customerName: string;
+  totalNis: number;
+  createdAt: Date;
+};
+
+/** Lightweight order list for the transaction/stock-movement "link to order" picker. */
+export async function getOrdersForSelect(): Promise<OrderOption[]> {
+  return prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    select: { id: true, customerName: true, totalNis: true, createdAt: true },
+  });
+}
+
+export type FinanceSummary = {
+  totalRevenue: number;
+  totalExpense: number;
+  net: number;
+};
+
+export async function getFinanceSummary(): Promise<FinanceSummary> {
+  const [revenue, expense] = await Promise.all([
+    prisma.transaction.aggregate({ where: { type: "REVENUE" }, _sum: { amountNis: true } }),
+    prisma.transaction.aggregate({ where: { type: "EXPENSE" }, _sum: { amountNis: true } }),
+  ]);
+  const totalRevenue = revenue._sum.amountNis ?? 0;
+  const totalExpense = expense._sum.amountNis ?? 0;
+  return { totalRevenue, totalExpense, net: totalRevenue - totalExpense };
+}

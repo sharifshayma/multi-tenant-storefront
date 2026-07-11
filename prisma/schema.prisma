@@ -22,6 +22,7 @@ model Book {
   orderItems               OrderItem[]
   collectionBooks          CollectionBook[]
   orderCollectionItemBooks OrderCollectionItemBook[]
+  stockMovements           StockMovement[]
 
   @@index([position])
 }
@@ -92,6 +93,8 @@ model Order {
   updatedAt       DateTime               @updatedAt
   items           OrderItem[]
   collectionItems OrderCollectionItem[]
+  transactions    Transaction[]
+  stockMovements  StockMovement[]
 
   @@index([status])
   @@index([createdAt])
@@ -124,4 +127,48 @@ model OrderCollectionItemBook {
   orderCollectionItem   OrderCollectionItem @relation(fields: [orderCollectionItemId], references: [id], onDelete: Cascade)
   bookId                String
   book                  Book                @relation(fields: [bookId], references: [id])
+}
+
+enum TransactionType {
+  REVENUE
+  EXPENSE
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  type        TransactionType
+  amountNis   Int
+  category    String?
+  description String?         @db.Text
+  orderId     String?
+  order       Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+
+  @@index([type])
+  @@index([date])
+  @@index([orderId])
+}
+
+enum StockMovementType {
+  PRINTED
+  SHIPPED
+  ADJUSTMENT
+  DAMAGED
+}
+
+model StockMovement {
+  id        String            @id @default(cuid())
+  bookId    String
+  book      Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  type      StockMovementType
+  quantity  Int
+  orderId   String?
+  order     Order?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  note      String?           @db.Text
+  createdAt DateTime          @default(now())
+
+  @@index([bookId])
+  @@index([orderId])
+  @@index([createdAt])
 }

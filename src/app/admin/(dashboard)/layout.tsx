@@ -23,6 +23,12 @@ export default function DashboardLayout({
             <Link href="/admin/collections" className="shrink-0 hover:text-ink">
               المجموعات
             </Link>
+            <Link href="/admin/finance" className="shrink-0 hover:text-ink">
+              المالية
+            </Link>
+            <Link href="/admin/stock" className="shrink-0 hover:text-ink">
+              المخزون
+            </Link>
           </nav>
           <LogoutButton />
         </div>
