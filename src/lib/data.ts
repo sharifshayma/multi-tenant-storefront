@@ -4,6 +4,7 @@ import type { OrderStatus } from "@prisma/client";
 
 export async function getBooks(): Promise<BookSummary[]> {
   return prisma.book.findMany({
+    where: { isArchived: false },
     orderBy: { position: "asc" },
     select: {
       id: true,
@@ -17,8 +18,8 @@ export async function getBooks(): Promise<BookSummary[]> {
 }
 
 export async function getBookBySlug(slug: string): Promise<BookDetail | null> {
-  return prisma.book.findUnique({
-    where: { slug },
+  return prisma.book.findFirst({
+    where: { slug, isArchived: false },
     select: {
       id: true,
       slug: true,
@@ -68,6 +69,7 @@ export async function getCollections(): Promise<CollectionSummary[]> {
     orderBy: { position: "asc" },
     include: {
       books: {
+        where: { book: { isArchived: false } },
         select: { sortOrder: true, book: { select: { id: true, slug: true, title: true, coverImage: true } } },
       },
     },
@@ -80,6 +82,7 @@ export async function getCollectionBySlug(slug: string): Promise<CollectionSumma
     where: { slug },
     include: {
       books: {
+        where: { book: { isArchived: false } },
         select: { sortOrder: true, book: { select: { id: true, slug: true, title: true, coverImage: true } } },
       },
     },
