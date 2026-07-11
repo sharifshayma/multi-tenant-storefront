@@ -6,7 +6,8 @@ import { Price } from "@/components/ui/Price";
 import { DeleteOrderButton } from "@/components/admin/DeleteOrderButton";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/order-status";
-import { getPrintList } from "@/lib/data";
+import { getPrintList, getOrderPaymentTotals } from "@/lib/data";
+import { getPaymentStatus, PAYMENT_STATUS_LABELS, PAYMENT_STATUS_STYLES } from "@/lib/payment-status";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -27,13 +28,14 @@ export default async function AdminOrdersPage({
       ? (status as OrderStatus)
       : undefined;
 
-  const [orders, printList] = await Promise.all([
+  const [orders, printList, paymentTotals] = await Promise.all([
     prisma.order.findMany({
       where: filter ? { status: filter } : undefined,
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { items: true, collectionItems: true } } },
     }),
     getPrintList("CONFIRMED"),
+    getOrderPaymentTotals(),
   ]);
   const totalCopies = printList.reduce((sum, b) => sum + b.quantity, 0);
 
@@ -102,33 +104,47 @@ export default async function AdminOrdersPage({
         <>
           {/* Mobile: stacked cards */}
           <div className="flex flex-col gap-3 sm:hidden">
-            {orders.map((order) => (
-              <div key={order.id} className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <Link
-                    href={`/admin/orders/${order.id}`}
-                    className="font-bold text-brand hover:underline"
-                  >
-                    {order.customerName}
-                  </Link>
-                  <StatusBadge status={order.status} />
+            {orders.map((order) => {
+              const paid = paymentTotals.get(order.id) ?? 0;
+              const paymentStatus = getPaymentStatus(paid, order.totalNis);
+              return (
+                <div key={order.id} className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="font-bold text-brand hover:underline"
+                    >
+                      {order.customerName}
+                    </Link>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={cn(
+                          "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                          PAYMENT_STATUS_STYLES[paymentStatus]
+                        )}
+                      >
+                        {PAYMENT_STATUS_LABELS[paymentStatus]}
+                      </span>
+                      <StatusBadge status={order.status} />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-muted">
+                    <span dir="ltr">{order.phone}</span>
+                    <span>{order.city}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted">
+                      {order._count.items + order._count.collectionItems} كتب ·{" "}
+                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(order.createdAt)}
+                    </span>
+                    <Price nis={order.totalNis} className="font-extrabold text-brand" />
+                  </div>
+                  <div className="flex justify-end pt-1">
+                    <DeleteOrderButton orderId={order.id} />
+                  </div>
                 </div>
-                <div className="flex items-center justify-between text-sm text-muted">
-                  <span dir="ltr">{order.phone}</span>
-                  <span>{order.city}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted">
-                    {order._count.items + order._count.collectionItems} كتب ·{" "}
-                    {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(order.createdAt)}
-                  </span>
-                  <Price nis={order.totalNis} className="font-extrabold text-brand" />
-                </div>
-                <div className="flex justify-end pt-1">
-                  <DeleteOrderButton orderId={order.id} />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Desktop: table */}
@@ -143,42 +159,57 @@ export default async function AdminOrdersPage({
                   <th className="p-3">الإجمالي</th>
                   <th className="p-3">التاريخ</th>
                   <th className="p-3">الحالة</th>
+                  <th className="p-3">الدفع</th>
                   <th className="p-3"></th>
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id} className="border-b border-border last:border-0">
-                    <td className="p-3">
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="font-bold text-brand hover:underline"
-                      >
-                        {order.customerName}
-                      </Link>
-                    </td>
-                    <td className="p-3" dir="ltr">
-                      {order.phone}
-                    </td>
-                    <td className="p-3">{order.city}</td>
-                    <td className="p-3">{order._count.items + order._count.collectionItems}</td>
-                    <td className="p-3">
-                      <Price nis={order.totalNis} />
-                    </td>
-                    <td className="p-3 text-muted">
-                      {new Intl.DateTimeFormat("ar", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      }).format(order.createdAt)}
-                    </td>
-                    <td className="p-3">
-                      <StatusBadge status={order.status} />
-                    </td>
-                    <td className="p-3">
-                      <DeleteOrderButton orderId={order.id} />
-                    </td>
-                  </tr>
-                ))}
+                {orders.map((order) => {
+                  const paid = paymentTotals.get(order.id) ?? 0;
+                  const paymentStatus = getPaymentStatus(paid, order.totalNis);
+                  return (
+                    <tr key={order.id} className="border-b border-border last:border-0">
+                      <td className="p-3">
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="font-bold text-brand hover:underline"
+                        >
+                          {order.customerName}
+                        </Link>
+                      </td>
+                      <td className="p-3" dir="ltr">
+                        {order.phone}
+                      </td>
+                      <td className="p-3">{order.city}</td>
+                      <td className="p-3">{order._count.items + order._count.collectionItems}</td>
+                      <td className="p-3">
+                        <Price nis={order.totalNis} />
+                      </td>
+                      <td className="p-3 text-muted">
+                        {new Intl.DateTimeFormat("ar", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        }).format(order.createdAt)}
+                      </td>
+                      <td className="p-3">
+                        <StatusBadge status={order.status} />
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={cn(
+                            "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                            PAYMENT_STATUS_STYLES[paymentStatus]
+                          )}
+                        >
+                          {PAYMENT_STATUS_LABELS[paymentStatus]}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        <DeleteOrderButton orderId={order.id} />
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
