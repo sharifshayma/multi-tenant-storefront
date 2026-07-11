@@ -22,6 +22,7 @@ export function PaymentPanel({
 }) {
   const paid = payments.reduce((sum, p) => sum + p.amountNis, 0);
   const remaining = Math.max(0, totalNis - paid);
+  const overpaidBy = Math.max(0, paid - totalNis);
   const status = getPaymentStatus(paid, totalNis);
 
   const [amount, setAmount] = useState(remaining > 0 ? String(remaining) : "");
@@ -62,6 +63,13 @@ export function PaymentPanel({
           <Price nis={totalNis} className="text-muted" />
         </span>
       </div>
+
+      {overpaidBy > 0 && (
+        <p className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800">
+          دُفع أكثر من الإجمالي الحالي بـ <Price nis={overpaidBy} className="inline" /> — على الأرجح لأن الطلب
+          تم تعديله بعد الدفع. تحققي مع العميل واسجلي مصروف إرجاع إن لزم من صفحة المالية.
+        </p>
+      )}
 
       {remaining > 0 && (
         <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2">

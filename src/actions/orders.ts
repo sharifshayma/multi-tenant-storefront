@@ -233,3 +233,116 @@ export async function deleteOrder(orderId: string) {
   await prisma.order.delete({ where: { id: orderId } });
   revalidatePath("/admin/orders");
 }
+
+export async function updateOrderCustomerInfo(input: {
+  orderId: string;
+  customerName: string;
+  phone: string;
+  email?: string;
+  city: string;
+  notes?: string;
+}) {
+  await requireAdmin();
+  const customerName = input.customerName.trim();
+  const phone = input.phone.trim();
+  const city = input.city.trim();
+  if (!customerName || !phone || !city) {
+    throw new Error("الرجاء تعبئة الاسم والهاتف والمدينة");
+  }
+  await prisma.order.update({
+    where: { id: input.orderId },
+    data: {
+      customerName,
+      phone,
+      email: input.email?.trim() || null,
+      city,
+      notes: input.notes?.trim() || null,
+    },
+  });
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${input.orderId}`);
+}
+
+export type UpdateOrderItemsResult = { ok: true } | { ok: false; error: string };
+
+export async function updateOrderItems(input: {
+  orderId: string;
+  items: { bookId: string; quantity: number }[];
+  collectionItems: { id: string; quantity: number }[];
+}): Promise<UpdateOrderItemsResult> {
+  await requireAdmin();
+
+  if (input.items.length === 0 && input.collectionItems.length === 0) {
+    return { ok: false, error: "يجب أن يحتوي الطلب على كتاب واحد على الأقل" };
+  }
+
+  const order = await prisma.order.findUnique({
+    where: { id: input.orderId },
+    include: { collectionItems: true },
+  });
+  if (!order) return { ok: false, error: "الطلب غير موجود" };
+  if (order.status !== "NEW" && order.status !== "CONFIRMED") {
+    return { ok: false, error: "لا يمكن تعديل محتويات الطلب بعد بدء التجهيز أو الشحن" };
+  }
+
+  const bookIds = input.items.map((i) => i.bookId);
+  const books = bookIds.length
+    ? await prisma.book.findMany({ where: { id: { in: bookIds } }, select: { id: true, priceNis: true } })
+    : [];
+  const bookMap = new Map(books.map((b) => [b.id, b]));
+
+  for (const item of input.items) {
+    if (!bookMap.has(item.bookId)) return { ok: false, error: "أحد الكتب لم يعد متوفراً" };
+    if (item.quantity < 1) return { ok: false, error: "الكمية يجب أن تكون ١ على الأقل" };
+  }
+
+  const existingCollectionMap = new Map(order.collectionItems.map((c) => [c.id, c]));
+  for (const c of input.collectionItems) {
+    if (!existingCollectionMap.has(c.id)) return { ok: false, error: "إحدى المجموعات لم تعد جزءاً من الطلب" };
+    if (c.quantity < 1) return { ok: false, error: "الكمية يجب أن تكون ١ على الأقل" };
+  }
+  const keepIds = new Set(input.collectionItems.map((c) => c.id));
+  const removedCollectionIds = order.collectionItems
+    .filter((c) => !keepIds.has(c.id))
+    .map((c) => c.id);
+
+  const itemsTotal = input.items.reduce(
+    (sum, i) => sum + (bookMap.get(i.bookId)?.priceNis ?? 0) * i.quantity,
+    0
+  );
+  const collectionsTotal = input.collectionItems.reduce((sum, c) => {
+    const existing = existingCollectionMap.get(c.id)!;
+    return sum + existing.unitPriceNis * c.quantity;
+  }, 0);
+  const totalNis = itemsTotal + collectionsTotal;
+
+  await prisma.$transaction([
+    prisma.orderItem.deleteMany({ where: { orderId: input.orderId } }),
+    ...(removedCollectionIds.length
+      ? [prisma.orderCollectionItem.deleteMany({ where: { id: { in: removedCollectionIds } } })]
+      : []),
+    ...input.collectionItems.map((c) =>
+      prisma.orderCollectionItem.update({ where: { id: c.id }, data: { quantity: c.quantity } })
+    ),
+    prisma.order.update({ where: { id: input.orderId }, data: { totalNis } }),
+    ...(input.items.length
+      ? [
+          prisma.orderItem.createMany({
+            data: input.items.map((i) => ({
+              orderId: input.orderId,
+              bookId: i.bookId,
+              quantity: i.quantity,
+              unitPriceNis: bookMap.get(i.bookId)!.priceNis,
+            })),
+          }),
+        ]
+      : []),
+  ]);
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${input.orderId}`);
+  revalidatePath("/admin/stock");
+  revalidatePath("/admin/finance");
+
+  return { ok: true };
+}
