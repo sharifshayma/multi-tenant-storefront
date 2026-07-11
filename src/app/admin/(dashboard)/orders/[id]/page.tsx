@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Price } from "@/components/ui/Price";
 import { OrderStatusManager } from "@/components/admin/OrderStatusManager";
+import { PaymentPanel } from "@/components/admin/PaymentPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,11 @@ export default async function AdminOrderDetailPage({
       items: { include: { book: true } },
       collectionItems: {
         include: { collection: true, selectedBooks: { include: { book: true } } },
+      },
+      transactions: {
+        where: { type: "REVENUE" },
+        orderBy: { date: "desc" },
+        select: { id: true, amountNis: true, date: true },
       },
     },
   });
@@ -50,6 +56,13 @@ export default async function AdminOrderDetailPage({
         }}
         phone={order.phone}
         email={order.email}
+      />
+
+      <PaymentPanel
+        key={order.transactions.length}
+        orderId={order.id}
+        totalNis={order.totalNis}
+        payments={order.transactions}
       />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

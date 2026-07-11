@@ -239,3 +239,17 @@ export async function getFinanceSummary(): Promise<FinanceSummary> {
   const totalExpense = expense._sum.amountNis ?? 0;
   return { totalRevenue, totalExpense, net: totalRevenue - totalExpense };
 }
+
+/** Amount paid so far per order, keyed by orderId — the sum of REVENUE transactions linked to it. Used for the payment badge on the orders list. */
+export async function getOrderPaymentTotals(): Promise<Map<string, number>> {
+  const sums = await prisma.transaction.groupBy({
+    by: ["orderId"],
+    where: { type: "REVENUE", orderId: { not: null } },
+    _sum: { amountNis: true },
+  });
+  const map = new Map<string, number>();
+  for (const s of sums) {
+    if (s.orderId) map.set(s.orderId, s._sum.amountNis ?? 0);
+  }
+  return map;
+}

@@ -44,3 +44,23 @@ export async function deleteTransaction(id: string) {
   revalidatePath("/admin/finance");
   revalidatePath("/admin");
 }
+
+export async function recordPayment(input: { orderId: string; amountNis: number }) {
+  await requireAdmin();
+  if (!Number.isFinite(input.amountNis) || input.amountNis <= 0) {
+    throw new Error("المبلغ غير صالح");
+  }
+  await prisma.transaction.create({
+    data: {
+      type: "REVENUE",
+      amountNis: Math.round(input.amountNis),
+      category: "مبيعات",
+      orderId: input.orderId,
+      date: new Date(),
+    },
+  });
+  revalidatePath("/admin/finance");
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${input.orderId}`);
+  revalidatePath("/admin");
+}
