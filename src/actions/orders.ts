@@ -178,8 +178,54 @@ export async function createOrder(
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   await requireAdmin();
   await prisma.order.update({ where: { id: orderId }, data: { status } });
+
+  if (status === "SHIPPED") {
+    // Idempotency: only decrement stock once per order, even if the status
+    // is later toggled away from and back to SHIPPED.
+    const alreadyShipped = await prisma.stockMovement.findFirst({
+      where: { orderId, type: "SHIPPED" },
+    });
+    if (!alreadyShipped) {
+      const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        select: {
+          items: { select: { bookId: true, quantity: true } },
+          collectionItems: {
+            select: {
+              quantity: true,
+              selectedBooks: { select: { bookId: true } },
+            },
+          },
+        },
+      });
+      if (order) {
+        const bookQuantities = new Map<string, number>();
+        for (const item of order.items) {
+          bookQuantities.set(item.bookId, (bookQuantities.get(item.bookId) ?? 0) + item.quantity);
+        }
+        for (const ci of order.collectionItems) {
+          for (const sb of ci.selectedBooks) {
+            bookQuantities.set(sb.bookId, (bookQuantities.get(sb.bookId) ?? 0) + ci.quantity);
+          }
+        }
+        if (bookQuantities.size > 0) {
+          await prisma.stockMovement.createMany({
+            data: [...bookQuantities.entries()].map(([bookId, quantity]) => ({
+              bookId,
+              type: "SHIPPED" as const,
+              quantity: -quantity,
+              orderId,
+              note: "خصم تلقائي عند شحن الطلب",
+            })),
+          });
+        }
+      }
+    }
+  }
+
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/stock");
 }
 
 export async function deleteOrder(orderId: string) {
