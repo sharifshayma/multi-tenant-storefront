@@ -186,6 +186,62 @@ export async function getPrintList(status: OrderStatus = "CONFIRMED"): Promise<P
     .sort((a, b) => b.quantity - a.quantity);
 }
 
+export type BookOrderHistoryEntry = {
+  orderId: string;
+  customerName: string;
+  orderStatus: OrderStatus;
+  createdAt: Date;
+  quantity: number;
+  /** "مباشر" for a standalone order, or the collection's title if it was bundled */
+  source: string;
+};
+
+/** Every order that included this book, whether ordered on its own or bundled inside a collection — newest first. */
+export async function getBookOrderHistory(bookId: string): Promise<BookOrderHistoryEntry[]> {
+  const [directItems, collectionItems] = await Promise.all([
+    prisma.orderItem.findMany({
+      where: { bookId },
+      select: {
+        quantity: true,
+        order: { select: { id: true, customerName: true, status: true, createdAt: true } },
+      },
+    }),
+    prisma.orderCollectionItemBook.findMany({
+      where: { bookId },
+      select: {
+        orderCollectionItem: {
+          select: {
+            quantity: true,
+            collection: { select: { title: true } },
+            order: { select: { id: true, customerName: true, status: true, createdAt: true } },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const entries: BookOrderHistoryEntry[] = [
+    ...directItems.map((i) => ({
+      orderId: i.order.id,
+      customerName: i.order.customerName,
+      orderStatus: i.order.status,
+      createdAt: i.order.createdAt,
+      quantity: i.quantity,
+      source: "مباشر",
+    })),
+    ...collectionItems.map((ci) => ({
+      orderId: ci.orderCollectionItem.order.id,
+      customerName: ci.orderCollectionItem.order.customerName,
+      orderStatus: ci.orderCollectionItem.order.status,
+      createdAt: ci.orderCollectionItem.order.createdAt,
+      quantity: ci.orderCollectionItem.quantity,
+      source: ci.orderCollectionItem.collection.title,
+    })),
+  ];
+
+  return entries.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
 export type StockLevel = {
   id: string;
   slug: string;

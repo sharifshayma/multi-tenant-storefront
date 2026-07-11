@@ -3,9 +3,11 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getBookOrderHistory } from "@/lib/data";
 import { BookEditForm } from "@/components/admin/BookEditForm";
 import { MediaUploader } from "@/components/admin/MediaUploader";
 import { MediaList } from "@/components/admin/MediaList";
+import { StatusBadge } from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +17,13 @@ export default async function AdminBookDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const book = await prisma.book.findUnique({
-    where: { id },
-    include: { media: { orderBy: { sortOrder: "asc" } } },
-  });
+  const [book, orderHistory] = await Promise.all([
+    prisma.book.findUnique({
+      where: { id },
+      include: { media: { orderBy: { sortOrder: "asc" } } },
+    }),
+    getBookOrderHistory(id),
+  ]);
   if (!book) notFound();
 
   return (
@@ -47,6 +52,78 @@ export default async function AdminBookDetailPage({
           description={book.description}
           priceNis={book.priceNis}
         />
+      </div>
+
+      <div className="rounded-2xl border border-border bg-white p-5">
+        <h2 className="mb-4 font-extrabold">سجل الطلبات ({orderHistory.length})</h2>
+        {orderHistory.length === 0 ? (
+          <p className="text-sm text-muted">لم يُطلب هذا الكتاب بعد.</p>
+        ) : (
+          <>
+            {/* Mobile: stacked cards */}
+            <div className="flex flex-col gap-3 sm:hidden">
+              {orderHistory.map((entry, i) => (
+                <div key={i} className="flex flex-col gap-2 rounded-xl border border-border p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link
+                      href={`/admin/orders/${entry.orderId}`}
+                      className="font-bold text-brand hover:underline"
+                    >
+                      {entry.customerName}
+                    </Link>
+                    <StatusBadge status={entry.orderStatus} />
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-muted">
+                    <span>{entry.source === "مباشر" ? "طلب مباشر" : `ضمن مجموعة: ${entry.source}`}</span>
+                    <span>× {entry.quantity}</span>
+                  </div>
+                  <div className="text-xs text-muted">
+                    {new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(entry.createdAt)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden overflow-x-auto rounded-xl border border-border sm:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-right text-muted">
+                    <th className="p-3">العميل</th>
+                    <th className="p-3">النوع</th>
+                    <th className="p-3">الكمية</th>
+                    <th className="p-3">حالة الطلب</th>
+                    <th className="p-3">التاريخ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orderHistory.map((entry, i) => (
+                    <tr key={i} className="border-b border-border last:border-0">
+                      <td className="p-3">
+                        <Link
+                          href={`/admin/orders/${entry.orderId}`}
+                          className="font-bold text-brand hover:underline"
+                        >
+                          {entry.customerName}
+                        </Link>
+                      </td>
+                      <td className="p-3">
+                        {entry.source === "مباشر" ? "مباشر" : `مجموعة: ${entry.source}`}
+                      </td>
+                      <td className="p-3">{entry.quantity}</td>
+                      <td className="p-3">
+                        <StatusBadge status={entry.orderStatus} />
+                      </td>
+                      <td className="p-3 text-muted">
+                        {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(entry.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="rounded-2xl border border-border bg-white p-5">
