@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { BookDetail, BookSummary, CollectionSummary } from "@/lib/types";
+import { getAmountPayable } from "@/lib/payment-status";
 import type { OrderStatus } from "@prisma/client";
 
 export async function getBooks(): Promise<BookSummary[]> {
@@ -299,6 +300,42 @@ export async function getFinanceSummary(): Promise<FinanceSummary> {
   return { totalRevenue, totalExpense, net: totalRevenue - totalExpense };
 }
 
+export type DiscountedOrder = {
+  id: string;
+  customerName: string;
+  totalNis: number;
+  discountNis: number;
+  discountReason: string | null;
+  createdAt: Date;
+};
+
+export type DiscountSummary = {
+  totalDiscountNis: number;
+  orders: DiscountedOrder[];
+};
+
+/**
+ * Total value of discounts given across all orders, plus a per-order breakdown.
+ * Discounts are tracked separately from the cash ledger (they are not expenses),
+ * so this never affects revenue/expense/net.
+ */
+export async function getDiscountSummary(): Promise<DiscountSummary> {
+  const orders = await prisma.order.findMany({
+    where: { discountNis: { gt: 0 } },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      customerName: true,
+      totalNis: true,
+      discountNis: true,
+      discountReason: true,
+      createdAt: true,
+    },
+  });
+  const totalDiscountNis = orders.reduce((sum, o) => sum + o.discountNis, 0);
+  return { totalDiscountNis, orders };
+}
+
 export type ForecastedRevenueOrder = {
   id: string;
   customerName: string;
@@ -326,6 +363,7 @@ export async function getForecastedRevenue(): Promise<ForecastedRevenue> {
       customerName: true,
       status: true,
       totalNis: true,
+      discountNis: true,
       transactions: { where: { type: "REVENUE" }, select: { amountNis: true } },
     },
   });
@@ -334,7 +372,7 @@ export async function getForecastedRevenue(): Promise<ForecastedRevenue> {
   let totalNis = 0;
   for (const order of orders) {
     const paid = order.transactions.reduce((sum, t) => sum + t.amountNis, 0);
-    const outstanding = Math.max(0, order.totalNis - paid);
+    const outstanding = Math.max(0, getAmountPayable(order.totalNis, order.discountNis) - paid);
     if (outstanding > 0) {
       result.push({
         id: order.id,

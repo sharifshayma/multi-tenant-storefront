@@ -234,6 +234,46 @@ export async function deleteOrder(orderId: string) {
   revalidatePath("/admin/orders");
 }
 
+export type SetOrderDiscountResult = { ok: true } | { ok: false; error: string };
+
+export async function setOrderDiscount(input: {
+  orderId: string;
+  discountNis: number;
+  discountReason?: string;
+}): Promise<SetOrderDiscountResult> {
+  await requireAdmin();
+
+  const order = await prisma.order.findUnique({
+    where: { id: input.orderId },
+    select: { totalNis: true },
+  });
+  if (!order) return { ok: false, error: "الطلب غير موجود" };
+
+  if (!Number.isFinite(input.discountNis) || input.discountNis < 0) {
+    return { ok: false, error: "قيمة الخصم غير صالحة" };
+  }
+  const discountNis = Math.round(input.discountNis);
+  if (discountNis > order.totalNis) {
+    return { ok: false, error: "لا يمكن أن يتجاوز الخصم إجمالي الطلب" };
+  }
+
+  await prisma.order.update({
+    where: { id: input.orderId },
+    data: {
+      discountNis,
+      // Clear the reason when there is no discount, otherwise store the trimmed note.
+      discountReason: discountNis > 0 ? input.discountReason?.trim() || null : null,
+    },
+  });
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${input.orderId}`);
+  revalidatePath("/admin/finance");
+  revalidatePath("/admin");
+
+  return { ok: true };
+}
+
 export async function updateOrderCustomerInfo(input: {
   orderId: string;
   customerName: string;
@@ -315,6 +355,8 @@ export async function updateOrderItems(input: {
     return sum + existing.unitPriceNis * c.quantity;
   }, 0);
   const totalNis = itemsTotal + collectionsTotal;
+  // A discount can never exceed the (possibly reduced) order total.
+  const discountNis = Math.min(order.discountNis, totalNis);
 
   await prisma.$transaction([
     prisma.orderItem.deleteMany({ where: { orderId: input.orderId } }),
@@ -324,7 +366,7 @@ export async function updateOrderItems(input: {
     ...input.collectionItems.map((c) =>
       prisma.orderCollectionItem.update({ where: { id: c.id }, data: { quantity: c.quantity } })
     ),
-    prisma.order.update({ where: { id: input.orderId }, data: { totalNis } }),
+    prisma.order.update({ where: { id: input.orderId }, data: { totalNis, discountNis } }),
     ...(input.items.length
       ? [
           prisma.orderItem.createMany({
