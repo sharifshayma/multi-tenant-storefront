@@ -176,3 +176,9 @@ model StockMovement {
   @@index([orderId])
   @@index([createdAt])
 }
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
