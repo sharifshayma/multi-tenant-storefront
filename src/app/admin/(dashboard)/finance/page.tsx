@@ -49,57 +49,6 @@ export default async function AdminFinancePage() {
 
       <ForecastedRevenuePanel totalNis={forecast.totalNis} orders={forecast.orders} />
 
-      <div className="rounded-2xl border border-border bg-white p-5">
-        <div className="mb-4 flex items-center justify-between gap-2">
-          <div>
-            <h2 className="font-extrabold">الخصومات</h2>
-            <p className="text-sm text-muted">
-              إجمالي قيمة الخصومات الممنوحة وتفصيلها حسب الطلب. لا تؤثر على الإيرادات أو الصافي.
-            </p>
-          </div>
-          <Price nis={discounts.totalDiscountNis} className="shrink-0 text-2xl font-extrabold text-accent" />
-        </div>
-
-        {discounts.orders.length === 0 ? (
-          <p className="text-sm text-muted">لا توجد خصومات ممنوحة بعد.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-right text-muted">
-                  <th className="p-3">الطلب</th>
-                  <th className="p-3">إجمالي الطلب</th>
-                  <th className="p-3">الخصم</th>
-                  <th className="p-3">السبب</th>
-                  <th className="p-3">التاريخ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {discounts.orders.map((o) => (
-                  <tr key={o.id} className="border-b border-border last:border-0">
-                    <td className="p-3">
-                      <Link href={`/admin/orders/${o.id}`} className="font-bold text-brand hover:underline">
-                        {o.customerName}
-                      </Link>
-                    </td>
-                    <td className="p-3 text-muted">
-                      <Price nis={o.totalNis} />
-                    </td>
-                    <td className="p-3">
-                      <Price nis={o.discountNis} className="font-extrabold text-accent" />
-                    </td>
-                    <td className="max-w-xs truncate p-3">{o.discountReason ?? "—"}</td>
-                    <td className="p-3 text-muted">
-                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
       <TransactionForm orders={orders} />
 
       {transactions.length === 0 ? (
@@ -200,6 +149,50 @@ export default async function AdminFinancePage() {
             </table>
           </div>
         </>
+      )}
+
+      {discounts.orders.length > 0 && (
+        <details className="rounded-2xl border border-border bg-white px-4 py-3">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-bold">
+            <span className="text-muted">
+              الخصومات الممنوحة
+              <span className="mr-1 text-ink">({discounts.orders.length})</span>
+            </span>
+            <Price nis={discounts.totalDiscountNis} className="font-extrabold text-accent" />
+          </summary>
+          <div className="mt-3 overflow-x-auto border-t border-border pt-3">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-right text-muted">
+                  <th className="px-2 py-1.5 font-bold">الطلب</th>
+                  <th className="px-2 py-1.5 font-bold">الخصم</th>
+                  <th className="px-2 py-1.5 font-bold">السبب</th>
+                  <th className="px-2 py-1.5 font-bold">التاريخ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {discounts.orders.map((o) => (
+                  <tr key={o.id} className="border-t border-border">
+                    <td className="px-2 py-1.5">
+                      <Link href={`/admin/orders/${o.id}`} className="font-bold text-brand hover:underline">
+                        {o.customerName}
+                      </Link>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Price nis={o.discountNis} className="font-bold text-accent" />
+                    </td>
+                    <td className="max-w-[12rem] truncate px-2 py-1.5 text-muted">
+                      {o.discountReason ?? "—"}
+                    </td>
+                    <td className="px-2 py-1.5 text-muted">
+                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
       )}
     </div>
   );

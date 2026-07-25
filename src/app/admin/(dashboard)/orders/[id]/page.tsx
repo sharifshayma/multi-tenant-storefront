@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { Price } from "@/components/ui/Price";
 import { OrderStatusManager } from "@/components/admin/OrderStatusManager";
 import { PaymentPanel } from "@/components/admin/PaymentPanel";
-import { DiscountPanel } from "@/components/admin/DiscountPanel";
 import { CustomerInfoEditForm } from "@/components/admin/CustomerInfoEditForm";
 import { OrderItemsEditor } from "@/components/admin/OrderItemsEditor";
 import { getAmountPayable } from "@/lib/payment-status";
@@ -76,15 +75,8 @@ export default async function AdminOrderDetailPage({
         orderId={order.id}
         totalNis={order.totalNis}
         discountNis={order.discountNis}
-        payments={order.transactions}
-      />
-
-      <DiscountPanel
-        key={`discount-${order.discountNis}`}
-        orderId={order.id}
-        totalNis={order.totalNis}
-        discountNis={order.discountNis}
         discountReason={order.discountReason}
+        payments={order.transactions}
       />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
