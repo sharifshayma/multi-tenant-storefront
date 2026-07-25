@@ -1,5 +1,14 @@
 export type PaymentStatus = "UNPAID" | "PARTIAL" | "PAID" | "OVERPAID";
 
+/**
+ * What the customer actually owes: the order total minus any discount given,
+ * never below zero. Payment status, remaining balance and forecasted revenue
+ * are all measured against this, not the gross total.
+ */
+export function getAmountPayable(totalNis: number, discountNis: number): number {
+  return Math.max(0, totalNis - discountNis);
+}
+
 export function getPaymentStatus(paidNis: number, totalNis: number): PaymentStatus {
   if (paidNis <= 0) return "UNPAID";
   if (paidNis > totalNis) return "OVERPAID";

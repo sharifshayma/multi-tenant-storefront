@@ -90,6 +90,8 @@ model Order {
   city            String
   notes           String?                @db.Text
   totalNis        Int
+  discountNis     Int                    @default(0)
+  discountReason  String?
   status          OrderStatus            @default(NEW)
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @updatedAt

@@ -5,8 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { Price } from "@/components/ui/Price";
 import { OrderStatusManager } from "@/components/admin/OrderStatusManager";
 import { PaymentPanel } from "@/components/admin/PaymentPanel";
+import { DiscountPanel } from "@/components/admin/DiscountPanel";
 import { CustomerInfoEditForm } from "@/components/admin/CustomerInfoEditForm";
 import { OrderItemsEditor } from "@/components/admin/OrderItemsEditor";
+import { getAmountPayable } from "@/lib/payment-status";
 
 export const dynamic = "force-dynamic";
 
@@ -70,10 +72,19 @@ export default async function AdminOrderDetailPage({
       />
 
       <PaymentPanel
-        key={`${order.transactions.length}-${order.totalNis}`}
+        key={`${order.transactions.length}-${order.totalNis}-${order.discountNis}`}
         orderId={order.id}
         totalNis={order.totalNis}
+        discountNis={order.discountNis}
         payments={order.transactions}
+      />
+
+      <DiscountPanel
+        key={`discount-${order.discountNis}`}
+        orderId={order.id}
+        totalNis={order.totalNis}
+        discountNis={order.discountNis}
+        discountReason={order.discountReason}
       />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -132,10 +143,30 @@ export default async function AdminOrderDetailPage({
                 </div>
               ))}
             </div>
-            <div className="mt-3 flex justify-between border-t border-border pt-3 font-extrabold">
-              <span>الإجمالي</span>
-              <Price nis={order.totalNis} className="text-brand" />
-            </div>
+            {order.discountNis > 0 ? (
+              <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
+                <div className="flex justify-between text-muted">
+                  <span>الإجمالي</span>
+                  <Price nis={order.totalNis} />
+                </div>
+                <div className="flex justify-between text-muted">
+                  <span>الخصم</span>
+                  <Price nis={-order.discountNis} className="text-accent" />
+                </div>
+                <div className="flex justify-between pt-1 font-extrabold">
+                  <span>المبلغ المستحق</span>
+                  <Price
+                    nis={getAmountPayable(order.totalNis, order.discountNis)}
+                    className="text-brand"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 flex justify-between border-t border-border pt-3 font-extrabold">
+                <span>الإجمالي</span>
+                <Price nis={order.totalNis} className="text-brand" />
+              </div>
+            )}
             <p className="mt-3 text-xs text-muted">
               لا يمكن تعديل محتويات الطلب بعد بدء التجهيز أو الشحن.
             </p>

@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { getFinanceSummary, getOrdersForSelect, getForecastedRevenue } from "@/lib/data";
+import {
+  getFinanceSummary,
+  getOrdersForSelect,
+  getForecastedRevenue,
+  getDiscountSummary,
+} from "@/lib/data";
 import { TransactionForm } from "@/components/admin/TransactionForm";
 import { DeleteTransactionButton } from "@/components/admin/DeleteTransactionButton";
 import { ForecastedRevenuePanel } from "@/components/admin/ForecastedRevenuePanel";
@@ -9,7 +14,7 @@ import { Price } from "@/components/ui/Price";
 export const dynamic = "force-dynamic";
 
 export default async function AdminFinancePage() {
-  const [summary, orders, transactions, forecast] = await Promise.all([
+  const [summary, orders, transactions, forecast, discounts] = await Promise.all([
     getFinanceSummary(),
     getOrdersForSelect(),
     prisma.transaction.findMany({
@@ -17,6 +22,7 @@ export default async function AdminFinancePage() {
       include: { order: { select: { id: true, customerName: true } } },
     }),
     getForecastedRevenue(),
+    getDiscountSummary(),
   ]);
 
   return (
@@ -42,6 +48,57 @@ export default async function AdminFinancePage() {
       </div>
 
       <ForecastedRevenuePanel totalNis={forecast.totalNis} orders={forecast.orders} />
+
+      <div className="rounded-2xl border border-border bg-white p-5">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <div>
+            <h2 className="font-extrabold">الخصومات</h2>
+            <p className="text-sm text-muted">
+              إجمالي قيمة الخصومات الممنوحة وتفصيلها حسب الطلب. لا تؤثر على الإيرادات أو الصافي.
+            </p>
+          </div>
+          <Price nis={discounts.totalDiscountNis} className="shrink-0 text-2xl font-extrabold text-accent" />
+        </div>
+
+        {discounts.orders.length === 0 ? (
+          <p className="text-sm text-muted">لا توجد خصومات ممنوحة بعد.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-right text-muted">
+                  <th className="p-3">الطلب</th>
+                  <th className="p-3">إجمالي الطلب</th>
+                  <th className="p-3">الخصم</th>
+                  <th className="p-3">السبب</th>
+                  <th className="p-3">التاريخ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {discounts.orders.map((o) => (
+                  <tr key={o.id} className="border-b border-border last:border-0">
+                    <td className="p-3">
+                      <Link href={`/admin/orders/${o.id}`} className="font-bold text-brand hover:underline">
+                        {o.customerName}
+                      </Link>
+                    </td>
+                    <td className="p-3 text-muted">
+                      <Price nis={o.totalNis} />
+                    </td>
+                    <td className="p-3">
+                      <Price nis={o.discountNis} className="font-extrabold text-accent" />
+                    </td>
+                    <td className="max-w-xs truncate p-3">{o.discountReason ?? "—"}</td>
+                    <td className="p-3 text-muted">
+                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <TransactionForm orders={orders} />
 

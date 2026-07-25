@@ -7,23 +7,31 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { DeleteTransactionButton } from "@/components/admin/DeleteTransactionButton";
 import { cn } from "@/lib/utils";
-import { getPaymentStatus, PAYMENT_STATUS_LABELS, PAYMENT_STATUS_STYLES } from "@/lib/payment-status";
+import {
+  getAmountPayable,
+  getPaymentStatus,
+  PAYMENT_STATUS_LABELS,
+  PAYMENT_STATUS_STYLES,
+} from "@/lib/payment-status";
 
 type Payment = { id: string; amountNis: number; date: Date };
 
 export function PaymentPanel({
   orderId,
   totalNis,
+  discountNis,
   payments,
 }: {
   orderId: string;
   totalNis: number;
+  discountNis: number;
   payments: Payment[];
 }) {
+  const payable = getAmountPayable(totalNis, discountNis);
   const paid = payments.reduce((sum, p) => sum + p.amountNis, 0);
-  const remaining = Math.max(0, totalNis - paid);
-  const overpaidBy = Math.max(0, paid - totalNis);
-  const status = getPaymentStatus(paid, totalNis);
+  const remaining = Math.max(0, payable - paid);
+  const overpaidBy = Math.max(0, paid - payable);
+  const status = getPaymentStatus(paid, payable);
 
   const [amount, setAmount] = useState(remaining > 0 ? String(remaining) : "");
   const [saving, setSaving] = useState(false);
@@ -55,18 +63,35 @@ export function PaymentPanel({
         </span>
       </div>
 
+      {discountNis > 0 && (
+        <div className="mb-3 flex flex-col gap-1 rounded-xl bg-paper px-4 py-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-muted">إجمالي الطلب</span>
+            <Price nis={totalNis} className="text-muted" />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted">الخصم</span>
+            <Price nis={-discountNis} className="font-bold text-accent" />
+          </div>
+          <div className="flex items-center justify-between border-t border-border pt-1">
+            <span className="font-bold">المبلغ المستحق</span>
+            <Price nis={payable} className="font-extrabold text-brand" />
+          </div>
+        </div>
+      )}
+
       <div className="mb-4 flex items-center justify-between text-sm">
-        <span className="text-muted">المدفوع من الإجمالي</span>
+        <span className="text-muted">{discountNis > 0 ? "المدفوع من المستحق" : "المدفوع من الإجمالي"}</span>
         <span className="flex items-center gap-1">
           <Price nis={paid} className="font-extrabold text-brand" />
           <span className="text-muted">/</span>
-          <Price nis={totalNis} className="text-muted" />
+          <Price nis={payable} className="text-muted" />
         </span>
       </div>
 
       {overpaidBy > 0 && (
         <p className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800">
-          دُفع أكثر من الإجمالي الحالي بـ <Price nis={overpaidBy} className="inline" /> — على الأرجح لأن الطلب
+          دُفع أكثر من المبلغ المستحق بـ <Price nis={overpaidBy} className="inline" /> — على الأرجح لأن الطلب
           تم تعديله بعد الدفع. تحققي مع العميل واسجلي مصروف إرجاع إن لزم من صفحة المالية.
         </p>
       )}

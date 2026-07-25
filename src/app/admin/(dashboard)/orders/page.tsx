@@ -7,7 +7,12 @@ import { DeleteOrderButton } from "@/components/admin/DeleteOrderButton";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/order-status";
 import { getPrintList, getOrderPaymentTotals } from "@/lib/data";
-import { getPaymentStatus, PAYMENT_STATUS_LABELS, PAYMENT_STATUS_STYLES } from "@/lib/payment-status";
+import {
+  getAmountPayable,
+  getPaymentStatus,
+  PAYMENT_STATUS_LABELS,
+  PAYMENT_STATUS_STYLES,
+} from "@/lib/payment-status";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -106,7 +111,10 @@ export default async function AdminOrdersPage({
           <div className="flex flex-col gap-3 sm:hidden">
             {orders.map((order) => {
               const paid = paymentTotals.get(order.id) ?? 0;
-              const paymentStatus = getPaymentStatus(paid, order.totalNis);
+              const paymentStatus = getPaymentStatus(
+                paid,
+                getAmountPayable(order.totalNis, order.discountNis)
+              );
               return (
                 <div key={order.id} className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4">
                   <div className="flex items-center justify-between gap-2">
