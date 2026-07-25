@@ -6,6 +6,7 @@ import { sendOrderNotification } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { getAutoStockEnabled } from "@/lib/settings";
 import type { OrderStatus } from "@prisma/client";
 
 async function requireAdmin() {
@@ -179,45 +180,50 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   await requireAdmin();
   await prisma.order.update({ where: { id: orderId }, data: { status } });
 
-  if (status === "SHIPPED") {
-    // Idempotency: only decrement stock once per order, even if the status
-    // is later toggled away from and back to SHIPPED.
-    const alreadyShipped = await prisma.stockMovement.findFirst({
-      where: { orderId, type: "SHIPPED" },
-    });
-    if (!alreadyShipped) {
-      const order = await prisma.order.findUnique({
-        where: { id: orderId },
-        select: {
-          items: { select: { bookId: true, quantity: true } },
-          collectionItems: {
-            select: {
-              quantity: true,
-              selectedBooks: { select: { bookId: true } },
+  // Fulfillment (SHIPPED or DELIVERED) auto-deducts the ordered books from
+  // stock — but only when the feature is enabled, and only once per order:
+  // a single fulfillment stock movement is created, so SHIPPED -> DELIVERED
+  // (or a jump straight to DELIVERED) never double-counts.
+  if (status === "SHIPPED" || status === "DELIVERED") {
+    const autoStockEnabled = await getAutoStockEnabled();
+    if (autoStockEnabled) {
+      const alreadyDeducted = await prisma.stockMovement.findFirst({
+        where: { orderId, type: "SHIPPED" },
+      });
+      if (!alreadyDeducted) {
+        const order = await prisma.order.findUnique({
+          where: { id: orderId },
+          select: {
+            items: { select: { bookId: true, quantity: true } },
+            collectionItems: {
+              select: {
+                quantity: true,
+                selectedBooks: { select: { bookId: true } },
+              },
             },
           },
-        },
-      });
-      if (order) {
-        const bookQuantities = new Map<string, number>();
-        for (const item of order.items) {
-          bookQuantities.set(item.bookId, (bookQuantities.get(item.bookId) ?? 0) + item.quantity);
-        }
-        for (const ci of order.collectionItems) {
-          for (const sb of ci.selectedBooks) {
-            bookQuantities.set(sb.bookId, (bookQuantities.get(sb.bookId) ?? 0) + ci.quantity);
+        });
+        if (order) {
+          const bookQuantities = new Map<string, number>();
+          for (const item of order.items) {
+            bookQuantities.set(item.bookId, (bookQuantities.get(item.bookId) ?? 0) + item.quantity);
           }
-        }
-        if (bookQuantities.size > 0) {
-          await prisma.stockMovement.createMany({
-            data: [...bookQuantities.entries()].map(([bookId, quantity]) => ({
-              bookId,
-              type: "SHIPPED" as const,
-              quantity: -quantity,
-              orderId,
-              note: "خصم تلقائي عند شحن الطلب",
-            })),
-          });
+          for (const ci of order.collectionItems) {
+            for (const sb of ci.selectedBooks) {
+              bookQuantities.set(sb.bookId, (bookQuantities.get(sb.bookId) ?? 0) + ci.quantity);
+            }
+          }
+          if (bookQuantities.size > 0) {
+            await prisma.stockMovement.createMany({
+              data: [...bookQuantities.entries()].map(([bookId, quantity]) => ({
+                bookId,
+                type: "SHIPPED" as const,
+                quantity: -quantity,
+                orderId,
+                note: "خصم تلقائي من المخزون حسب حالة الطلب",
+              })),
+            });
+          }
         }
       }
     }

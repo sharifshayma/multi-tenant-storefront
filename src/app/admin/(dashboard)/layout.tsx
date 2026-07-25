@@ -29,6 +29,9 @@ export default function DashboardLayout({
             <Link href="/admin/stock" className="shrink-0 hover:text-ink">
               المخزون
             </Link>
+            <Link href="/admin/settings" className="shrink-0 hover:text-ink">
+              الإعدادات
+            </Link>
           </nav>
           <LogoutButton />
         </div>
