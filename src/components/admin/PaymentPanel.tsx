@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { recordPayment } from "@/actions/finance";
+import { setOrderDiscount } from "@/actions/orders";
 import { Price } from "@/components/ui/Price";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -20,22 +21,34 @@ export function PaymentPanel({
   orderId,
   totalNis,
   discountNis,
+  discountReason,
   payments,
 }: {
   orderId: string;
   totalNis: number;
   discountNis: number;
+  discountReason: string | null;
   payments: Payment[];
 }) {
   const payable = getAmountPayable(totalNis, discountNis);
   const paid = payments.reduce((sum, p) => sum + p.amountNis, 0);
   const remaining = Math.max(0, payable - paid);
   const overpaidBy = Math.max(0, paid - payable);
-  const status = getPaymentStatus(paid, payable);
+  const status = getPaymentStatus(paid, totalNis, discountNis);
 
   const [amount, setAmount] = useState(remaining > 0 ? String(remaining) : "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Discount sub-form state
+  const [discountAmount, setDiscountAmount] = useState(discountNis > 0 ? String(discountNis) : "");
+  const [reason, setReason] = useState(discountReason ?? "");
+  const [discountSaving, setDiscountSaving] = useState(false);
+  const [discountSaved, setDiscountSaved] = useState(false);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+
+  const previewDiscount = Number(discountAmount) || 0;
+  const previewPayable = getAmountPayable(totalNis, previewDiscount);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,11 +60,29 @@ export function PaymentPanel({
     }
     setSaving(true);
     await recordPayment({ orderId, amountNis: val });
-    // No need to reset local state here: the parent page re-renders with a
-    // new `payments` array after revalidation, and the `key` it passes to
-    // this component (keyed on payments.length) forces a clean remount that
-    // re-derives `amount` from the new remaining balance.
+    // No need to reset local state here: the parent page re-renders with a new
+    // `payments` array after revalidation, and the `key` it passes to this
+    // component forces a clean remount that re-derives inputs from fresh props.
     setSaving(false);
+  }
+
+  async function handleDiscountSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setDiscountError(null);
+    const val = discountAmount.trim() === "" ? 0 : Number(discountAmount);
+    if (!Number.isFinite(val) || val < 0) {
+      setDiscountError("الرجاء إدخال قيمة خصم صحيحة");
+      return;
+    }
+    setDiscountSaving(true);
+    const res = await setOrderDiscount({ orderId, discountNis: val, discountReason: reason });
+    setDiscountSaving(false);
+    if (!res.ok) {
+      setDiscountError(res.error);
+      return;
+    }
+    setDiscountSaved(true);
+    setTimeout(() => setDiscountSaved(false), 1500);
   }
 
   return (
@@ -131,6 +162,39 @@ export function PaymentPanel({
           ))}
         </div>
       )}
+
+      {/* Discount editor — lives in the same box as payment, entered the same way. */}
+      <form onSubmit={handleDiscountSubmit} className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="min-w-[140px] flex-1">
+            <Input
+              id="discountAmount"
+              label="خصم (شيكل)"
+              type="number"
+              min={0}
+              max={totalNis}
+              dir="ltr"
+              value={discountAmount}
+              onChange={(e) => setDiscountAmount(e.target.value)}
+            />
+          </div>
+          <Button type="submit" variant="ghost" disabled={discountSaving}>
+            {discountSaving ? "جارِ الحفظ..." : discountSaved ? "تم ✓" : "حفظ الخصم"}
+          </Button>
+        </div>
+        <Input
+          id="discountReason"
+          label="سبب الخصم (اختياري)"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
+        {previewDiscount > 0 && previewDiscount !== discountNis && (
+          <p className="text-xs text-muted">
+            المبلغ المستحق بعد الخصم سيصبح <Price nis={previewPayable} className="inline font-bold text-brand" />
+          </p>
+        )}
+        {discountError && <p className="text-sm text-red-600">{discountError}</p>}
+      </form>
     </div>
   );
 }
