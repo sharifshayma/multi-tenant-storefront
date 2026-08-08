@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getBookBySlug } from "@/lib/data";
-import { resolveStorefrontStore } from "@/lib/storefront-store";
+import { resolveStorefrontContext } from "@/lib/storefront-context";
 import { MediaGallery } from "@/components/storefront/MediaGallery";
 import { AddToCartButton } from "@/components/storefront/AddToCartButton";
 import { Price } from "@/components/ui/Price";
@@ -11,12 +11,13 @@ export const dynamic = "force-dynamic";
 export default async function BookPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ storeSlug: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
-  if (!store) notFound();
-  const book = await getBookBySlug(slug, store.id);
+  const { storeSlug, slug } = await params;
+  const host = (await headers()).get("host") ?? "";
+  const ctx = await resolveStorefrontContext({ slugParam: storeSlug, host });
+  if (!ctx) notFound();
+  const book = await getBookBySlug(slug, ctx.store.id);
   if (!book) notFound();
 
   return (

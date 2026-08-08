@@ -1,19 +1,25 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getBooks, getCollections } from "@/lib/data";
-import { resolveStorefrontStore } from "@/lib/storefront-store";
+import { resolveStorefrontContext } from "@/lib/storefront-context";
 import { BookCard } from "@/components/storefront/BookCard";
 import { CollectionCard } from "@/components/storefront/CollectionCard";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
-  if (!store) notFound();
+export default async function StoreHome({
+  params,
+}: {
+  params: Promise<{ storeSlug: string }>;
+}) {
+  const { storeSlug } = await params;
+  const host = (await headers()).get("host") ?? "";
+  const ctx = await resolveStorefrontContext({ slugParam: storeSlug, host });
+  if (!ctx) notFound();
 
   const [books, collections] = await Promise.all([
-    getBooks(store.id),
-    getCollections(store.id),
+    getBooks(ctx.store.id),
+    getCollections(ctx.store.id),
   ]);
 
   return (
@@ -36,7 +42,11 @@ export default async function HomePage() {
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-5">
             {collections.map((collection) => (
-              <CollectionCard key={collection.id} collection={collection} />
+              <CollectionCard
+                key={collection.id}
+                collection={collection}
+                basePath={ctx.basePath}
+              />
             ))}
           </div>
         </section>
@@ -48,7 +58,7 @@ export default async function HomePage() {
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
           {books.map((book) => (
-            <BookCard key={book.id} book={book} />
+            <BookCard key={book.id} book={book} basePath={ctx.basePath} />
           ))}
         </div>
       </section>

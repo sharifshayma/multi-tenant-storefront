@@ -2,9 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { customDomainSlug } from "@/lib/custom-domains";
 import type { Store } from "@prisma/client";
 
-export function storeHref(basePath: string, path: string): string {
-  return `${basePath}${path}`;
-}
+export { storeHref } from "@/lib/store-href";
 
 export async function resolveStorefrontContext(input: {
   slugParam: string | null;

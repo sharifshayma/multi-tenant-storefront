@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getCollectionBySlug, getBooks } from "@/lib/data";
-import { resolveStorefrontStore } from "@/lib/storefront-store";
+import { resolveStorefrontContext } from "@/lib/storefront-context";
 import { Price } from "@/components/ui/Price";
 import { AddCollectionToCartButton } from "@/components/storefront/AddCollectionToCartButton";
 import { BundleBuilder } from "@/components/storefront/BundleBuilder";
@@ -13,12 +13,13 @@ export const dynamic = "force-dynamic";
 export default async function CollectionPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ storeSlug: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
-  if (!store) notFound();
-  const collection = await getCollectionBySlug(slug, store.id);
+  const { storeSlug, slug } = await params;
+  const host = (await headers()).get("host") ?? "";
+  const ctx = await resolveStorefrontContext({ slugParam: storeSlug, host });
+  if (!ctx) notFound();
+  const collection = await getCollectionBySlug(slug, ctx.store.id);
   if (!collection) notFound();
 
   const originalPrice = collection.isCustom
@@ -26,7 +27,7 @@ export default async function CollectionPage({
     : collection.books.length * 40;
 
   if (collection.isCustom) {
-    const books = await getBooks(store.id);
+    const books = await getBooks(ctx.store.id);
     return (
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="mb-8 text-center">

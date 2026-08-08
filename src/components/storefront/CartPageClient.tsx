@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { checkoutSchema } from "@/lib/validations";
 import { createOrder } from "@/actions/orders";
+import { storeHref } from "@/lib/store-href";
 
-export default function CartPage() {
+export function CartPageClient({ basePath }: { basePath: string }) {
   const { items, updateQty, removeItem, totalNis, clear, hydrated } = useCart();
   const router = useRouter();
 
@@ -65,7 +66,7 @@ export default function CartPage() {
       return;
     }
     clear();
-    router.push("/order/confirmation");
+    router.push(storeHref(basePath, "/order/confirmation"));
   }
 
   if (!hydrated) return null;
@@ -75,7 +76,7 @@ export default function CartPage() {
       <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6">
         <h1 className="text-2xl font-extrabold">سلتك فارغة</h1>
         <p className="mt-2 text-muted">أضيفي بعض الكتب لتظهر هنا.</p>
-        <Link href="/" className="mt-6 inline-block">
+        <Link href={storeHref(basePath, "/")} className="mt-6 inline-block">
           <Button>تصفّحي الكتب</Button>
         </Link>
       </div>

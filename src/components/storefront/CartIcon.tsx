@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { storeHref } from "@/lib/store-href";
 
-export function CartIcon() {
+export function CartIcon({ basePath }: { basePath: string }) {
   const { totalCount } = useCart();
 
   return (
     <Link
-      href="/cart"
+      href={storeHref(basePath, "/cart")}
       className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white border border-border text-brand hover:bg-brand/5"
       aria-label="السلة"
     >

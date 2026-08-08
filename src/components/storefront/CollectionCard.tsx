@@ -1,16 +1,23 @@
 import Link from "next/link";
 import { Price } from "@/components/ui/Price";
+import { storeHref } from "@/lib/store-href";
 import { CollectionCollage } from "./CollectionCollage";
 import type { CollectionSummary } from "@/lib/types";
 
-export function CollectionCard({ collection }: { collection: CollectionSummary }) {
+export function CollectionCard({
+  collection,
+  basePath,
+}: {
+  collection: CollectionSummary;
+  basePath: string;
+}) {
   const originalPrice = collection.isCustom
     ? (collection.requiredCount ?? 0) * 40
     : collection.books.length * 40;
 
   return (
     <Link
-      href={`/collections/${collection.slug}`}
+      href={storeHref(basePath, `/collections/${collection.slug}`)}
       className="flex flex-col overflow-hidden rounded-2xl border-2 border-gold/40 bg-card shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="relative aspect-square w-full">
