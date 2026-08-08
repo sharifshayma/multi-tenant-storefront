@@ -107,11 +107,15 @@ export type BookDemand = {
  * double counting is intentional here, this measures demand signal per
  * book/story, not literal inventory drawn down.
  */
-export async function getBookDemand(): Promise<BookDemand[]> {
+export async function getBookDemand(storeId: string): Promise<BookDemand[]> {
   const [books, directItems, collectionBookItems] = await Promise.all([
-    prisma.book.findMany({ select: { id: true, slug: true, title: true, coverImage: true } }),
-    prisma.orderItem.findMany({ select: { bookId: true, quantity: true } }),
+    prisma.book.findMany({ where: { storeId }, select: { id: true, slug: true, title: true, coverImage: true } }),
+    prisma.orderItem.findMany({
+      where: { order: { storeId } },
+      select: { bookId: true, quantity: true },
+    }),
     prisma.orderCollectionItemBook.findMany({
+      where: { orderCollectionItem: { order: { storeId } } },
       select: { bookId: true, orderCollectionItem: { select: { quantity: true } } },
     }),
   ]);
@@ -157,18 +161,22 @@ export type PrintListEntry = {
  * locked in and ready to prepare). A book counts once per unit needed,
  * whether ordered on its own or as part of a collection.
  */
-export async function getPrintList(status: OrderStatus = "CONFIRMED"): Promise<PrintListEntry[]> {
+export async function getPrintList(
+  storeId: string,
+  status: OrderStatus = "CONFIRMED"
+): Promise<PrintListEntry[]> {
   const [books, directItems, collectionBookItems] = await Promise.all([
     prisma.book.findMany({
+      where: { storeId },
       orderBy: { position: "asc" },
       select: { id: true, slug: true, title: true, coverImage: true },
     }),
     prisma.orderItem.findMany({
-      where: { order: { status } },
+      where: { order: { status, storeId } },
       select: { bookId: true, quantity: true },
     }),
     prisma.orderCollectionItemBook.findMany({
-      where: { orderCollectionItem: { order: { status } } },
+      where: { orderCollectionItem: { order: { status, storeId } } },
       select: { bookId: true, orderCollectionItem: { select: { quantity: true } } },
     }),
   ]);
@@ -201,17 +209,17 @@ export type BookOrderHistoryEntry = {
 };
 
 /** Every order that included this book, whether ordered on its own or bundled inside a collection — newest first. */
-export async function getBookOrderHistory(bookId: string): Promise<BookOrderHistoryEntry[]> {
+export async function getBookOrderHistory(bookId: string, storeId: string): Promise<BookOrderHistoryEntry[]> {
   const [directItems, collectionItems] = await Promise.all([
     prisma.orderItem.findMany({
-      where: { bookId },
+      where: { bookId, order: { storeId } },
       select: {
         quantity: true,
         order: { select: { id: true, customerName: true, status: true, createdAt: true } },
       },
     }),
     prisma.orderCollectionItemBook.findMany({
-      where: { bookId },
+      where: { bookId, orderCollectionItem: { order: { storeId } } },
       select: {
         orderCollectionItem: {
           select: {
@@ -256,13 +264,14 @@ export type StockLevel = {
 };
 
 /** Current stock per book, computed as the running sum of all stock movements (an append-only ledger, never a mutable counter). */
-export async function getStockLevels(): Promise<StockLevel[]> {
+export async function getStockLevels(storeId: string): Promise<StockLevel[]> {
   const [books, sums] = await Promise.all([
     prisma.book.findMany({
+      where: { storeId },
       orderBy: { position: "asc" },
       select: { id: true, slug: true, title: true, coverImage: true, priceNis: true },
     }),
-    prisma.stockMovement.groupBy({ by: ["bookId"], _sum: { quantity: true } }),
+    prisma.stockMovement.groupBy({ by: ["bookId"], where: { storeId }, _sum: { quantity: true } }),
   ]);
   const stockByBook = new Map(sums.map((s) => [s.bookId, s._sum.quantity ?? 0]));
   return books.map((book) => ({ ...book, currentStock: stockByBook.get(book.id) ?? 0 }));
@@ -276,8 +285,9 @@ export type OrderOption = {
 };
 
 /** Lightweight order list for the transaction/stock-movement "link to order" picker. */
-export async function getOrdersForSelect(): Promise<OrderOption[]> {
+export async function getOrdersForSelect(storeId: string): Promise<OrderOption[]> {
   return prisma.order.findMany({
+    where: { storeId },
     orderBy: { createdAt: "desc" },
     take: 200,
     select: { id: true, customerName: true, totalNis: true, createdAt: true },
@@ -290,10 +300,10 @@ export type FinanceSummary = {
   net: number;
 };
 
-export async function getFinanceSummary(): Promise<FinanceSummary> {
+export async function getFinanceSummary(storeId: string): Promise<FinanceSummary> {
   const [revenue, expense] = await Promise.all([
-    prisma.transaction.aggregate({ where: { type: "REVENUE" }, _sum: { amountNis: true } }),
-    prisma.transaction.aggregate({ where: { type: "EXPENSE" }, _sum: { amountNis: true } }),
+    prisma.transaction.aggregate({ where: { type: "REVENUE", storeId }, _sum: { amountNis: true } }),
+    prisma.transaction.aggregate({ where: { type: "EXPENSE", storeId }, _sum: { amountNis: true } }),
   ]);
   const totalRevenue = revenue._sum.amountNis ?? 0;
   const totalExpense = expense._sum.amountNis ?? 0;
@@ -319,9 +329,9 @@ export type DiscountSummary = {
  * Discounts are tracked separately from the cash ledger (they are not expenses),
  * so this never affects revenue/expense/net.
  */
-export async function getDiscountSummary(): Promise<DiscountSummary> {
+export async function getDiscountSummary(storeId: string): Promise<DiscountSummary> {
   const orders = await prisma.order.findMany({
-    where: { discountNis: { gt: 0 } },
+    where: { discountNis: { gt: 0 }, storeId },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -354,9 +364,9 @@ export type ForecastedRevenue = {
  * pipeline. A projection, not booked income: excludes orders already paid
  * in full, and nets out any partial payment already logged.
  */
-export async function getForecastedRevenue(): Promise<ForecastedRevenue> {
+export async function getForecastedRevenue(storeId: string): Promise<ForecastedRevenue> {
   const orders = await prisma.order.findMany({
-    where: { status: { in: ["NEW", "CONFIRMED"] } },
+    where: { status: { in: ["NEW", "CONFIRMED"] }, storeId },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -387,10 +397,10 @@ export async function getForecastedRevenue(): Promise<ForecastedRevenue> {
 }
 
 /** Amount paid so far per order, keyed by orderId — the sum of REVENUE transactions linked to it. Used for the payment badge on the orders list. */
-export async function getOrderPaymentTotals(): Promise<Map<string, number>> {
+export async function getOrderPaymentTotals(storeId: string): Promise<Map<string, number>> {
   const sums = await prisma.transaction.groupBy({
     by: ["orderId"],
-    where: { type: "REVENUE", orderId: { not: null } },
+    where: { type: "REVENUE", orderId: { not: null }, storeId },
     _sum: { amountNis: true },
   });
   const map = new Map<string, number>();

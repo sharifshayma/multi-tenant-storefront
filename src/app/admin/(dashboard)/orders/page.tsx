@@ -39,8 +39,8 @@ export default async function AdminOrdersPage({
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { items: true, collectionItems: true } } },
     }),
-    getPrintList("CONFIRMED"),
-    getOrderPaymentTotals(),
+    getPrintList(store.id, "CONFIRMED"),
+    getOrderPaymentTotals(store.id),
   ]);
   const totalCopies = printList.reduce((sum, b) => sum + b.quantity, 0);
 

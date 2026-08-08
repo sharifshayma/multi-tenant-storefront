@@ -16,8 +16,8 @@ export default async function AdminHomePage() {
     prisma.order.count({ where: { storeId: store.id } }),
     prisma.book.count({ where: { storeId: store.id } }),
     prisma.collection.count({ where: { storeId: store.id } }),
-    getFinanceSummary(),
-    getStockLevels(),
+    getFinanceSummary(store.id),
+    getStockLevels(store.id),
   ]);
 
   const totalStockUnits = stockLevels.reduce((sum, b) => sum + b.currentStock, 0);

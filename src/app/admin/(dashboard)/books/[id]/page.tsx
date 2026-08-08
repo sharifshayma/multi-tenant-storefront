@@ -27,7 +27,7 @@ export default async function AdminBookDetailPage({
       where: { id, storeId: store.id },
       include: { media: { orderBy: { sortOrder: "asc" } } },
     }),
-    getBookOrderHistory(id),
+    getBookOrderHistory(id, store.id),
   ]);
   if (!book) notFound();
 
