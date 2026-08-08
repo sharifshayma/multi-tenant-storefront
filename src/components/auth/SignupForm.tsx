@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { signIn } from "@/lib/auth-client";
-import { loginSchema } from "@/lib/validations";
+import { signUpAndCreateStore } from "@/actions/signup";
+import { signupSchema } from "@/lib/validations";
 
-export function LoginForm() {
+export function SignupForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [storeName, setStoreName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -19,17 +20,17 @@ export function LoginForm() {
     e.preventDefault();
     setError(null);
 
-    const parsed = loginSchema.safeParse({ email, password });
+    const parsed = signupSchema.safeParse({ email, password, storeName });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "بيانات غير صالحة");
       return;
     }
 
     setSubmitting(true);
-    const { error: signInError } = await signIn.email({ email, password });
+    const result = await signUpAndCreateStore(parsed.data);
     setSubmitting(false);
-    if (signInError) {
-      setError("بيانات الدخول غير صحيحة");
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
     router.push("/admin");
@@ -41,7 +42,17 @@ export function LoginForm() {
       onSubmit={handleSubmit}
       className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm"
     >
-      <h1 className="text-center text-xl font-extrabold">دخول لوحة التحكم</h1>
+      <h1 className="text-center text-xl font-extrabold">إنشاء متجر جديد</h1>
+      <Input
+        id="storeName"
+        type="text"
+        label="اسم المتجر"
+        value={storeName}
+        onChange={(e) => setStoreName(e.target.value)}
+        autoComplete="organization"
+        required
+        autoFocus
+      />
       <Input
         id="email"
         type="email"
@@ -50,7 +61,6 @@ export function LoginForm() {
         onChange={(e) => setEmail(e.target.value)}
         autoComplete="email"
         required
-        autoFocus
       />
       <Input
         id="password"
@@ -58,17 +68,17 @@ export function LoginForm() {
         label="كلمة المرور"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        autoComplete="current-password"
+        autoComplete="new-password"
         required
       />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" disabled={submitting}>
-        {submitting ? "جارِ الدخول..." : "دخول"}
+        {submitting ? "جارِ الإنشاء..." : "إنشاء الحساب"}
       </Button>
       <p className="text-center text-sm text-ink/60">
-        ليس لديك متجر؟{" "}
-        <Link href="/signup" className="font-bold text-brand hover:underline">
-          إنشاء متجر جديد
+        لديك حساب بالفعل؟{" "}
+        <Link href="/admin/login" className="font-bold text-brand hover:underline">
+          دخول
         </Link>
       </p>
     </form>
