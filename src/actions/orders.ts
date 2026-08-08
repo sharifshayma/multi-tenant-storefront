@@ -21,6 +21,11 @@ export async function createOrder(
   }
   const data = parsed.data;
 
+  // Public checkout is not yet routed per-store (no per-store storefront
+  // domains exist until a later plan) — every order is stamped onto tenant
+  // #1, the oldest store, same as the current single-tenant storefront.
+  const store = await prisma.store.findFirstOrThrow({ orderBy: { createdAt: "asc" } });
+
   const bookIds = data.items.map((i) => i.bookId);
   const books = await prisma.book.findMany({
     where: { id: { in: bookIds } },
@@ -119,6 +124,7 @@ export async function createOrder(
       city: data.city,
       notes: data.notes || null,
       totalNis,
+      storeId: store.id,
       items: {
         create: orderItems.map((i) => ({
           bookId: i.bookId,

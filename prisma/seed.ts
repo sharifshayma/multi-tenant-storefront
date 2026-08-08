@@ -136,10 +136,19 @@ const customCollection = {
 };
 
 async function main() {
+  // Tenant #1: seed data belongs to the store adopted by scripts/adopt-store.ts.
+  // Run `npm run adopt-store -- <owner-email>` first if this store doesn't exist yet.
+  const store = await prisma.store.findUnique({ where: { slug: "shaymas-books" } });
+  if (!store) {
+    throw new Error(
+      'No store with slug "shaymas-books" found. Run `npm run adopt-store -- <owner-email>` before seeding.',
+    );
+  }
+
   for (let i = 0; i < books.length; i++) {
     const book = books[i];
     await prisma.book.upsert({
-      where: { slug: book.slug },
+      where: { storeId_slug: { storeId: store.id, slug: book.slug } },
       update: {
         title: book.title,
         description: book.description,
@@ -151,6 +160,7 @@ async function main() {
         description: book.description,
         coverImage: `/images/books/${book.slug}/cover.jpg`,
         position: i,
+        storeId: store.id,
       },
     });
   }
@@ -159,7 +169,7 @@ async function main() {
   for (let i = 0; i < collections.length; i++) {
     const c = collections[i];
     const collection = await prisma.collection.upsert({
-      where: { slug: c.slug },
+      where: { storeId_slug: { storeId: store.id, slug: c.slug } },
       update: {
         title: c.title,
         description: c.description,
@@ -172,11 +182,12 @@ async function main() {
         description: c.description,
         priceNis: c.priceNis,
         position: i,
+        storeId: store.id,
       },
     });
 
     const bookRecords = await prisma.book.findMany({
-      where: { slug: { in: c.bookSlugs } },
+      where: { storeId: store.id, slug: { in: c.bookSlugs } },
       select: { id: true, slug: true },
     });
     const bookIdBySlug = new Map(bookRecords.map((b) => [b.slug, b.id]));
@@ -194,7 +205,7 @@ async function main() {
   console.log(`Seeded ${collections.length} fixed collections.`);
 
   await prisma.collection.upsert({
-    where: { slug: customCollection.slug },
+    where: { storeId_slug: { storeId: store.id, slug: customCollection.slug } },
     update: {
       title: customCollection.title,
       description: customCollection.description,
@@ -211,6 +222,7 @@ async function main() {
       isCustom: true,
       requiredCount: customCollection.requiredCount,
       position: collections.length,
+      storeId: store.id,
     },
   });
   console.log("Seeded custom build-your-own collection.");
