@@ -27,14 +27,19 @@ export function SignupForm() {
     }
 
     setSubmitting(true);
-    const result = await signUpAndCreateStore(parsed.data);
-    setSubmitting(false);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    try {
+      const result = await signUpAndCreateStore(parsed.data);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      router.push("/admin");
+      router.refresh();
+    } catch {
+      setError("حدث خطأ غير متوقع، حاول مرة أخرى");
+    } finally {
+      setSubmitting(false);
     }
-    router.push("/admin");
-    router.refresh();
   }
 
   return (

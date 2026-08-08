@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 import { signupSchema, type SignupInput } from "@/lib/validations";
 import { uniqueStoreSlug } from "@/lib/store-slug";
+import { getCurrentUser } from "@/lib/auth-guard";
+import { getCurrentStore } from "@/lib/store-context";
 
 type SignupResult = { ok: true } | { ok: false; error: string };
 
@@ -14,6 +16,20 @@ export async function signUpAndCreateStore(input: SignupInput): Promise<SignupRe
   }
   const { email, password, storeName } = parsed.data;
 
+  // Recovery path: the caller may already be authenticated but store-less —
+  // e.g. signUpEmail succeeded (which sets the session cookie) on a previous
+  // attempt but store creation then failed. Re-signing-up with signUpEmail
+  // would fail with USER_ALREADY_EXISTS, so finish the job for the existing
+  // session instead of attempting to create a new account.
+  const existingUser = await getCurrentUser();
+  if (existingUser) {
+    const existingStore = await getCurrentStore();
+    if (existingStore) {
+      return { ok: false, error: "لديك متجر بالفعل" };
+    }
+    return createStoreFor(existingUser.id, storeName);
+  }
+
   let userId: string;
   try {
     const result = await auth.api.signUpEmail({ body: { email, password, name: storeName } });
@@ -22,15 +38,28 @@ export async function signUpAndCreateStore(input: SignupInput): Promise<SignupRe
     return { ok: false, error: mapSignUpError(error) };
   }
 
-  const slug = await uniqueStoreSlug(storeName, (slug) =>
-    prisma.store.findUnique({ where: { slug } }).then(Boolean)
-  );
+  return createStoreFor(userId, storeName);
+}
 
-  await prisma.store.create({
-    data: { slug, name: storeName, ownerId: userId },
-  });
+async function createStoreFor(ownerId: string, storeName: string): Promise<SignupResult> {
+  try {
+    const slug = await uniqueStoreSlug(storeName, (slug) =>
+      prisma.store.findUnique({ where: { slug } }).then(Boolean)
+    );
 
-  return { ok: true };
+    await prisma.store.create({
+      data: { slug, name: storeName, ownerId },
+    });
+
+    return { ok: true };
+  } catch {
+    // The account may already exist (signUpEmail succeeded and set the
+    // session cookie) even though store creation just failed — don't throw,
+    // or the user is left an authenticated, store-less orphan with no way
+    // to recover from the form. They can retry; the recovery branch above
+    // will pick their existing session back up and finish store creation.
+    return { ok: false, error: "تعذّر إنشاء المتجر، حاول مرة أخرى" };
+  }
 }
 
 function mapSignUpError(error: unknown): string {
