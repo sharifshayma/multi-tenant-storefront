@@ -40,3 +40,11 @@ export const loginSchema = z.object({
   email: z.string().email("بريد إلكتروني غير صالح"),
   password: z.string().min(1, "كلمة المرور مطلوبة"),
 });
+
+export const signupSchema = z.object({
+  email: z.string().trim().email("بريد إلكتروني غير صالح"),
+  password: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل"),
+  storeName: z.string().trim().min(1, "الرجاء إدخال اسم المتجر"),
+});
+
+export type SignupInput = z.infer<typeof signupSchema>;
