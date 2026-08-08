@@ -1,6 +1,8 @@
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getCollectionBySlug, getBooks } from "@/lib/data";
+import { resolveStorefrontStore } from "@/lib/storefront-store";
 import { Price } from "@/components/ui/Price";
 import { AddCollectionToCartButton } from "@/components/storefront/AddCollectionToCartButton";
 import { BundleBuilder } from "@/components/storefront/BundleBuilder";
@@ -14,7 +16,9 @@ export default async function CollectionPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const collection = await getCollectionBySlug(slug);
+  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
+  if (!store) notFound();
+  const collection = await getCollectionBySlug(slug, store.id);
   if (!collection) notFound();
 
   const originalPrice = collection.isCustom
@@ -22,7 +26,7 @@ export default async function CollectionPage({
     : collection.books.length * 40;
 
   if (collection.isCustom) {
-    const books = await getBooks();
+    const books = await getBooks(store.id);
     return (
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="mb-8 text-center">

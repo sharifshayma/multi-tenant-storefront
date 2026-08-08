@@ -1,11 +1,20 @@
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { getBooks, getCollections } from "@/lib/data";
+import { resolveStorefrontStore } from "@/lib/storefront-store";
 import { BookCard } from "@/components/storefront/BookCard";
 import { CollectionCard } from "@/components/storefront/CollectionCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [books, collections] = await Promise.all([getBooks(), getCollections()]);
+  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
+  if (!store) notFound();
+
+  const [books, collections] = await Promise.all([
+    getBooks(store.id),
+    getCollections(store.id),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">

@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
 import { sendOrderNotification } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { requireStore } from "@/lib/store-context";
+import { resolveStorefrontStore } from "@/lib/storefront-store";
 import { getAutoStockEnabled } from "@/lib/settings";
 import type { OrderStatus } from "@prisma/client";
 
@@ -21,14 +23,14 @@ export async function createOrder(
   }
   const data = parsed.data;
 
-  // Public checkout is not yet routed per-store (no per-store storefront
-  // domains exist until a later plan) — every order is stamped onto tenant
-  // #1, the oldest store, same as the current single-tenant storefront.
-  const store = await prisma.store.findFirstOrThrow({ orderBy: { createdAt: "asc" } });
+  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
+  if (!store) {
+    return { ok: false, error: "المتجر غير متوفر" };
+  }
 
   const bookIds = data.items.map((i) => i.bookId);
   const books = await prisma.book.findMany({
-    where: { id: { in: bookIds } },
+    where: { id: { in: bookIds }, storeId: store.id },
     select: { id: true, title: true, priceNis: true },
   });
   const bookMap = new Map(books.map((b) => [b.id, b]));
@@ -55,7 +57,7 @@ export async function createOrder(
 
   const collectionIds = data.collections.map((c) => c.collectionId);
   const collections = await prisma.collection.findMany({
-    where: { id: { in: collectionIds } },
+    where: { id: { in: collectionIds }, storeId: store.id },
     include: { books: { select: { bookId: true } } },
   });
   const collectionMap = new Map(collections.map((c) => [c.id, c]));
@@ -63,7 +65,7 @@ export async function createOrder(
   const allBookIds = new Set<string>();
   for (const c of data.collections) for (const id of c.selectedBookIds) allBookIds.add(id);
   const selectedBookRecords = await prisma.book.findMany({
-    where: { id: { in: [...allBookIds] } },
+    where: { id: { in: [...allBookIds] }, storeId: store.id },
     select: { id: true, title: true },
   });
   const selectedBookMap = new Map(selectedBookRecords.map((b) => [b.id, b]));
