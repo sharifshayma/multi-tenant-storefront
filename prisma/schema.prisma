@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -30,16 +31,16 @@ model Book {
 }
 
 model Collection {
-  id            String                 @id @default(cuid())
-  slug          String                 @unique
+  id            String                @id @default(cuid())
+  slug          String                @unique
   title         String
-  description   String                 @db.Text
+  description   String                @db.Text
   priceNis      Int
-  isCustom      Boolean                @default(false)
+  isCustom      Boolean               @default(false)
   requiredCount Int?
-  position      Int                    @default(0)
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @updatedAt
+  position      Int                   @default(0)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
   books         CollectionBook[]
   orderItems    OrderCollectionItem[]
 
@@ -83,18 +84,18 @@ enum OrderStatus {
 }
 
 model Order {
-  id              String                 @id @default(cuid())
+  id              String                @id @default(cuid())
   customerName    String
   phone           String
   email           String?
   city            String
-  notes           String?                @db.Text
+  notes           String?               @db.Text
   totalNis        Int
-  discountNis     Int                    @default(0)
+  discountNis     Int                   @default(0)
   discountReason  String?
-  status          OrderStatus            @default(NEW)
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
+  status          OrderStatus           @default(NEW)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
   items           OrderItem[]
   collectionItems OrderCollectionItem[]
   transactions    Transaction[]
@@ -181,4 +182,67 @@ model Setting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
