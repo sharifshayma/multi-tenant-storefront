@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Price } from "@/components/ui/Price";
+import { storeHref } from "@/lib/store-href";
 import { AddToCartButton } from "./AddToCartButton";
 import type { BookSummary } from "@/lib/types";
 
-export function BookCard({ book }: { book: BookSummary }) {
+export function BookCard({ book, basePath }: { book: BookSummary; basePath: string }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
-      <Link href={`/books/${book.slug}`} className="block">
+      <Link href={storeHref(basePath, `/books/${book.slug}`)} className="block">
         <div className="relative aspect-square w-full bg-white">
           <Image
             src={book.coverImage}
@@ -19,7 +20,7 @@ export function BookCard({ book }: { book: BookSummary }) {
         </div>
       </Link>
       <div className="flex flex-1 flex-col gap-3 p-4">
-        <Link href={`/books/${book.slug}`}>
+        <Link href={storeHref(basePath, `/books/${book.slug}`)}>
           <h3 className="line-clamp-2 font-extrabold text-ink hover:text-brand">
             {book.title}
           </h3>
