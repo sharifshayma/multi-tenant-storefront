@@ -13,7 +13,13 @@ import { checkoutSchema } from "@/lib/validations";
 import { createOrder } from "@/actions/orders";
 import { storeHref } from "@/lib/store-href";
 
-export function CartPageClient({ basePath }: { basePath: string }) {
+export function CartPageClient({
+  basePath,
+  storeSlug,
+}: {
+  basePath: string;
+  storeSlug: string;
+}) {
   const { items, updateQty, removeItem, totalNis, clear, hydrated } = useCart();
   const router = useRouter();
 
@@ -34,6 +40,7 @@ export function CartPageClient({ basePath }: { basePath: string }) {
 
     const input = {
       ...form,
+      storeSlug,
       items: items
         .filter((i) => i.kind === "book")
         .map((i) => ({ bookId: i.bookId, quantity: i.quantity })),
