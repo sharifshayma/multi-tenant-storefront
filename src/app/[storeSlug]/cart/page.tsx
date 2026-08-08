@@ -13,5 +13,5 @@ export default async function CartPage({
   const ctx = await resolveStorefrontContext({ slugParam: storeSlug, host });
   if (!ctx) notFound();
 
-  return <CartPageClient basePath={ctx.basePath} />;
+  return <CartPageClient basePath={ctx.basePath} storeSlug={storeSlug} />;
 }

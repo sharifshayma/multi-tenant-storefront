@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const checkoutSchema = z.object({
+  storeSlug: z.string().trim().min(1, "المتجر غير متوفر"),
   customerName: z.string().trim().min(2, "الرجاء إدخال الاسم الكامل"),
   phone: z
     .string()

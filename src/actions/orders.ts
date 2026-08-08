@@ -6,7 +6,7 @@ import { sendOrderNotification } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { requireStore } from "@/lib/store-context";
-import { resolveStorefrontStore } from "@/lib/storefront-store";
+import { resolveStorefrontContext } from "@/lib/storefront-context";
 import { getAutoStockEnabled } from "@/lib/settings";
 import type { OrderStatus } from "@prisma/client";
 
@@ -23,10 +23,14 @@ export async function createOrder(
   }
   const data = parsed.data;
 
-  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
-  if (!store) {
+  const ctx = await resolveStorefrontContext({
+    slugParam: data.storeSlug,
+    host: (await headers()).get("host") ?? "",
+  });
+  if (!ctx) {
     return { ok: false, error: "المتجر غير متوفر" };
   }
+  const store = ctx.store;
 
   const bookIds = data.items.map((i) => i.bookId);
   const books = await prisma.book.findMany({
