@@ -23,6 +23,7 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
+// NOTE: /api/auth/* (Better Auth) must remain public — do not add it to matcher.
 export const config = {
   matcher: ["/admin/:path*", "/api/admin/upload/:path*", "/api/admin/media/:path*"],
 };
