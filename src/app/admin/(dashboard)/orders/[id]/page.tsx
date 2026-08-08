@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { Price } from "@/components/ui/Price";
 import { OrderStatusManager } from "@/components/admin/OrderStatusManager";
 import { PaymentPanel } from "@/components/admin/PaymentPanel";
@@ -16,10 +17,13 @@ export default async function AdminOrderDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const { id } = await params;
   const [order, allBooks] = await Promise.all([
-    prisma.order.findUnique({
-      where: { id },
+    prisma.order.findFirst({
+      where: { id, storeId: store.id },
       include: {
         items: { include: { book: true } },
         collectionItems: {
@@ -33,7 +37,7 @@ export default async function AdminOrderDetailPage({
       },
     }),
     prisma.book.findMany({
-      where: { isArchived: false },
+      where: { isArchived: false, storeId: store.id },
       orderBy: { position: "asc" },
       select: { id: true, title: true, priceNis: true, coverImage: true },
     }),

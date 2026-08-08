@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { getBookOrderHistory } from "@/lib/data";
 import { BookEditForm } from "@/components/admin/BookEditForm";
 import { MediaUploader } from "@/components/admin/MediaUploader";
@@ -17,10 +18,13 @@ export default async function AdminBookDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const { id } = await params;
   const [book, orderHistory] = await Promise.all([
-    prisma.book.findUnique({
-      where: { id },
+    prisma.book.findFirst({
+      where: { id, storeId: store.id },
       include: { media: { orderBy: { sortOrder: "asc" } } },
     }),
     getBookOrderHistory(id),

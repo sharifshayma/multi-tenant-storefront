@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth-guard";
+import { requireStore } from "@/lib/store-context";
 import type { StockMovementType } from "@prisma/client";
 
 export async function createStockMovement(input: {
@@ -12,9 +12,21 @@ export async function createStockMovement(input: {
   orderId?: string | null;
   note?: string;
 }) {
-  await requireUser();
+  const store = await requireStore();
   if (!Number.isFinite(input.quantity) || input.quantity === 0) {
     throw new Error("الكمية غير صالحة");
+  }
+  const book = await prisma.book.findFirst({
+    where: { id: input.bookId, storeId: store.id },
+    select: { id: true },
+  });
+  if (!book) throw new Error("الكتاب غير موجود");
+  if (input.orderId) {
+    const order = await prisma.order.findFirst({
+      where: { id: input.orderId, storeId: store.id },
+      select: { id: true },
+    });
+    if (!order) throw new Error("الطلب غير موجود");
   }
   await prisma.stockMovement.create({
     data: {
@@ -23,6 +35,7 @@ export async function createStockMovement(input: {
       quantity: Math.round(input.quantity),
       orderId: input.orderId || null,
       note: input.note || null,
+      storeId: store.id,
     },
   });
   revalidatePath("/admin/stock");
@@ -30,8 +43,9 @@ export async function createStockMovement(input: {
 }
 
 export async function deleteStockMovement(id: string) {
-  await requireUser();
-  await prisma.stockMovement.delete({ where: { id } });
+  const store = await requireStore();
+  const result = await prisma.stockMovement.deleteMany({ where: { id, storeId: store.id } });
+  if (result.count === 0) throw new Error("حركة المخزون غير موجودة");
   revalidatePath("/admin/stock");
   revalidatePath("/admin");
 }

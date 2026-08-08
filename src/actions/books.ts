@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth-guard";
+import { requireStore } from "@/lib/store-context";
 
 export type CreateBookResult = { ok: true; bookId: string } | { ok: false; error: string };
 
@@ -13,7 +13,7 @@ export async function createBook(input: {
   slug: string;
   coverImage: string;
 }): Promise<CreateBookResult> {
-  await requireUser();
+  const store = await requireStore();
 
   const title = input.title.trim();
   const description = input.description.trim();
@@ -27,12 +27,17 @@ export async function createBook(input: {
     return { ok: false, error: "الرجاء إدخال سعر صحيح" };
   }
 
+  // slug is globally unique at the DB level (not per-store), so this check
+  // intentionally stays unscoped by store.
   const existing = await prisma.book.findUnique({ where: { slug } });
   if (existing) {
     return { ok: false, error: "هذا الرابط مستخدم بالفعل لكتاب آخر، الرجاء اختيار رابط مختلف" };
   }
 
-  const maxPosition = await prisma.book.aggregate({ _max: { position: true } });
+  const maxPosition = await prisma.book.aggregate({
+    where: { storeId: store.id },
+    _max: { position: true },
+  });
 
   const book = await prisma.book.create({
     data: {
@@ -42,6 +47,7 @@ export async function createBook(input: {
       coverImage: input.coverImage,
       priceNis: Math.round(input.priceNis),
       position: (maxPosition._max.position ?? 0) + 1,
+      storeId: store.id,
     },
   });
 
@@ -52,11 +58,15 @@ export async function createBook(input: {
 }
 
 export async function setBookArchived(bookId: string, isArchived: boolean) {
-  await requireUser();
-  const book = await prisma.book.update({
+  const store = await requireStore();
+  const book = await prisma.book.findFirst({
+    where: { id: bookId, storeId: store.id },
+    select: { slug: true },
+  });
+  if (!book) throw new Error("الكتاب غير موجود");
+  await prisma.book.update({
     where: { id: bookId },
     data: { isArchived },
-    select: { slug: true },
   });
   revalidatePath("/admin/books");
   revalidatePath(`/admin/books/${bookId}`);

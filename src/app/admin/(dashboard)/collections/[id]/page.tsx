@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { CollectionEditForm } from "@/components/admin/CollectionEditForm";
 import { CollectionBooksPicker } from "@/components/admin/CollectionBooksPicker";
 
@@ -12,14 +13,18 @@ export default async function AdminCollectionDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const { id } = await params;
-  const collection = await prisma.collection.findUnique({
-    where: { id },
+  const collection = await prisma.collection.findFirst({
+    where: { id, storeId: store.id },
     include: { books: { select: { bookId: true } } },
   });
   if (!collection) notFound();
 
   const allBooks = await prisma.book.findMany({
+    where: { storeId: store.id },
     orderBy: { position: "asc" },
     select: { id: true, slug: true, title: true, description: true, priceNis: true, coverImage: true },
   });

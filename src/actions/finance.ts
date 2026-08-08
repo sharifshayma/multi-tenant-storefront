@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth-guard";
+import { requireStore } from "@/lib/store-context";
 import type { TransactionType } from "@prisma/client";
 
 export async function createTransaction(input: {
@@ -13,9 +13,16 @@ export async function createTransaction(input: {
   orderId?: string | null;
   date: Date;
 }) {
-  await requireUser();
+  const store = await requireStore();
   if (!Number.isFinite(input.amountNis) || input.amountNis <= 0) {
     throw new Error("المبلغ غير صالح");
+  }
+  if (input.orderId) {
+    const order = await prisma.order.findFirst({
+      where: { id: input.orderId, storeId: store.id },
+      select: { id: true },
+    });
+    if (!order) throw new Error("الطلب غير موجود");
   }
   await prisma.transaction.create({
     data: {
@@ -25,6 +32,7 @@ export async function createTransaction(input: {
       description: input.description || null,
       orderId: input.orderId || null,
       date: input.date,
+      storeId: store.id,
     },
   });
   revalidatePath("/admin/finance");
@@ -32,17 +40,23 @@ export async function createTransaction(input: {
 }
 
 export async function deleteTransaction(id: string) {
-  await requireUser();
-  await prisma.transaction.delete({ where: { id } });
+  const store = await requireStore();
+  const result = await prisma.transaction.deleteMany({ where: { id, storeId: store.id } });
+  if (result.count === 0) throw new Error("الحركة المالية غير موجودة");
   revalidatePath("/admin/finance");
   revalidatePath("/admin");
 }
 
 export async function recordPayment(input: { orderId: string; amountNis: number }) {
-  await requireUser();
+  const store = await requireStore();
   if (!Number.isFinite(input.amountNis) || input.amountNis <= 0) {
     throw new Error("المبلغ غير صالح");
   }
+  const order = await prisma.order.findFirst({
+    where: { id: input.orderId, storeId: store.id },
+    select: { id: true },
+  });
+  if (!order) throw new Error("الطلب غير موجود");
   await prisma.transaction.create({
     data: {
       type: "REVENUE",
@@ -50,6 +64,7 @@ export async function recordPayment(input: { orderId: string; amountNis: number 
       category: "مبيعات",
       orderId: input.orderId,
       date: new Date(),
+      storeId: store.id,
     },
   });
   revalidatePath("/admin/finance");

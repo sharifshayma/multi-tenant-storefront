@@ -1,16 +1,21 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { getFinanceSummary, getStockLevels } from "@/lib/data";
 import { Price } from "@/components/ui/Price";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const [newCount, totalCount, bookCount, collectionCount, finance, stockLevels] = await Promise.all([
-    prisma.order.count({ where: { status: "NEW" } }),
-    prisma.order.count(),
-    prisma.book.count(),
-    prisma.collection.count(),
+    prisma.order.count({ where: { status: "NEW", storeId: store.id } }),
+    prisma.order.count({ where: { storeId: store.id } }),
+    prisma.book.count({ where: { storeId: store.id } }),
+    prisma.collection.count({ where: { storeId: store.id } }),
     getFinanceSummary(),
     getStockLevels(),
   ]);

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { Plus, Archive } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { Price } from "@/components/ui/Price";
 import { getBookDemand } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -19,12 +21,18 @@ export default async function AdminBooksPage({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const { tab } = await searchParams;
   const filter = tab === "archived" || tab === "all" ? tab : "active";
 
   const [books, demand] = await Promise.all([
     prisma.book.findMany({
-      where: filter === "active" ? { isArchived: false } : filter === "archived" ? { isArchived: true } : undefined,
+      where: {
+        storeId: store.id,
+        ...(filter === "active" ? { isArchived: false } : filter === "archived" ? { isArchived: true } : {}),
+      },
       orderBy: { position: "asc" },
       include: { _count: { select: { media: true } } },
     }),
