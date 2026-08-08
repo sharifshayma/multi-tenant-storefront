@@ -8,6 +8,9 @@ describe("slugify", () => {
   it("strips leading/trailing separators", () => {
     expect(slugify("  Hello!!  ")).toBe("hello");
   });
+  it("strips curly apostrophes", () => {
+    expect(slugify("Jane's Crafts")).toBe("janes-crafts");
+  });
 });
 
 describe("isReservedSlug", () => {
