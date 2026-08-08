@@ -9,6 +9,37 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+model Store {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  currency       String          @default("USD")
+  defaultLocale  String          @default("en")
+  customDomain   String?         @unique
+  ownerId        String
+  owner          User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  settings       StoreSettings[]
+  books          Book[]
+  collections    Collection[]
+  orders         Order[]
+  transactions   Transaction[]
+  stockMovements StockMovement[]
+
+  @@index([ownerId])
+}
+
+model StoreSettings {
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@id([storeId, key])
+}
+
 model Book {
   id                       String                    @id @default(cuid())
   slug                     String                    @unique
@@ -20,6 +51,8 @@ model Book {
   isArchived               Boolean                   @default(false)
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
+  storeId                  String?
+  store                    Store?                    @relation(fields: [storeId], references: [id])
   media                    BookMedia[]
   orderItems               OrderItem[]
   collectionBooks          CollectionBook[]
@@ -28,6 +61,7 @@ model Book {
 
   @@index([position])
   @@index([isArchived])
+  @@index([storeId])
 }
 
 model Collection {
@@ -41,10 +75,13 @@ model Collection {
   position      Int                   @default(0)
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
+  storeId       String?
+  store         Store?                @relation(fields: [storeId], references: [id])
   books         CollectionBook[]
   orderItems    OrderCollectionItem[]
 
   @@index([position])
+  @@index([storeId])
 }
 
 model CollectionBook {
@@ -96,6 +133,8 @@ model Order {
   status          OrderStatus           @default(NEW)
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
+  storeId         String?
+  store           Store?                @relation(fields: [storeId], references: [id])
   items           OrderItem[]
   collectionItems OrderCollectionItem[]
   transactions    Transaction[]
@@ -103,6 +142,7 @@ model Order {
 
   @@index([status])
   @@index([createdAt])
+  @@index([storeId])
 }
 
 model OrderItem {
@@ -149,10 +189,13 @@ model Transaction {
   order       Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
   date        DateTime        @default(now())
   createdAt   DateTime        @default(now())
+  storeId     String?
+  store       Store?          @relation(fields: [storeId], references: [id])
 
   @@index([type])
   @@index([date])
   @@index([orderId])
+  @@index([storeId])
 }
 
 enum StockMovementType {
@@ -172,10 +215,13 @@ model StockMovement {
   order     Order?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
   note      String?           @db.Text
   createdAt DateTime          @default(now())
+  storeId   String?
+  store     Store?            @relation(fields: [storeId], references: [id])
 
   @@index([bookId])
   @@index([orderId])
   @@index([createdAt])
+  @@index([storeId])
 }
 
 model Setting {
@@ -194,6 +240,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  stores        Store[]
 
   @@unique([email])
   @@map("user")
