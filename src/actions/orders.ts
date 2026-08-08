@@ -4,16 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
 import { sendOrderNotification } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { requireUser } from "@/lib/auth-guard";
 import { getAutoStockEnabled } from "@/lib/settings";
 import type { OrderStatus } from "@prisma/client";
-
-async function requireAdmin() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  const valid = token ? await verifySessionToken(token) : false;
-  if (!valid) throw new Error("Unauthorized");
-}
 
 export type CreateOrderResult =
   | { ok: true; orderId: string }
@@ -177,7 +170,7 @@ export async function createOrder(
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  await requireAdmin();
+  await requireUser();
   await prisma.order.update({ where: { id: orderId }, data: { status } });
 
   // Fulfillment (SHIPPED or DELIVERED) auto-deducts the ordered books from
@@ -235,7 +228,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
 }
 
 export async function deleteOrder(orderId: string) {
-  await requireAdmin();
+  await requireUser();
   await prisma.order.delete({ where: { id: orderId } });
   revalidatePath("/admin/orders");
 }
@@ -247,7 +240,7 @@ export async function setOrderDiscount(input: {
   discountNis: number;
   discountReason?: string;
 }): Promise<SetOrderDiscountResult> {
-  await requireAdmin();
+  await requireUser();
 
   const order = await prisma.order.findUnique({
     where: { id: input.orderId },
@@ -288,7 +281,7 @@ export async function updateOrderCustomerInfo(input: {
   city: string;
   notes?: string;
 }) {
-  await requireAdmin();
+  await requireUser();
   const customerName = input.customerName.trim();
   const phone = input.phone.trim();
   const city = input.city.trim();
@@ -316,7 +309,7 @@ export async function updateOrderItems(input: {
   items: { bookId: string; quantity: number }[];
   collectionItems: { id: string; quantity: number }[];
 }): Promise<UpdateOrderItemsResult> {
-  await requireAdmin();
+  await requireUser();
 
   if (input.items.length === 0 && input.collectionItems.length === 0) {
     return { ok: false, error: "يجب أن يحتوي الطلب على كتاب واحد على الأقل" };

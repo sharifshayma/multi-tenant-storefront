@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -9,10 +9,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(SESSION_COOKIE)?.value;
-  const valid = token ? await verifySessionToken(token) : false;
+  const sessionCookie = getSessionCookie(request);
 
-  if (!valid) {
+  if (!sessionCookie) {
     if (pathname.startsWith("/api/admin")) {
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }

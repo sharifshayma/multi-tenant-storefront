@@ -2,14 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth";
-
-async function requireAdmin() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  const valid = token ? await verifySessionToken(token) : false;
-  if (!valid) throw new Error("Unauthorized");
-}
+import { requireUser } from "@/lib/auth-guard";
 
 export type CreateBookResult = { ok: true; bookId: string } | { ok: false; error: string };
 
@@ -20,7 +13,7 @@ export async function createBook(input: {
   slug: string;
   coverImage: string;
 }): Promise<CreateBookResult> {
-  await requireAdmin();
+  await requireUser();
 
   const title = input.title.trim();
   const description = input.description.trim();
@@ -59,7 +52,7 @@ export async function createBook(input: {
 }
 
 export async function setBookArchived(bookId: string, isArchived: boolean) {
-  await requireAdmin();
+  await requireUser();
   const book = await prisma.book.update({
     where: { id: bookId },
     data: { isArchived },
