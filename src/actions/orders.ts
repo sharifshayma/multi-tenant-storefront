@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
 import { sendOrderNotification } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth-guard";
+import { requireStore } from "@/lib/store-context";
 import { getAutoStockEnabled } from "@/lib/settings";
 import type { OrderStatus } from "@prisma/client";
 
@@ -170,22 +170,26 @@ export async function createOrder(
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  await requireUser();
-  await prisma.order.update({ where: { id: orderId }, data: { status } });
+  const store = await requireStore();
+  const updated = await prisma.order.updateMany({
+    where: { id: orderId, storeId: store.id },
+    data: { status },
+  });
+  if (updated.count === 0) throw new Error("الطلب غير موجود");
 
   // Fulfillment (SHIPPED or DELIVERED) auto-deducts the ordered books from
   // stock — but only when the feature is enabled, and only once per order:
   // a single fulfillment stock movement is created, so SHIPPED -> DELIVERED
   // (or a jump straight to DELIVERED) never double-counts.
   if (status === "SHIPPED" || status === "DELIVERED") {
-    const autoStockEnabled = await getAutoStockEnabled();
+    const autoStockEnabled = await getAutoStockEnabled(store.id);
     if (autoStockEnabled) {
       const alreadyDeducted = await prisma.stockMovement.findFirst({
-        where: { orderId, type: "SHIPPED" },
+        where: { orderId, type: "SHIPPED", storeId: store.id },
       });
       if (!alreadyDeducted) {
-        const order = await prisma.order.findUnique({
-          where: { id: orderId },
+        const order = await prisma.order.findFirst({
+          where: { id: orderId, storeId: store.id },
           select: {
             items: { select: { bookId: true, quantity: true } },
             collectionItems: {
@@ -214,6 +218,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
                 quantity: -quantity,
                 orderId,
                 note: "خصم تلقائي من المخزون حسب حالة الطلب",
+                storeId: store.id,
               })),
             });
           }
@@ -228,8 +233,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
 }
 
 export async function deleteOrder(orderId: string) {
-  await requireUser();
-  await prisma.order.delete({ where: { id: orderId } });
+  const store = await requireStore();
+  const result = await prisma.order.deleteMany({ where: { id: orderId, storeId: store.id } });
+  if (result.count === 0) throw new Error("الطلب غير موجود");
   revalidatePath("/admin/orders");
 }
 
@@ -240,10 +246,10 @@ export async function setOrderDiscount(input: {
   discountNis: number;
   discountReason?: string;
 }): Promise<SetOrderDiscountResult> {
-  await requireUser();
+  const store = await requireStore();
 
-  const order = await prisma.order.findUnique({
-    where: { id: input.orderId },
+  const order = await prisma.order.findFirst({
+    where: { id: input.orderId, storeId: store.id },
     select: { totalNis: true },
   });
   if (!order) return { ok: false, error: "الطلب غير موجود" };
@@ -256,8 +262,8 @@ export async function setOrderDiscount(input: {
     return { ok: false, error: "لا يمكن أن يتجاوز الخصم إجمالي الطلب" };
   }
 
-  await prisma.order.update({
-    where: { id: input.orderId },
+  await prisma.order.updateMany({
+    where: { id: input.orderId, storeId: store.id },
     data: {
       discountNis,
       // Clear the reason when there is no discount, otherwise store the trimmed note.
@@ -281,15 +287,15 @@ export async function updateOrderCustomerInfo(input: {
   city: string;
   notes?: string;
 }) {
-  await requireUser();
+  const store = await requireStore();
   const customerName = input.customerName.trim();
   const phone = input.phone.trim();
   const city = input.city.trim();
   if (!customerName || !phone || !city) {
     throw new Error("الرجاء تعبئة الاسم والهاتف والمدينة");
   }
-  await prisma.order.update({
-    where: { id: input.orderId },
+  const result = await prisma.order.updateMany({
+    where: { id: input.orderId, storeId: store.id },
     data: {
       customerName,
       phone,
@@ -298,6 +304,7 @@ export async function updateOrderCustomerInfo(input: {
       notes: input.notes?.trim() || null,
     },
   });
+  if (result.count === 0) throw new Error("الطلب غير موجود");
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${input.orderId}`);
 }
@@ -309,14 +316,14 @@ export async function updateOrderItems(input: {
   items: { bookId: string; quantity: number }[];
   collectionItems: { id: string; quantity: number }[];
 }): Promise<UpdateOrderItemsResult> {
-  await requireUser();
+  const store = await requireStore();
 
   if (input.items.length === 0 && input.collectionItems.length === 0) {
     return { ok: false, error: "يجب أن يحتوي الطلب على كتاب واحد على الأقل" };
   }
 
-  const order = await prisma.order.findUnique({
-    where: { id: input.orderId },
+  const order = await prisma.order.findFirst({
+    where: { id: input.orderId, storeId: store.id },
     include: { collectionItems: true },
   });
   if (!order) return { ok: false, error: "الطلب غير موجود" };
@@ -326,7 +333,10 @@ export async function updateOrderItems(input: {
 
   const bookIds = input.items.map((i) => i.bookId);
   const books = bookIds.length
-    ? await prisma.book.findMany({ where: { id: { in: bookIds } }, select: { id: true, priceNis: true } })
+    ? await prisma.book.findMany({
+        where: { id: { in: bookIds }, storeId: store.id },
+        select: { id: true, priceNis: true },
+      })
     : [];
   const bookMap = new Map(books.map((b) => [b.id, b]));
 
@@ -365,7 +375,10 @@ export async function updateOrderItems(input: {
     ...input.collectionItems.map((c) =>
       prisma.orderCollectionItem.update({ where: { id: c.id }, data: { quantity: c.quantity } })
     ),
-    prisma.order.update({ where: { id: input.orderId }, data: { totalNis, discountNis } }),
+    prisma.order.updateMany({
+      where: { id: input.orderId, storeId: store.id },
+      data: { totalNis, discountNis },
+    }),
     ...(input.items.length
       ? [
           prisma.orderItem.createMany({

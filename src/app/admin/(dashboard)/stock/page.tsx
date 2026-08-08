@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { getStockLevels, getOrdersForSelect } from "@/lib/data";
 import { StockMovementForm } from "@/components/admin/StockMovementForm";
 import { DeleteStockMovementButton } from "@/components/admin/DeleteStockMovementButton";
@@ -17,10 +19,14 @@ const MOVEMENT_TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function AdminStockPage() {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const [stockLevels, orders, movements] = await Promise.all([
     getStockLevels(),
     getOrdersForSelect(),
     prisma.stockMovement.findMany({
+      where: { storeId: store.id },
       orderBy: { createdAt: "desc" },
       include: {
         book: { select: { title: true, coverImage: true } },

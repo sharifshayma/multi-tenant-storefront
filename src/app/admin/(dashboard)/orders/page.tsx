@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Price } from "@/components/ui/Price";
 import { DeleteOrderButton } from "@/components/admin/DeleteOrderButton";
@@ -22,6 +24,9 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const { status } = await searchParams;
   const filter =
     status && ORDER_STATUSES.includes(status as OrderStatus)
@@ -30,7 +35,7 @@ export default async function AdminOrdersPage({
 
   const [orders, printList, paymentTotals] = await Promise.all([
     prisma.order.findMany({
-      where: filter ? { status: filter } : undefined,
+      where: { storeId: store.id, ...(filter ? { status: filter } : {}) },
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { items: true, collectionItems: true } } },
     }),

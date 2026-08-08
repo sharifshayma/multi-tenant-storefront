@@ -1,11 +1,17 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import { Price } from "@/components/ui/Price";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCollectionsPage() {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const collections = await prisma.collection.findMany({
+    where: { storeId: store.id },
     orderBy: { position: "asc" },
     include: { _count: { select: { books: true } } },
   });

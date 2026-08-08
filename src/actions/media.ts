@@ -3,12 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth-guard";
+import { requireStore } from "@/lib/store-context";
 import type { MediaType } from "@prisma/client";
 
-async function revalidateBook(bookId: string) {
-  const book = await prisma.book.findUnique({
-    where: { id: bookId },
+async function revalidateBook(bookId: string, storeId: string) {
+  const book = await prisma.book.findFirst({
+    where: { id: bookId, storeId },
     select: { slug: true },
   });
   if (book) revalidatePath(`/books/${book.slug}`);
@@ -20,7 +20,12 @@ export async function attachMedia(input: {
   url: string;
   type: MediaType;
 }) {
-  await requireUser();
+  const store = await requireStore();
+  const book = await prisma.book.findFirst({
+    where: { id: input.bookId, storeId: store.id },
+    select: { id: true },
+  });
+  if (!book) throw new Error("الكتاب غير موجود");
   const maxOrder = await prisma.bookMedia.aggregate({
     where: { bookId: input.bookId },
     _max: { sortOrder: true },
@@ -33,12 +38,14 @@ export async function attachMedia(input: {
       sortOrder: (maxOrder._max.sortOrder ?? -1) + 1,
     },
   });
-  await revalidateBook(input.bookId);
+  await revalidateBook(input.bookId, store.id);
 }
 
 export async function deleteMedia(mediaId: string) {
-  await requireUser();
-  const media = await prisma.bookMedia.findUnique({ where: { id: mediaId } });
+  const store = await requireStore();
+  const media = await prisma.bookMedia.findFirst({
+    where: { id: mediaId, book: { storeId: store.id } },
+  });
   if (!media) return;
   await prisma.bookMedia.delete({ where: { id: mediaId } });
   try {
@@ -46,20 +53,34 @@ export async function deleteMedia(mediaId: string) {
   } catch (err) {
     console.error("Failed to delete blob", err);
   }
-  await revalidateBook(media.bookId);
+  await revalidateBook(media.bookId, store.id);
 }
 
 export async function reorderMedia(bookId: string, orderedIds: string[]) {
-  await requireUser();
+  const store = await requireStore();
+  const book = await prisma.book.findFirst({
+    where: { id: bookId, storeId: store.id },
+    select: { id: true },
+  });
+  if (!book) throw new Error("الكتاب غير موجود");
+  // Only touch media rows that actually belong to this book, so a caller
+  // can't smuggle another book's media id into the ordered list.
+  const ownedMedia = await prisma.bookMedia.findMany({
+    where: { id: { in: orderedIds }, bookId },
+    select: { id: true },
+  });
+  const ownedIds = new Set(ownedMedia.map((m) => m.id));
   await prisma.$transaction(
-    orderedIds.map((id, index) =>
-      prisma.bookMedia.update({
-        where: { id },
-        data: { sortOrder: index },
-      })
-    )
+    orderedIds
+      .filter((id) => ownedIds.has(id))
+      .map((id, index) =>
+        prisma.bookMedia.update({
+          where: { id },
+          data: { sortOrder: index },
+        })
+      )
   );
-  await revalidateBook(bookId);
+  await revalidateBook(bookId, store.id);
 }
 
 export async function updateBook(input: {
@@ -68,16 +89,17 @@ export async function updateBook(input: {
   description: string;
   priceNis: number;
 }) {
-  await requireUser();
-  await prisma.book.update({
-    where: { id: input.bookId },
+  const store = await requireStore();
+  const result = await prisma.book.updateMany({
+    where: { id: input.bookId, storeId: store.id },
     data: {
       title: input.title,
       description: input.description,
       priceNis: input.priceNis,
     },
   });
-  await revalidateBook(input.bookId);
+  if (result.count === 0) throw new Error("الكتاب غير موجود");
+  await revalidateBook(input.bookId, store.id);
   revalidatePath("/admin/books");
   revalidatePath("/");
 }

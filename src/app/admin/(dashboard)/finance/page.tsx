@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getCurrentStore } from "@/lib/store-context";
 import {
   getFinanceSummary,
   getOrdersForSelect,
@@ -14,10 +16,14 @@ import { Price } from "@/components/ui/Price";
 export const dynamic = "force-dynamic";
 
 export default async function AdminFinancePage() {
+  const store = await getCurrentStore();
+  if (!store) redirect("/admin/login");
+
   const [summary, orders, transactions, forecast, discounts] = await Promise.all([
     getFinanceSummary(),
     getOrdersForSelect(),
     prisma.transaction.findMany({
+      where: { storeId: store.id },
       orderBy: { date: "desc" },
       include: { order: { select: { id: true, customerName: true } } },
     }),
