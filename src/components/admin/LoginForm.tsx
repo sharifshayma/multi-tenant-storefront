@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { signIn } from "@/lib/auth-client";
+import { loginSchema } from "@/lib/validations";
 
 export function LoginForm() {
   const router = useRouter();
@@ -15,11 +16,18 @@ export function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
     setError(null);
-    const { error } = await signIn.email({ email, password });
+
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "بيانات غير صالحة");
+      return;
+    }
+
+    setSubmitting(true);
+    const { error: signInError } = await signIn.email({ email, password });
     setSubmitting(false);
-    if (error) {
+    if (signInError) {
       setError("بيانات الدخول غير صحيحة");
       return;
     }
@@ -39,6 +47,8 @@ export function LoginForm() {
         label="البريد الإلكتروني"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        autoComplete="email"
+        required
         autoFocus
       />
       <Input
@@ -47,6 +57,8 @@ export function LoginForm() {
         label="كلمة المرور"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        autoComplete="current-password"
+        required
       />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" disabled={submitting}>
