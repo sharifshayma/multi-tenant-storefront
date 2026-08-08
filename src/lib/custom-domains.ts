@@ -21,7 +21,8 @@ export function storefrontRewritePath(host: string, pathname: string): string | 
     pathname.startsWith("/admin") ||
     pathname.startsWith("/api") ||
     pathname === "/login" ||
-    pathname === "/signup"
+    pathname === "/signup" ||
+    /^\/(icon|apple-icon|opengraph-image|favicon|robots\.txt|sitemap\.xml|\.well-known)/.test(pathname)
   ) return null;
   return pathname === "/" ? `/${slug}` : `/${slug}${pathname}`;
 }
