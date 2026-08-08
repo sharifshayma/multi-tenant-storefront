@@ -1,5 +1,7 @@
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getBookBySlug } from "@/lib/data";
+import { resolveStorefrontStore } from "@/lib/storefront-store";
 import { MediaGallery } from "@/components/storefront/MediaGallery";
 import { AddToCartButton } from "@/components/storefront/AddToCartButton";
 import { Price } from "@/components/ui/Price";
@@ -12,7 +14,9 @@ export default async function BookPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const book = await getBookBySlug(slug);
+  const store = await resolveStorefrontStore((await headers()).get("host") ?? "");
+  if (!store) notFound();
+  const book = await getBookBySlug(slug, store.id);
   if (!book) notFound();
 
   return (

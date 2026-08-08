@@ -3,9 +3,9 @@ import type { BookDetail, BookSummary, CollectionSummary } from "@/lib/types";
 import { getAmountPayable } from "@/lib/payment-status";
 import type { OrderStatus } from "@prisma/client";
 
-export async function getBooks(): Promise<BookSummary[]> {
+export async function getBooks(storeId: string): Promise<BookSummary[]> {
   return prisma.book.findMany({
-    where: { isArchived: false },
+    where: { isArchived: false, storeId },
     orderBy: { position: "asc" },
     select: {
       id: true,
@@ -18,9 +18,9 @@ export async function getBooks(): Promise<BookSummary[]> {
   });
 }
 
-export async function getBookBySlug(slug: string): Promise<BookDetail | null> {
+export async function getBookBySlug(slug: string, storeId: string): Promise<BookDetail | null> {
   return prisma.book.findFirst({
-    where: { slug, isArchived: false },
+    where: { slug, isArchived: false, storeId },
     select: {
       id: true,
       slug: true,
@@ -65,8 +65,9 @@ function toCollectionSummary(c: {
   };
 }
 
-export async function getCollections(): Promise<CollectionSummary[]> {
+export async function getCollections(storeId: string): Promise<CollectionSummary[]> {
   const collections = await prisma.collection.findMany({
+    where: { storeId },
     orderBy: { position: "asc" },
     include: {
       books: {
@@ -78,9 +79,9 @@ export async function getCollections(): Promise<CollectionSummary[]> {
   return collections.map(toCollectionSummary);
 }
 
-export async function getCollectionBySlug(slug: string): Promise<CollectionSummary | null> {
+export async function getCollectionBySlug(slug: string, storeId: string): Promise<CollectionSummary | null> {
   const collection = await prisma.collection.findFirst({
-    where: { slug },
+    where: { slug, storeId },
     include: {
       books: {
         where: { book: { isArchived: false } },
