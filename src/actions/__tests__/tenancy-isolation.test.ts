@@ -3,16 +3,25 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // Every action under test resolves the current store via requireStore().
 // We mock it to always return store "A" so we can assert that every
 // prisma call the action makes is scoped to storeId: "A".
-const { requireStore, stockCreate, bookFindFirst, bookAggregate, orderFindFirst, orderUpdateMany, transactionDeleteMany } =
-  vi.hoisted(() => ({
-    requireStore: vi.fn(),
-    stockCreate: vi.fn(),
-    bookFindFirst: vi.fn(),
-    bookAggregate: vi.fn().mockResolvedValue({ _max: {} }),
-    orderFindFirst: vi.fn(),
-    orderUpdateMany: vi.fn(),
-    transactionDeleteMany: vi.fn(),
-  }));
+const {
+  requireStore,
+  stockCreate,
+  bookFindFirst,
+  bookAggregate,
+  orderFindFirst,
+  orderUpdateMany,
+  transactionDeleteMany,
+  transactionAggregate,
+} = vi.hoisted(() => ({
+  requireStore: vi.fn(),
+  stockCreate: vi.fn(),
+  bookFindFirst: vi.fn(),
+  bookAggregate: vi.fn().mockResolvedValue({ _max: {} }),
+  orderFindFirst: vi.fn(),
+  orderUpdateMany: vi.fn(),
+  transactionDeleteMany: vi.fn(),
+  transactionAggregate: vi.fn().mockResolvedValue({ _sum: { amountNis: 0 } }),
+}));
 
 vi.mock("@/lib/store-context", () => ({ requireStore }));
 
@@ -21,7 +30,7 @@ vi.mock("@/lib/prisma", () => ({
     stockMovement: { create: stockCreate },
     book: { findFirst: bookFindFirst, aggregate: bookAggregate },
     order: { findFirst: orderFindFirst, updateMany: orderUpdateMany },
-    transaction: { deleteMany: transactionDeleteMany },
+    transaction: { deleteMany: transactionDeleteMany, aggregate: transactionAggregate },
   },
 }));
 
@@ -30,6 +39,7 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 import { createStockMovement } from "@/actions/stock";
 import { setOrderDiscount } from "@/actions/orders";
 import { deleteTransaction } from "@/actions/finance";
+import { getFinanceSummary } from "@/lib/data";
 
 beforeEach(() => {
   requireStore.mockReset();
@@ -39,6 +49,8 @@ beforeEach(() => {
   orderFindFirst.mockReset();
   orderUpdateMany.mockReset();
   transactionDeleteMany.mockReset();
+  transactionAggregate.mockReset();
+  transactionAggregate.mockResolvedValue({ _sum: { amountNis: 0 } });
 });
 
 describe("stock action tenancy", () => {
@@ -106,5 +118,24 @@ describe("finance action tenancy", () => {
     transactionDeleteMany.mockResolvedValue({ count: 0 });
 
     await expect(deleteTransaction("foreign-t")).rejects.toThrow();
+  });
+});
+
+describe("data.ts admin aggregate tenancy", () => {
+  it("scopes the finance summary aggregate by storeId", async () => {
+    transactionAggregate
+      .mockResolvedValueOnce({ _sum: { amountNis: 500 } }) // REVENUE
+      .mockResolvedValueOnce({ _sum: { amountNis: 200 } }); // EXPENSE
+
+    const summary = await getFinanceSummary("A");
+
+    expect(summary).toEqual({ totalRevenue: 500, totalExpense: 200, net: 300 });
+    expect(transactionAggregate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ storeId: "A" }) })
+    );
+    // Every call this admin aggregate makes must be scoped — not just some of them.
+    for (const call of transactionAggregate.mock.calls) {
+      expect(call[0].where).toMatchObject({ storeId: "A" });
+    }
   });
 });

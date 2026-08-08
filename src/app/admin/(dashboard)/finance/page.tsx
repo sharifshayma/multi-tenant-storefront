@@ -20,15 +20,15 @@ export default async function AdminFinancePage() {
   if (!store) redirect("/admin/login");
 
   const [summary, orders, transactions, forecast, discounts] = await Promise.all([
-    getFinanceSummary(),
-    getOrdersForSelect(),
+    getFinanceSummary(store.id),
+    getOrdersForSelect(store.id),
     prisma.transaction.findMany({
       where: { storeId: store.id },
       orderBy: { date: "desc" },
       include: { order: { select: { id: true, customerName: true } } },
     }),
-    getForecastedRevenue(),
-    getDiscountSummary(),
+    getForecastedRevenue(store.id),
+    getDiscountSummary(store.id),
   ]);
 
   return (

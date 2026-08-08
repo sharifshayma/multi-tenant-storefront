@@ -23,8 +23,8 @@ export default async function AdminStockPage() {
   if (!store) redirect("/admin/login");
 
   const [stockLevels, orders, movements] = await Promise.all([
-    getStockLevels(),
-    getOrdersForSelect(),
+    getStockLevels(store.id),
+    getOrdersForSelect(store.id),
     prisma.stockMovement.findMany({
       where: { storeId: store.id },
       orderBy: { createdAt: "desc" },

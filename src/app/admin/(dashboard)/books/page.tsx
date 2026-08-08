@@ -36,7 +36,7 @@ export default async function AdminBooksPage({
       orderBy: { position: "asc" },
       include: { _count: { select: { media: true } } },
     }),
-    getBookDemand(),
+    getBookDemand(store.id),
   ]);
 
   const demandById = new Map(demand.map((d) => [d.id, d]));
