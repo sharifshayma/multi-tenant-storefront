@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { signIn } from "@/lib/auth-client";
 
 export function LoginForm() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -15,15 +17,10 @@ export function LoginForm() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
+    const { error } = await signIn.email({ email, password });
     setSubmitting(false);
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error || "حدث خطأ");
+    if (error) {
+      setError("بيانات الدخول غير صحيحة");
       return;
     }
     router.push("/admin");
@@ -37,12 +34,19 @@ export function LoginForm() {
     >
       <h1 className="text-center text-xl font-extrabold">دخول لوحة التحكم</h1>
       <Input
+        id="email"
+        type="email"
+        label="البريد الإلكتروني"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        autoFocus
+      />
+      <Input
         id="password"
         type="password"
         label="كلمة المرور"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        autoFocus
       />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" disabled={submitting}>

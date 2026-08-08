@@ -37,5 +37,6 @@ export const checkoutSchema = z.object({
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
 export const loginSchema = z.object({
-  password: z.string().min(1, "الرجاء إدخال كلمة المرور"),
+  email: z.string().email("بريد إلكتروني غير صالح"),
+  password: z.string().min(1, "كلمة المرور مطلوبة"),
 });
