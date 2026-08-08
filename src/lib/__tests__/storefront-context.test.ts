@@ -12,6 +12,11 @@ describe("resolveStorefrontContext", () => {
     expect(ctx).toEqual({ store: { id: "s1", slug: "shaymas-books" }, basePath: "" });
     expect(findUnique).toHaveBeenCalledWith({ where: { slug: "shaymas-books" } });
   });
+  it("custom-domain host: domain slug wins over a differing slugParam", async () => {
+    findUnique.mockResolvedValue({ id: "s1", slug: "shaymas-books" });
+    await resolveStorefrontContext({ slugParam: "some-other-store", host: "arabstories.shayma.me" });
+    expect(findUnique).toHaveBeenCalledWith({ where: { slug: "shaymas-books" } });
+  });
   it("platform host: basePath is /{slug}", async () => {
     findUnique.mockResolvedValue({ id: "s2", slug: "janes-crafts" });
     const ctx = await resolveStorefrontContext({ slugParam: "janes-crafts", host: "store.thatsmy.app" });

@@ -13,4 +13,9 @@ describe("storefrontRewritePath", () => {
   it("does not rewrite on the platform host", () => {
     expect(storefrontRewritePath("store.thatsmy.app", "/janes-crafts")).toBeNull();
   });
+  it("does not rewrite root metadata routes on a custom domain", () => {
+    expect(storefrontRewritePath("arabstories.shayma.me", "/icon")).toBeNull();
+    expect(storefrontRewritePath("arabstories.shayma.me", "/apple-icon")).toBeNull();
+    expect(storefrontRewritePath("arabstories.shayma.me", "/opengraph-image")).toBeNull();
+  });
 });
