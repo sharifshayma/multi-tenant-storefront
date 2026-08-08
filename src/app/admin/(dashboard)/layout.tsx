@@ -1,11 +1,16 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/admin/LogoutButton";
+import { getCurrentUser } from "@/lib/auth-guard";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/admin/login");
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-white">
