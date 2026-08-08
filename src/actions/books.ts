@@ -27,9 +27,9 @@ export async function createBook(input: {
     return { ok: false, error: "الرجاء إدخال سعر صحيح" };
   }
 
-  // slug is globally unique at the DB level (not per-store), so this check
-  // intentionally stays unscoped by store.
-  const existing = await prisma.book.findUnique({ where: { slug } });
+  // slug is unique per-store at the DB level, so the existence check is
+  // scoped to the caller's store (also avoids leaking another store's slugs).
+  const existing = await prisma.book.findFirst({ where: { storeId: store.id, slug } });
   if (existing) {
     return { ok: false, error: "هذا الرابط مستخدم بالفعل لكتاب آخر، الرجاء اختيار رابط مختلف" };
   }

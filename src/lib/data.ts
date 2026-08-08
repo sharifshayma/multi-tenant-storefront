@@ -79,7 +79,7 @@ export async function getCollections(): Promise<CollectionSummary[]> {
 }
 
 export async function getCollectionBySlug(slug: string): Promise<CollectionSummary | null> {
-  const collection = await prisma.collection.findUnique({
+  const collection = await prisma.collection.findFirst({
     where: { slug },
     include: {
       books: {
