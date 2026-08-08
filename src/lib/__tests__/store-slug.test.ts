@@ -9,7 +9,7 @@ describe("slugify", () => {
     expect(slugify("  Hello!!  ")).toBe("hello");
   });
   it("strips curly apostrophes", () => {
-    expect(slugify("Jane's Crafts")).toBe("janes-crafts");
+    expect(slugify("Jane\u2019s Crafts")).toBe("janes-crafts");
   });
 });
 

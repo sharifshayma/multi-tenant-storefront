@@ -3,7 +3,7 @@ export const RESERVED_SLUGS = ["admin", "login", "signup", "api", "_next", "logo
 export function slugify(name: string): string {
   return name
     .toLowerCase()
-    .replace(/['']/g, "")
+    .replace(/['\u2019]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
