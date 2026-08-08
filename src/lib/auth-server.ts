@@ -7,7 +7,8 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,
-    // No self-serve signup UI in this plan; accounts are seeded (Task 6).
+    // Self-serve signup is available at /signup (src/actions/signup.ts),
+    // which creates the account and its store together in one step.
   },
   plugins: [nextCookies()],
 });
