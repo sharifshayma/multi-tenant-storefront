@@ -2,14 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth";
-
-async function requireAdmin() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  const valid = token ? await verifySessionToken(token) : false;
-  if (!valid) throw new Error("Unauthorized");
-}
+import { requireUser } from "@/lib/auth-guard";
 
 async function revalidateCollection(collectionId: string) {
   const collection = await prisma.collection.findUnique({
@@ -29,7 +22,7 @@ export async function updateCollection(input: {
   priceNis: number;
   requiredCount?: number | null;
 }) {
-  await requireAdmin();
+  await requireUser();
   await prisma.collection.update({
     where: { id: input.collectionId },
     data: {
@@ -43,7 +36,7 @@ export async function updateCollection(input: {
 }
 
 export async function setCollectionBooks(collectionId: string, bookIds: string[]) {
-  await requireAdmin();
+  await requireUser();
   await prisma.$transaction([
     prisma.collectionBook.deleteMany({ where: { collectionId } }),
     prisma.collectionBook.createMany({

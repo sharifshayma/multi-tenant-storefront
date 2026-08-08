@@ -3,15 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { requireUser } from "@/lib/auth-guard";
 import type { MediaType } from "@prisma/client";
-
-async function requireAdmin() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  const valid = token ? await verifySessionToken(token) : false;
-  if (!valid) throw new Error("Unauthorized");
-}
 
 async function revalidateBook(bookId: string) {
   const book = await prisma.book.findUnique({
@@ -27,7 +20,7 @@ export async function attachMedia(input: {
   url: string;
   type: MediaType;
 }) {
-  await requireAdmin();
+  await requireUser();
   const maxOrder = await prisma.bookMedia.aggregate({
     where: { bookId: input.bookId },
     _max: { sortOrder: true },
@@ -44,7 +37,7 @@ export async function attachMedia(input: {
 }
 
 export async function deleteMedia(mediaId: string) {
-  await requireAdmin();
+  await requireUser();
   const media = await prisma.bookMedia.findUnique({ where: { id: mediaId } });
   if (!media) return;
   await prisma.bookMedia.delete({ where: { id: mediaId } });
@@ -57,7 +50,7 @@ export async function deleteMedia(mediaId: string) {
 }
 
 export async function reorderMedia(bookId: string, orderedIds: string[]) {
-  await requireAdmin();
+  await requireUser();
   await prisma.$transaction(
     orderedIds.map((id, index) =>
       prisma.bookMedia.update({
@@ -75,7 +68,7 @@ export async function updateBook(input: {
   description: string;
   priceNis: number;
 }) {
-  await requireAdmin();
+  await requireUser();
   await prisma.book.update({
     where: { id: input.bookId },
     data: {

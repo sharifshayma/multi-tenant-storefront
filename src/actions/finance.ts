@@ -2,15 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { requireUser } from "@/lib/auth-guard";
 import type { TransactionType } from "@prisma/client";
-
-async function requireAdmin() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  const valid = token ? await verifySessionToken(token) : false;
-  if (!valid) throw new Error("Unauthorized");
-}
 
 export async function createTransaction(input: {
   type: TransactionType;
@@ -20,7 +13,7 @@ export async function createTransaction(input: {
   orderId?: string | null;
   date: Date;
 }) {
-  await requireAdmin();
+  await requireUser();
   if (!Number.isFinite(input.amountNis) || input.amountNis <= 0) {
     throw new Error("المبلغ غير صالح");
   }
@@ -39,14 +32,14 @@ export async function createTransaction(input: {
 }
 
 export async function deleteTransaction(id: string) {
-  await requireAdmin();
+  await requireUser();
   await prisma.transaction.delete({ where: { id } });
   revalidatePath("/admin/finance");
   revalidatePath("/admin");
 }
 
 export async function recordPayment(input: { orderId: string; amountNis: number }) {
-  await requireAdmin();
+  await requireUser();
   if (!Number.isFinite(input.amountNis) || input.amountNis <= 0) {
     throw new Error("المبلغ غير صالح");
   }
