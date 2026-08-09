@@ -22,7 +22,12 @@ export function storefrontRewritePath(host: string, pathname: string): string | 
     pathname.startsWith("/api") ||
     pathname === "/login" ||
     pathname === "/signup" ||
-    /^\/(icon|apple-icon|opengraph-image|favicon|robots\.txt|sitemap\.xml|\.well-known)/.test(pathname)
+    /^\/(icon|apple-icon|opengraph-image|favicon|robots\.txt|sitemap\.xml|\.well-known)/.test(pathname) ||
+    // Static assets under public/ (e.g. /images/books/x/cover.jpg, /*.svg): a
+    // file extension in the last path segment means it's an asset, not a
+    // storefront route (routes like /books/{slug} have no dot). Without this,
+    // the rewrite turns /images/... into /{slug}/images/... and the file 404s.
+    /\.[a-z0-9]+$/i.test(pathname)
   ) return null;
   return pathname === "/" ? `/${slug}` : `/${slug}${pathname}`;
 }
