@@ -15,40 +15,40 @@ import {
   PAYMENT_STATUS_STYLES,
 } from "@/lib/payment-status";
 
-type Payment = { id: string; amountNis: number; date: Date };
+type Payment = { id: string; amountMinor: number; date: Date };
 
 export function PaymentPanel({
   orderId,
-  totalNis,
-  discountNis,
+  totalMinor,
+  discountMinor,
   discountReason,
   payments,
 }: {
   orderId: string;
-  totalNis: number;
-  discountNis: number;
+  totalMinor: number;
+  discountMinor: number;
   discountReason: string | null;
   payments: Payment[];
 }) {
-  const payable = getAmountPayable(totalNis, discountNis);
-  const paid = payments.reduce((sum, p) => sum + p.amountNis, 0);
+  const payable = getAmountPayable(totalMinor, discountMinor);
+  const paid = payments.reduce((sum, p) => sum + p.amountMinor, 0);
   const remaining = Math.max(0, payable - paid);
   const overpaidBy = Math.max(0, paid - payable);
-  const status = getPaymentStatus(paid, totalNis, discountNis);
+  const status = getPaymentStatus(paid, totalMinor, discountMinor);
 
   const [amount, setAmount] = useState(remaining > 0 ? String(remaining) : "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Discount sub-form state
-  const [discountAmount, setDiscountAmount] = useState(discountNis > 0 ? String(discountNis) : "");
+  const [discountAmount, setDiscountAmount] = useState(discountMinor > 0 ? String(discountMinor) : "");
   const [reason, setReason] = useState(discountReason ?? "");
   const [discountSaving, setDiscountSaving] = useState(false);
   const [discountSaved, setDiscountSaved] = useState(false);
   const [discountError, setDiscountError] = useState<string | null>(null);
 
   const previewDiscount = Number(discountAmount) || 0;
-  const previewPayable = getAmountPayable(totalNis, previewDiscount);
+  const previewPayable = getAmountPayable(totalMinor, previewDiscount);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,7 +59,7 @@ export function PaymentPanel({
       return;
     }
     setSaving(true);
-    await recordPayment({ orderId, amountNis: val });
+    await recordPayment({ orderId, amountMinor: val });
     // No need to reset local state here: the parent page re-renders with a new
     // `payments` array after revalidation, and the `key` it passes to this
     // component forces a clean remount that re-derives inputs from fresh props.
@@ -75,7 +75,7 @@ export function PaymentPanel({
       return;
     }
     setDiscountSaving(true);
-    const res = await setOrderDiscount({ orderId, discountNis: val, discountReason: reason });
+    const res = await setOrderDiscount({ orderId, discountMinor: val, discountReason: reason });
     setDiscountSaving(false);
     if (!res.ok) {
       setDiscountError(res.error);
@@ -94,15 +94,15 @@ export function PaymentPanel({
         </span>
       </div>
 
-      {discountNis > 0 && (
+      {discountMinor > 0 && (
         <div className="mb-3 flex flex-col gap-1 rounded-xl bg-paper px-4 py-2 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-muted">إجمالي الطلب</span>
-            <Price nis={totalNis} className="text-muted" />
+            <Price nis={totalMinor} className="text-muted" />
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted">الخصم</span>
-            <Price nis={-discountNis} className="font-bold text-accent" />
+            <Price nis={-discountMinor} className="font-bold text-accent" />
           </div>
           <div className="flex items-center justify-between border-t border-border pt-1">
             <span className="font-bold">المبلغ المستحق</span>
@@ -112,7 +112,7 @@ export function PaymentPanel({
       )}
 
       <div className="mb-4 flex items-center justify-between text-sm">
-        <span className="text-muted">{discountNis > 0 ? "المدفوع من المستحق" : "المدفوع من الإجمالي"}</span>
+        <span className="text-muted">{discountMinor > 0 ? "المدفوع من المستحق" : "المدفوع من الإجمالي"}</span>
         <span className="flex items-center gap-1">
           <Price nis={paid} className="font-extrabold text-brand" />
           <span className="text-muted">/</span>
@@ -155,7 +155,7 @@ export function PaymentPanel({
                 {new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(p.date)}
               </span>
               <div className="flex items-center gap-2">
-                <Price nis={p.amountNis} className="font-bold text-accent" />
+                <Price nis={p.amountMinor} className="font-bold text-accent" />
                 <DeleteTransactionButton id={p.id} />
               </div>
             </div>
@@ -172,7 +172,7 @@ export function PaymentPanel({
               label="خصم (شيكل)"
               type="number"
               min={0}
-              max={totalNis}
+              max={totalMinor}
               dir="ltr"
               value={discountAmount}
               onChange={(e) => setDiscountAmount(e.target.value)}
@@ -188,7 +188,7 @@ export function PaymentPanel({
           value={reason}
           onChange={(e) => setReason(e.target.value)}
         />
-        {previewDiscount > 0 && previewDiscount !== discountNis && (
+        {previewDiscount > 0 && previewDiscount !== discountMinor && (
           <p className="text-xs text-muted">
             المبلغ المستحق بعد الخصم سيصبح <Price nis={previewPayable} className="inline font-bold text-brand" />
           </p>

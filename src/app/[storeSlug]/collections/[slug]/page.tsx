@@ -34,7 +34,7 @@ export default async function CollectionPage({
           <h1 className="text-2xl font-extrabold sm:text-3xl">{collection.title}</h1>
           <p className="mx-auto mt-2 max-w-xl text-muted">{collection.description}</p>
           <div className="mt-3 flex items-center justify-center gap-2">
-            <Price nis={collection.priceNis} className="text-2xl font-extrabold text-brand" />
+            <Price nis={collection.priceMinor} className="text-2xl font-extrabold text-brand" />
             <Price nis={originalPrice} className="text-muted line-through" />
           </div>
         </div>
@@ -52,7 +52,7 @@ export default async function CollectionPage({
         <div className="flex flex-col gap-4">
           <h1 className="text-2xl font-extrabold sm:text-3xl">{collection.title}</h1>
           <div className="flex items-center gap-2">
-            <Price nis={collection.priceNis} className="text-2xl font-extrabold text-brand" />
+            <Price nis={collection.priceMinor} className="text-2xl font-extrabold text-brand" />
             <Price nis={originalPrice} className="text-muted line-through" />
           </div>
           <p className="leading-relaxed text-ink/90">{collection.description}</p>

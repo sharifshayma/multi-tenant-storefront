@@ -25,7 +25,7 @@ export function AddCollectionToCartButton({
             collectionId: collection.id,
             slug: collection.slug,
             title: collection.title,
-            priceNis: collection.priceNis,
+            priceMinor: collection.priceMinor,
             isCustom: false,
             selectedBooks: collection.books,
           },

@@ -87,7 +87,7 @@ export async function updateBook(input: {
   bookId: string;
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
 }) {
   const store = await requireStore();
   const result = await prisma.book.updateMany({
@@ -95,7 +95,7 @@ export async function updateBook(input: {
     data: {
       title: input.title,
       description: input.description,
-      priceNis: input.priceNis,
+      priceMinor: input.priceMinor,
     },
   });
   if (result.count === 0) throw new Error("الكتاب غير موجود");

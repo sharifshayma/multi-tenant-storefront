@@ -12,7 +12,7 @@ export async function getBooks(storeId: string): Promise<BookSummary[]> {
       slug: true,
       title: true,
       description: true,
-      priceNis: true,
+      priceMinor: true,
       coverImage: true,
     },
   });
@@ -26,7 +26,7 @@ export async function getBookBySlug(slug: string, storeId: string): Promise<Book
       slug: true,
       title: true,
       description: true,
-      priceNis: true,
+      priceMinor: true,
       coverImage: true,
       media: {
         orderBy: { sortOrder: "asc" },
@@ -41,7 +41,7 @@ function toCollectionSummary(c: {
   slug: string;
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
   isCustom: boolean;
   requiredCount: number | null;
   books: { sortOrder: number; book: { id: string; slug: string; title: string; coverImage: string } }[];
@@ -51,7 +51,7 @@ function toCollectionSummary(c: {
     slug: c.slug,
     title: c.title,
     description: c.description,
-    priceNis: c.priceNis,
+    priceMinor: c.priceMinor,
     isCustom: c.isCustom,
     requiredCount: c.requiredCount,
     books: [...c.books]
@@ -260,7 +260,7 @@ export type StockLevel = {
   slug: string;
   title: string;
   coverImage: string;
-  priceNis: number;
+  priceMinor: number;
   currentStock: number;
 };
 
@@ -270,7 +270,7 @@ export async function getStockLevels(storeId: string): Promise<StockLevel[]> {
     prisma.book.findMany({
       where: { storeId },
       orderBy: { position: "asc" },
-      select: { id: true, slug: true, title: true, coverImage: true, priceNis: true },
+      select: { id: true, slug: true, title: true, coverImage: true, priceMinor: true },
     }),
     prisma.stockMovement.groupBy({ by: ["bookId"], where: { storeId }, _sum: { quantity: true } }),
   ]);
@@ -281,7 +281,7 @@ export async function getStockLevels(storeId: string): Promise<StockLevel[]> {
 export type OrderOption = {
   id: string;
   customerName: string;
-  totalNis: number;
+  totalMinor: number;
   createdAt: Date;
 };
 
@@ -291,7 +291,7 @@ export async function getOrdersForSelect(storeId: string): Promise<OrderOption[]
     where: { storeId },
     orderBy: { createdAt: "desc" },
     take: 200,
-    select: { id: true, customerName: true, totalNis: true, createdAt: true },
+    select: { id: true, customerName: true, totalMinor: true, createdAt: true },
   });
 }
 
@@ -303,25 +303,25 @@ export type FinanceSummary = {
 
 export async function getFinanceSummary(storeId: string): Promise<FinanceSummary> {
   const [revenue, expense] = await Promise.all([
-    prisma.transaction.aggregate({ where: { type: "REVENUE", storeId }, _sum: { amountNis: true } }),
-    prisma.transaction.aggregate({ where: { type: "EXPENSE", storeId }, _sum: { amountNis: true } }),
+    prisma.transaction.aggregate({ where: { type: "REVENUE", storeId }, _sum: { amountMinor: true } }),
+    prisma.transaction.aggregate({ where: { type: "EXPENSE", storeId }, _sum: { amountMinor: true } }),
   ]);
-  const totalRevenue = revenue._sum.amountNis ?? 0;
-  const totalExpense = expense._sum.amountNis ?? 0;
+  const totalRevenue = revenue._sum.amountMinor ?? 0;
+  const totalExpense = expense._sum.amountMinor ?? 0;
   return { totalRevenue, totalExpense, net: totalRevenue - totalExpense };
 }
 
 export type DiscountedOrder = {
   id: string;
   customerName: string;
-  totalNis: number;
-  discountNis: number;
+  totalMinor: number;
+  discountMinor: number;
   discountReason: string | null;
   createdAt: Date;
 };
 
 export type DiscountSummary = {
-  totalDiscountNis: number;
+  totalDiscountMinor: number;
   orders: DiscountedOrder[];
 };
 
@@ -332,30 +332,30 @@ export type DiscountSummary = {
  */
 export async function getDiscountSummary(storeId: string): Promise<DiscountSummary> {
   const orders = await prisma.order.findMany({
-    where: { discountNis: { gt: 0 }, storeId },
+    where: { discountMinor: { gt: 0 }, storeId },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
       customerName: true,
-      totalNis: true,
-      discountNis: true,
+      totalMinor: true,
+      discountMinor: true,
       discountReason: true,
       createdAt: true,
     },
   });
-  const totalDiscountNis = orders.reduce((sum, o) => sum + o.discountNis, 0);
-  return { totalDiscountNis, orders };
+  const totalDiscountMinor = orders.reduce((sum, o) => sum + o.discountMinor, 0);
+  return { totalDiscountMinor, orders };
 }
 
 export type ForecastedRevenueOrder = {
   id: string;
   customerName: string;
   status: OrderStatus;
-  outstandingNis: number;
+  outstandingMinor: number;
 };
 
 export type ForecastedRevenue = {
-  totalNis: number;
+  totalMinor: number;
   orders: ForecastedRevenueOrder[];
 };
 
@@ -373,28 +373,28 @@ export async function getForecastedRevenue(storeId: string): Promise<ForecastedR
       id: true,
       customerName: true,
       status: true,
-      totalNis: true,
-      discountNis: true,
-      transactions: { where: { type: "REVENUE" }, select: { amountNis: true } },
+      totalMinor: true,
+      discountMinor: true,
+      transactions: { where: { type: "REVENUE" }, select: { amountMinor: true } },
     },
   });
 
   const result: ForecastedRevenueOrder[] = [];
-  let totalNis = 0;
+  let totalMinor = 0;
   for (const order of orders) {
-    const paid = order.transactions.reduce((sum, t) => sum + t.amountNis, 0);
-    const outstanding = Math.max(0, getAmountPayable(order.totalNis, order.discountNis) - paid);
+    const paid = order.transactions.reduce((sum, t) => sum + t.amountMinor, 0);
+    const outstanding = Math.max(0, getAmountPayable(order.totalMinor, order.discountMinor) - paid);
     if (outstanding > 0) {
       result.push({
         id: order.id,
         customerName: order.customerName,
         status: order.status,
-        outstandingNis: outstanding,
+        outstandingMinor: outstanding,
       });
-      totalNis += outstanding;
+      totalMinor += outstanding;
     }
   }
-  return { totalNis, orders: result };
+  return { totalMinor, orders: result };
 }
 
 /** Amount paid so far per order, keyed by orderId — the sum of REVENUE transactions linked to it. Used for the payment badge on the orders list. */
@@ -402,11 +402,11 @@ export async function getOrderPaymentTotals(storeId: string): Promise<Map<string
   const sums = await prisma.transaction.groupBy({
     by: ["orderId"],
     where: { type: "REVENUE", orderId: { not: null }, storeId },
-    _sum: { amountNis: true },
+    _sum: { amountMinor: true },
   });
   const map = new Map<string, number>();
   for (const s of sums) {
-    if (s.orderId) map.set(s.orderId, s._sum.amountNis ?? 0);
+    if (s.orderId) map.set(s.orderId, s._sum.amountMinor ?? 0);
   }
   return map;
 }

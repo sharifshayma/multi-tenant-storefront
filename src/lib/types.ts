@@ -12,7 +12,7 @@ export type BookSummary = {
   slug: string;
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
   coverImage: string;
 };
 
@@ -32,7 +32,7 @@ export type CollectionSummary = {
   slug: string;
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
   isCustom: boolean;
   requiredCount: number | null;
   books: CollectionBookRef[];

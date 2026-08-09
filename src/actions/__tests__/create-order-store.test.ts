@@ -64,7 +64,7 @@ describe("createOrder store resolution", () => {
       store: { id: "B" },
       basePath: "/store-b",
     });
-    bookFindMany.mockResolvedValue([{ id: "book-1", title: "كتاب", priceNis: 50 }]);
+    bookFindMany.mockResolvedValue([{ id: "book-1", title: "كتاب", priceMinor: 50 }]);
     orderCreate.mockResolvedValue({ id: "order-1" });
 
     const result = await createOrder(baseInput);

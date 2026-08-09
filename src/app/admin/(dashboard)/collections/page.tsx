@@ -28,7 +28,7 @@ export default async function AdminCollectionsPage() {
           >
             <p className="font-bold">{c.title}</p>
             <div className="flex items-center gap-2 text-sm text-muted">
-              <Price nis={c.priceNis} />
+              <Price nis={c.priceMinor} />
               <span>
                 {c.isCustom ? `تختار العميلة ${c.requiredCount ?? ""} كتب` : `${c._count.books} كتب ثابتة`}
               </span>

@@ -28,15 +28,15 @@ export function TransactionForm({ orders }: { orders: OrderOption[] }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const amountNis = Number(amount);
-    if (!amountNis || amountNis <= 0) {
+    const amountMinor = Number(amount);
+    if (!amountMinor || amountMinor <= 0) {
       setError("الرجاء إدخال مبلغ صحيح");
       return;
     }
     setSaving(true);
     await createTransaction({
       type,
-      amountNis,
+      amountMinor,
       category: category || undefined,
       description: description || undefined,
       orderId: orderId || undefined,
@@ -118,7 +118,7 @@ export function TransactionForm({ orders }: { orders: OrderOption[] }) {
             setOrderId(e.target.value);
             const order = orders.find((o) => o.id === e.target.value);
             if (order && type === "REVENUE" && !amount) {
-              setAmount(String(order.totalNis));
+              setAmount(String(order.totalMinor));
             }
           }}
           className="rounded-xl border border-border bg-white px-4 py-2.5 text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -126,7 +126,7 @@ export function TransactionForm({ orders }: { orders: OrderOption[] }) {
           <option value="">بدون ربط</option>
           {orders.map((o) => (
             <option key={o.id} value={o.id}>
-              {o.customerName} — {o.totalNis} ₪ — {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
+              {o.customerName} — {o.totalMinor} ₪ — {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
             </option>
           ))}
         </select>

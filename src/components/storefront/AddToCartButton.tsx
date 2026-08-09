@@ -27,7 +27,7 @@ export function AddToCartButton({
         slug: book.slug,
         title: book.title,
         coverImage: book.coverImage,
-        priceNis: book.priceNis,
+        priceMinor: book.priceMinor,
       },
       quantity
     );
