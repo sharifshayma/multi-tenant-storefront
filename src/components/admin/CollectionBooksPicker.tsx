@@ -12,10 +12,12 @@ export function CollectionBooksPicker({
   collectionId,
   books,
   initialSelectedIds,
+  itemNounPlural,
 }: {
   collectionId: string;
   books: BookSummary[];
   initialSelectedIds: string[];
+  itemNounPlural: string;
 }) {
   const [selected, setSelected] = useState<string[]>(initialSelectedIds);
   const [saving, setSaving] = useState(false);
@@ -65,7 +67,7 @@ export function CollectionBooksPicker({
         })}
       </div>
       <Button onClick={handleSave} disabled={saving} className="self-start">
-        {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : `حفظ الكتب المختارة (${selected.length})`}
+        {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : `حفظ ال${itemNounPlural} المختارة (${selected.length})`}
       </Button>
     </div>
   );

@@ -18,11 +18,13 @@ export function CartPageClient({
   storeSlug,
   currency,
   locale,
+  itemNounPlural,
 }: {
   basePath: string;
   storeSlug: string;
   currency: string;
   locale: string;
+  itemNounPlural: string;
 }) {
   const { items, updateQty, removeItem, totalMinor, clear, hydrated } = useCart();
   const router = useRouter();
@@ -86,9 +88,9 @@ export function CartPageClient({
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6">
         <h1 className="text-2xl font-extrabold">سلتك فارغة</h1>
-        <p className="mt-2 text-muted">أضيفي بعض الكتب لتظهر هنا.</p>
+        <p className="mt-2 text-muted">أضيفي بعض ال{itemNounPlural} لتظهر هنا.</p>
         <Link href={storeHref(basePath, "/")} className="mt-6 inline-block">
-          <Button>تصفّحي الكتب</Button>
+          <Button>تصفّحي ال{itemNounPlural}</Button>
         </Link>
       </div>
     );

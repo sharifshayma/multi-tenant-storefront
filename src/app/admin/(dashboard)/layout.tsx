@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 import { getCurrentUser } from "@/lib/auth-guard";
+import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 
 export default async function DashboardLayout({
   children,
@@ -10,6 +12,9 @@ export default async function DashboardLayout({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
+
+  const store = await getCurrentStore();
+  const { plural } = store ? storeNoun(store) : { plural: "منتجات" };
 
   return (
     <div className="min-h-screen">
@@ -23,7 +28,7 @@ export default async function DashboardLayout({
               الطلبات
             </Link>
             <Link href="/admin/books" className="shrink-0 hover:text-ink">
-              الكتب والوسائط
+              ال{plural} والوسائط
             </Link>
             <Link href="/admin/collections" className="shrink-0 hover:text-ink">
               المجموعات

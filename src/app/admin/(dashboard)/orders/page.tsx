@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Price } from "@/components/ui/Price";
 import { DeleteOrderButton } from "@/components/admin/DeleteOrderButton";
@@ -26,6 +27,7 @@ export default async function AdminOrdersPage({
 }) {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { singular, plural } = storeNoun(store);
 
   const { status } = await searchParams;
   const filter =
@@ -52,7 +54,7 @@ export default async function AdminOrdersPage({
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="font-extrabold">قائمة الطباعة</h2>
-            <p className="text-sm text-muted">عدد النسخ المطلوبة لكل كتاب في الطلبات المؤكدة (مؤكد)</p>
+            <p className="text-sm text-muted">عدد النسخ المطلوبة لكل {singular} في الطلبات المؤكدة (مؤكد)</p>
           </div>
           {printList.length > 0 && (
             <span className="rounded-full bg-brand px-3 py-1 text-sm font-extrabold text-white">
@@ -139,7 +141,7 @@ export default async function AdminOrdersPage({
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted">
-                      {order._count.items + order._count.collectionItems} كتب ·{" "}
+                      {order._count.items + order._count.collectionItems} {plural} ·{" "}
                       {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(order.createdAt)}
                     </span>
                     <Price
@@ -165,7 +167,7 @@ export default async function AdminOrdersPage({
                   <th className="p-3">الاسم</th>
                   <th className="p-3">الهاتف</th>
                   <th className="p-3">المدينة</th>
-                  <th className="p-3">الكتب</th>
+                  <th className="p-3">ال{plural}</th>
                   <th className="p-3">الإجمالي</th>
                   <th className="p-3">التاريخ</th>
                   <th className="p-3">الحالة</th>

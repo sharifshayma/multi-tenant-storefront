@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { Price } from "@/components/ui/Price";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminCollectionsPage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { plural } = storeNoun(store);
 
   const collections = await prisma.collection.findMany({
     where: { storeId: store.id },
@@ -30,7 +32,7 @@ export default async function AdminCollectionsPage() {
             <div className="flex items-center gap-2 text-sm text-muted">
               <Price minor={c.priceMinor} currency={store.currency} locale={store.defaultLocale} />
               <span>
-                {c.isCustom ? `تختار العميلة ${c.requiredCount ?? ""} كتب` : `${c._count.books} كتب ثابتة`}
+                {c.isCustom ? `تختار العميلة ${c.requiredCount ?? ""} ${plural}` : `${c._count.books} ${plural} ثابتة`}
               </span>
             </div>
           </Link>

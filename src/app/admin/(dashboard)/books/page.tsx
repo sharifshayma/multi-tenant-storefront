@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Plus, Archive } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { Price } from "@/components/ui/Price";
 import { getBookDemand } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ export default async function AdminBooksPage({
 }) {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { singular, plural } = storeNoun(store);
 
   const { tab } = await searchParams;
   const filter = tab === "archived" || tab === "all" ? tab : "active";
@@ -45,9 +47,9 @@ export default async function AdminBooksPage({
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold">سجل الطلب على الكتب</h1>
+          <h1 className="text-2xl font-extrabold">سجل الطلب على ال{plural}</h1>
           <p className="mt-1 text-sm text-muted">
-            ترتيب تنازلي حسب عدد مرات الطلب — يشمل الطلبات المباشرة وظهور الكتاب ضمن أي مجموعة (قد يُحسب الكتاب أكثر من
+            ترتيب تنازلي حسب عدد مرات الطلب — يشمل الطلبات المباشرة وظهور ال{singular} ضمن أي مجموعة (قد يُحسب ال{singular} أكثر من
             مرة، وهذا مقصود لقياس الطلب الفعلي).
           </p>
         </div>
@@ -82,7 +84,7 @@ export default async function AdminBooksPage({
                 <thead>
                   <tr className="border-b border-border text-right text-muted">
                     <th className="p-3">#</th>
-                    <th className="p-3">الكتاب</th>
+                    <th className="p-3">ال{singular}</th>
                     <th className="p-3">طلبات مباشرة</th>
                     <th className="p-3">ضمن مجموعات</th>
                     <th className="p-3">الإجمالي</th>
@@ -117,13 +119,13 @@ export default async function AdminBooksPage({
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-extrabold">الكتب والوسائط</h2>
+          <h2 className="text-xl font-extrabold">ال{plural} والوسائط</h2>
           <Link
             href="/admin/books/new"
             className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
           >
             <Plus className="h-4 w-4" />
-            إضافة كتاب جديد
+            إضافة {singular} جديد
           </Link>
         </div>
 
@@ -145,7 +147,7 @@ export default async function AdminBooksPage({
         </div>
 
         {books.length === 0 ? (
-          <p className="text-muted">لا توجد كتب في هذا القسم.</p>
+          <p className="text-muted">لا توجد {plural} في هذا القسم.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {books.map((book) => (

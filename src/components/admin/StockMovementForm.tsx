@@ -20,7 +20,15 @@ const MOVEMENT_OPTIONS: {
   { key: "manual_sale", label: "بيع يدوي (خارج الموقع)", type: "SHIPPED", sign: -1 },
 ];
 
-export function StockMovementForm({ books, orders }: { books: StockLevel[]; orders: OrderOption[] }) {
+export function StockMovementForm({
+  books,
+  orders,
+  itemNounSingular,
+}: {
+  books: StockLevel[];
+  orders: OrderOption[];
+  itemNounSingular: string;
+}) {
   const [bookId, setBookId] = useState(books[0]?.id ?? "");
   const [optionKey, setOptionKey] = useState("printed");
   const [quantity, setQuantity] = useState("");
@@ -58,7 +66,7 @@ export function StockMovementForm({ books, orders }: { books: StockLevel[]; orde
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="bookId" className="text-sm font-bold text-ink">
-          الكتاب
+          ال{itemNounSingular}
         </label>
         <select
           id="bookId"

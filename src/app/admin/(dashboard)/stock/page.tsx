@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { getStockLevels, getOrdersForSelect } from "@/lib/data";
 import { StockMovementForm } from "@/components/admin/StockMovementForm";
 import { DeleteStockMovementButton } from "@/components/admin/DeleteStockMovementButton";
@@ -21,6 +22,7 @@ const MOVEMENT_TYPE_LABELS: Record<string, string> = {
 export default async function AdminStockPage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { singular } = storeNoun(store);
 
   const [stockLevels, orders, movements] = await Promise.all([
     getStockLevels(store.id),
@@ -59,7 +61,7 @@ export default async function AdminStockPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <h2 className="text-xl font-extrabold">المخزون الحالي لكل كتاب</h2>
+        <h2 className="text-xl font-extrabold">المخزون الحالي لكل {singular}</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {stockLevels.map((b) => (
             <div key={b.id} className="flex items-center gap-2 rounded-xl border border-border bg-white p-2">
@@ -80,7 +82,7 @@ export default async function AdminStockPage() {
         </div>
       </div>
 
-      <StockMovementForm books={stockLevels} orders={orders} />
+      <StockMovementForm books={stockLevels} orders={orders} itemNounSingular={singular} />
 
       <div className="flex flex-col gap-3">
         <h2 className="text-xl font-extrabold">سجل حركات المخزون</h2>
@@ -125,7 +127,7 @@ export default async function AdminStockPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-right text-muted">
-                    <th className="p-3">الكتاب</th>
+                    <th className="p-3">ال{singular}</th>
                     <th className="p-3">النوع</th>
                     <th className="p-3">الكمية</th>
                     <th className="p-3">الطلب</th>

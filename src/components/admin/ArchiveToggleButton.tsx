@@ -8,9 +8,11 @@ import { cn } from "@/lib/utils";
 export function ArchiveToggleButton({
   bookId,
   isArchived: initialArchived,
+  itemNounSingular,
 }: {
   bookId: string;
   isArchived: boolean;
+  itemNounSingular: string;
 }) {
   const [archived, setArchived] = useState(initialArchived);
   const [pending, startTransition] = useTransition();
@@ -34,7 +36,7 @@ export function ArchiveToggleButton({
       )}
     >
       {archived ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
-      {archived ? "إلغاء الأرشفة" : "أرشفة الكتاب"}
+      {archived ? "إلغاء الأرشفة" : `أرشفة ال${itemNounSingular}`}
     </button>
   );
 }

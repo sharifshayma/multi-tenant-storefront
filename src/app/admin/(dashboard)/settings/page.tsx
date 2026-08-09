@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAutoStockEnabled } from "@/lib/settings";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { AutoStockToggle } from "@/components/admin/AutoStockToggle";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminSettingsPage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { plural } = storeNoun(store);
 
   const autoStockEnabled = await getAutoStockEnabled(store.id);
 
@@ -16,7 +18,7 @@ export default async function AdminSettingsPage() {
       <h1 className="text-2xl font-extrabold">الإعدادات</h1>
 
       <div className="rounded-2xl border border-border bg-white p-5">
-        <AutoStockToggle enabled={autoStockEnabled} />
+        <AutoStockToggle enabled={autoStockEnabled} itemNounPlural={plural} />
       </div>
     </div>
   );

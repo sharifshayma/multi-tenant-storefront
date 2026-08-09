@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { getFinanceSummary, getStockLevels } from "@/lib/data";
 import { Price } from "@/components/ui/Price";
 
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminHomePage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { plural } = storeNoun(store);
 
   const [newCount, totalCount, bookCount, collectionCount, finance, stockLevels] = await Promise.all([
     prisma.order.count({ where: { status: "NEW", storeId: store.id } }),
@@ -44,7 +46,7 @@ export default async function AdminHomePage() {
           href="/admin/books"
           className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
         >
-          <p className="text-sm text-muted">الكتب</p>
+          <p className="text-sm text-muted">ال{plural}</p>
           <p className="mt-2 text-3xl font-extrabold">{bookCount}</p>
         </Link>
         <Link
