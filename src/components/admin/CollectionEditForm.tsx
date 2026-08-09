@@ -4,6 +4,7 @@ import { useState } from "react";
 import { updateCollection } from "@/actions/collections";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { minorToInput, inputToMinor } from "@/lib/money-input";
 
 export function CollectionEditForm({
   collectionId,
@@ -13,6 +14,7 @@ export function CollectionEditForm({
   isCustom,
   requiredCount: initialRequiredCount,
   itemNounPlural,
+  currency,
 }: {
   collectionId: string;
   title: string;
@@ -21,10 +23,11 @@ export function CollectionEditForm({
   isCustom: boolean;
   requiredCount: number | null;
   itemNounPlural: string;
+  currency: string;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
-  const [priceMinor, setPriceMinor] = useState(initialPrice);
+  const [price, setPrice] = useState(minorToInput(initialPrice));
   const [requiredCount, setRequiredCount] = useState(initialRequiredCount ?? 5);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -37,7 +40,7 @@ export function CollectionEditForm({
       collectionId,
       title,
       description,
-      priceMinor,
+      priceMinor: inputToMinor(price),
       requiredCount: isCustom ? requiredCount : undefined,
     });
     setSaving(false);
@@ -57,12 +60,13 @@ export function CollectionEditForm({
       />
       <Input
         id="priceMinor"
-        label="سعر المجموعة (شيكل)"
+        label={`سعر المجموعة (${currency})`}
         type="number"
         min={0}
+        step="0.01"
         dir="ltr"
-        value={priceMinor}
-        onChange={(e) => setPriceMinor(Number(e.target.value))}
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
       />
       {isCustom && (
         <Input

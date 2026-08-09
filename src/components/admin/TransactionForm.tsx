@@ -6,6 +6,7 @@ import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
+import { minorToInput, inputToMinor } from "@/lib/money-input";
 import type { OrderOption } from "@/lib/data";
 import type { TransactionType } from "@prisma/client";
 
@@ -37,7 +38,7 @@ export function TransactionForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const amountMinor = Number(amount);
+    const amountMinor = inputToMinor(amount);
     if (!amountMinor || amountMinor <= 0) {
       setError("الرجاء إدخال مبلغ صحيح");
       return;
@@ -90,9 +91,10 @@ export function TransactionForm({
 
       <Input
         id="amount"
-        label="المبلغ (شيكل)"
+        label={`المبلغ (${currency})`}
         type="number"
         min={0}
+        step="0.01"
         dir="ltr"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
@@ -127,7 +129,7 @@ export function TransactionForm({
             setOrderId(e.target.value);
             const order = orders.find((o) => o.id === e.target.value);
             if (order && type === "REVENUE" && !amount) {
-              setAmount(String(order.totalMinor));
+              setAmount(minorToInput(order.totalMinor));
             }
           }}
           className="rounded-xl border border-border bg-white px-4 py-2.5 text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"

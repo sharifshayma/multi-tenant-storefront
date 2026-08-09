@@ -66,6 +66,8 @@ export default async function AdminOrderDetailPage({
           status: order.status,
           customerName: order.customerName,
           totalMinor: order.totalMinor,
+          currency: store.currency,
+          locale: store.defaultLocale,
           items: order.items.map((i) => ({ title: i.book.title, quantity: i.quantity })),
           collectionItems: order.collectionItems.map((i) => ({
             title: i.collection.title,

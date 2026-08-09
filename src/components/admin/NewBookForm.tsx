@@ -9,8 +9,15 @@ import { createBook } from "@/actions/books";
 import { slugify } from "@/lib/slugify";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { minorToInput, inputToMinor } from "@/lib/money-input";
 
-export function NewBookForm({ itemNounSingular }: { itemNounSingular: string }) {
+export function NewBookForm({
+  itemNounSingular,
+  currency,
+}: {
+  itemNounSingular: string;
+  currency: string;
+}) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -18,7 +25,7 @@ export function NewBookForm({ itemNounSingular }: { itemNounSingular: string }) 
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [description, setDescription] = useState("");
-  const [priceMinor, setPriceMinor] = useState("4000");
+  const [price, setPrice] = useState(minorToInput(4000));
   const [coverImage, setCoverImage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -54,13 +61,13 @@ export function NewBookForm({ itemNounSingular }: { itemNounSingular: string }) 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const price = Number(priceMinor);
-    if (!title.trim() || !description.trim() || !slug.trim() || !coverImage || !price) {
+    const priceMinor = inputToMinor(price);
+    if (!title.trim() || !description.trim() || !slug.trim() || !coverImage || !priceMinor) {
       setError("الرجاء تعبئة جميع الحقول ورفع صورة الغلاف");
       return;
     }
     setSaving(true);
-    const result = await createBook({ title, description, slug, priceMinor: price, coverImage });
+    const result = await createBook({ title, description, slug, priceMinor, coverImage });
     setSaving(false);
     if (!result.ok) {
       setError(result.error);
@@ -141,12 +148,13 @@ export function NewBookForm({ itemNounSingular }: { itemNounSingular: string }) 
 
       <Input
         id="newBookPrice"
-        label="السعر (شيكل)"
+        label={`السعر (${currency})`}
         type="number"
         min={0}
+        step="0.01"
         dir="ltr"
-        value={priceMinor}
-        onChange={(e) => setPriceMinor(e.target.value)}
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
       />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
