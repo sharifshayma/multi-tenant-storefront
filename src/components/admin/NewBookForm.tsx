@@ -10,7 +10,7 @@ import { slugify } from "@/lib/slugify";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
-export function NewBookForm() {
+export function NewBookForm({ itemNounSingular }: { itemNounSingular: string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -152,7 +152,7 @@ export function NewBookForm() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Button type="submit" disabled={saving || uploading} className="self-start">
-        {saving ? "جارِ الإنشاء..." : "إنشاء الكتاب"}
+        {saving ? "جارِ الإنشاء..." : `إنشاء ال${itemNounSingular}`}
       </Button>
     </form>
   );

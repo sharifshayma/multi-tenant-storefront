@@ -4,7 +4,13 @@ import { useState, useTransition } from "react";
 import { updateAutoStockSetting } from "@/actions/settings";
 import { cn } from "@/lib/utils";
 
-export function AutoStockToggle({ enabled: initialEnabled }: { enabled: boolean }) {
+export function AutoStockToggle({
+  enabled: initialEnabled,
+  itemNounPlural,
+}: {
+  enabled: boolean;
+  itemNounPlural: string;
+}) {
   const [enabled, setEnabled] = useState(initialEnabled);
   const [pending, startTransition] = useTransition();
 
@@ -21,7 +27,7 @@ export function AutoStockToggle({ enabled: initialEnabled }: { enabled: boolean 
       <div className="min-w-0">
         <h2 className="font-extrabold">تحديث المخزون تلقائياً</h2>
         <p className="mt-1 text-sm text-muted">
-          عند نقل الطلب إلى «تم الشحن» أو «تم التسليم»، تُخصم الكتب المطلوبة من المخزون تلقائياً.
+          عند نقل الطلب إلى «تم الشحن» أو «تم التسليم»، تُخصم ال{itemNounPlural} المطلوبة من المخزون تلقائياً.
           يُخصم الطلب مرة واحدة فقط حتى لو مرّ بالحالتين. عند الإيقاف، يمكنك تعديل المخزون يدوياً من صفحة المخزون.
         </p>
         <p className="mt-2 text-xs font-bold">

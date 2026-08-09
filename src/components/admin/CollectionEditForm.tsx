@@ -12,6 +12,7 @@ export function CollectionEditForm({
   priceMinor: initialPrice,
   isCustom,
   requiredCount: initialRequiredCount,
+  itemNounPlural,
 }: {
   collectionId: string;
   title: string;
@@ -19,6 +20,7 @@ export function CollectionEditForm({
   priceMinor: number;
   isCustom: boolean;
   requiredCount: number | null;
+  itemNounPlural: string;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
@@ -65,7 +67,7 @@ export function CollectionEditForm({
       {isCustom && (
         <Input
           id="requiredCount"
-          label="عدد الكتب التي تختارها العميلة"
+          label={`عدد ال${itemNounPlural} التي تختارها العميلة`}
           type="number"
           min={1}
           dir="ltr"

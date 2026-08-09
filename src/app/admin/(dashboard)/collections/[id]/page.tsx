@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { CollectionEditForm } from "@/components/admin/CollectionEditForm";
 import { CollectionBooksPicker } from "@/components/admin/CollectionBooksPicker";
 
@@ -15,6 +16,7 @@ export default async function AdminCollectionDetailPage({
 }) {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { plural } = storeNoun(store);
 
   const { id } = await params;
   const collection = await prisma.collection.findFirst({
@@ -46,21 +48,23 @@ export default async function AdminCollectionDetailPage({
         priceMinor={collection.priceMinor}
         isCustom={collection.isCustom}
         requiredCount={collection.requiredCount}
+        itemNounPlural={plural}
       />
 
       {collection.isCustom ? (
         <div className="rounded-2xl border border-border bg-white p-5">
           <p className="text-sm text-muted">
-            هذه مجموعة "اختاري بنفسك" — العميلة تختار الكتب بنفسها عند الطلب، لذا لا توجد كتب ثابتة لتحديدها هنا.
+            هذه مجموعة "اختاري بنفسك" — العميلة تختار ال{plural} بنفسها عند الطلب، لذا لا توجد {plural} ثابتة لتحديدها هنا.
           </p>
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-white p-5">
-          <h2 className="mb-4 font-extrabold">الكتب في هذه المجموعة</h2>
+          <h2 className="mb-4 font-extrabold">ال{plural} في هذه المجموعة</h2>
           <CollectionBooksPicker
             collectionId={collection.id}
             books={allBooks}
             initialSelectedIds={collection.books.map((b) => b.bookId)}
+            itemNounPlural={plural}
           />
         </div>
       )}

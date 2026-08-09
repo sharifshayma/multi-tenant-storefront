@@ -33,6 +33,8 @@ export function OrderItemsEditor({
   allBooks,
   currency,
   locale,
+  itemNounSingular,
+  itemNounPlural,
 }: {
   orderId: string;
   initialItems: EditableBookLine[];
@@ -40,6 +42,8 @@ export function OrderItemsEditor({
   allBooks: SelectableBook[];
   currency: string;
   locale: string;
+  itemNounSingular: string;
+  itemNounPlural: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [collectionItems, setCollectionItems] = useState(initialCollectionItems);
@@ -80,7 +84,7 @@ export function OrderItemsEditor({
   async function handleSave() {
     setError(null);
     if (items.length === 0 && collectionItems.length === 0) {
-      setError("يجب أن يحتوي الطلب على كتاب واحد على الأقل");
+      setError(`يجب أن يحتوي الطلب على ${itemNounSingular} واحد على الأقل`);
       return;
     }
     setSaving(true);
@@ -100,7 +104,7 @@ export function OrderItemsEditor({
 
   return (
     <div className="rounded-2xl border border-border bg-white p-5">
-      <h2 className="mb-3 font-extrabold">الكتب والمجموعات المطلوبة</h2>
+      <h2 className="mb-3 font-extrabold">ال{itemNounPlural} والمجموعات المطلوبة</h2>
 
       {items.length === 0 && collectionItems.length === 0 && (
         <p className="text-sm text-muted">لا توجد عناصر في هذا الطلب.</p>
@@ -194,7 +198,7 @@ export function OrderItemsEditor({
           onChange={(e) => setAddBookId(e.target.value)}
           className="min-w-[160px] flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-brand"
         >
-          <option value="">إضافة كتاب...</option>
+          <option value="">إضافة {itemNounSingular}...</option>
           {allBooks.map((b) => (
             <option key={b.id} value={b.id}>
               {b.title} — {formatMoney(b.priceMinor, currency, locale)}

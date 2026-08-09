@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { Price } from "@/components/ui/Price";
 import { OrderStatusManager } from "@/components/admin/OrderStatusManager";
 import { PaymentPanel } from "@/components/admin/PaymentPanel";
@@ -19,6 +20,7 @@ export default async function AdminOrderDetailPage({
 }) {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { singular, plural } = storeNoun(store);
 
   const { id } = await params;
   const [order, allBooks] = await Promise.all([
@@ -116,10 +118,12 @@ export default async function AdminOrderDetailPage({
             allBooks={allBooks}
             currency={store.currency}
             locale={store.defaultLocale}
+            itemNounSingular={singular}
+            itemNounPlural={plural}
           />
         ) : (
           <div className="rounded-2xl border border-border bg-white p-5">
-            <h2 className="mb-3 font-extrabold">الكتب والمجموعات المطلوبة</h2>
+            <h2 className="mb-3 font-extrabold">ال{plural} والمجموعات المطلوبة</h2>
             <div className="flex flex-col divide-y divide-border">
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between py-2 text-sm">

@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
+import { storeNoun } from "@/lib/store-noun";
 import { getBookOrderHistory } from "@/lib/data";
 import { BookEditForm } from "@/components/admin/BookEditForm";
 import { MediaUploader } from "@/components/admin/MediaUploader";
@@ -20,6 +21,7 @@ export default async function AdminBookDetailPage({
 }) {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const { singular, plural } = storeNoun(store);
 
   const { id } = await params;
   const [book, orderHistory] = await Promise.all([
@@ -39,14 +41,14 @@ export default async function AdminBookDetailPage({
           className="flex items-center gap-1 text-sm font-bold text-muted hover:text-ink"
         >
           <ArrowRight className="h-4 w-4" />
-          العودة إلى الكتب
+          العودة إلى ال{plural}
         </Link>
-        <ArchiveToggleButton bookId={book.id} isArchived={book.isArchived} />
+        <ArchiveToggleButton bookId={book.id} isArchived={book.isArchived} itemNounSingular={singular} />
       </div>
 
       {book.isArchived && (
         <p className="rounded-xl bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800">
-          هذا الكتاب مؤرشف حالياً ولا يظهر للعملاء في المتجر.
+          هذا ال{singular} مؤرشف حالياً ولا يظهر للعملاء في المتجر.
         </p>
       )}
 
@@ -71,7 +73,7 @@ export default async function AdminBookDetailPage({
       <div className="rounded-2xl border border-border bg-white p-5">
         <h2 className="mb-4 font-extrabold">سجل الطلبات ({orderHistory.length})</h2>
         {orderHistory.length === 0 ? (
-          <p className="text-sm text-muted">لم يُطلب هذا الكتاب بعد.</p>
+          <p className="text-sm text-muted">لم يُطلب هذا ال{singular} بعد.</p>
         ) : (
           <>
             {/* Mobile: stacked cards */}
