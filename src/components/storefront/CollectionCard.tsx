@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Price } from "@/components/ui/Price";
 import { storeHref } from "@/lib/store-href";
+import { DEFAULT_PRICE_MINOR } from "@/lib/constants";
 import { CollectionCollage } from "./CollectionCollage";
 import type { CollectionSummary } from "@/lib/types";
 
@@ -12,8 +13,8 @@ export function CollectionCard({
   basePath: string;
 }) {
   const originalPrice = collection.isCustom
-    ? (collection.requiredCount ?? 0) * 40
-    : collection.books.length * 40;
+    ? (collection.requiredCount ?? 0) * DEFAULT_PRICE_MINOR
+    : collection.books.length * DEFAULT_PRICE_MINOR;
 
   return (
     <Link
