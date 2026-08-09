@@ -16,6 +16,7 @@ export const auth = betterAuth({
     // Emails a one-time code; used by the Settings password-change flow
     // (type "forget-password") and doubles as account recovery.
     emailOTP({
+      disableSignUp: true,
       async sendVerificationOTP({ email, otp }) {
         await sendPasswordResetOtp(email, otp);
       },

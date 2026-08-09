@@ -46,4 +46,15 @@ describe("updateStoreSlug", () => {
     expect(r).toEqual({ ok: true, slug: "shaymas-books" });
     expect(storeUpdate).not.toHaveBeenCalled();
   });
+  it("maps a P2002 unique-constraint race on update to the friendly error", async () => {
+    storeUpdate.mockRejectedValue(
+      Object.assign(new Error("Unique constraint failed"), { code: "P2002" }),
+    );
+    const r = await updateStoreSlug("shaymas-store");
+    expect(r).toEqual({ ok: false, error: "هذا العنوان مستخدم من متجر آخر" });
+  });
+  it("propagates non-P2002 errors from update", async () => {
+    storeUpdate.mockRejectedValue(new Error("boom"));
+    await expect(updateStoreSlug("shaymas-store")).rejects.toThrow("boom");
+  });
 });
