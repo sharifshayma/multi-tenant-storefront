@@ -26,7 +26,7 @@ export default async function AdminCollectionDetailPage({
   const allBooks = await prisma.book.findMany({
     where: { storeId: store.id },
     orderBy: { position: "asc" },
-    select: { id: true, slug: true, title: true, description: true, priceNis: true, coverImage: true },
+    select: { id: true, slug: true, title: true, description: true, priceMinor: true, coverImage: true },
   });
 
   return (
@@ -43,7 +43,7 @@ export default async function AdminCollectionDetailPage({
         collectionId={collection.id}
         title={collection.title}
         description={collection.description}
-        priceNis={collection.priceNis}
+        priceMinor={collection.priceMinor}
         isCustom={collection.isCustom}
         requiredCount={collection.requiredCount}
       />

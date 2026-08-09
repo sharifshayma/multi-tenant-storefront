@@ -19,7 +19,7 @@ export async function updateCollection(input: {
   collectionId: string;
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
   requiredCount?: number | null;
 }) {
   const store = await requireStore();
@@ -28,7 +28,7 @@ export async function updateCollection(input: {
     data: {
       title: input.title,
       description: input.description,
-      priceNis: input.priceNis,
+      priceMinor: input.priceMinor,
       ...(input.requiredCount !== undefined ? { requiredCount: input.requiredCount } : {}),
     },
   });

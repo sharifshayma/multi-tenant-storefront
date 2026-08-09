@@ -111,7 +111,7 @@ export default async function AdminOrdersPage({
           <div className="flex flex-col gap-3 sm:hidden">
             {orders.map((order) => {
               const paid = paymentTotals.get(order.id) ?? 0;
-              const paymentStatus = getPaymentStatus(paid, order.totalNis, order.discountNis);
+              const paymentStatus = getPaymentStatus(paid, order.totalMinor, order.discountMinor);
               return (
                 <div key={order.id} className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4">
                   <div className="flex items-center justify-between gap-2">
@@ -142,7 +142,7 @@ export default async function AdminOrdersPage({
                       {order._count.items + order._count.collectionItems} كتب ·{" "}
                       {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(order.createdAt)}
                     </span>
-                    <Price nis={order.totalNis} className="font-extrabold text-brand" />
+                    <Price nis={order.totalMinor} className="font-extrabold text-brand" />
                   </div>
                   <div className="flex justify-end pt-1">
                     <DeleteOrderButton orderId={order.id} />
@@ -171,7 +171,7 @@ export default async function AdminOrdersPage({
               <tbody>
                 {orders.map((order) => {
                   const paid = paymentTotals.get(order.id) ?? 0;
-                  const paymentStatus = getPaymentStatus(paid, order.totalNis, order.discountNis);
+                  const paymentStatus = getPaymentStatus(paid, order.totalMinor, order.discountMinor);
                   return (
                     <tr key={order.id} className="border-b border-border last:border-0">
                       <td className="p-3">
@@ -188,7 +188,7 @@ export default async function AdminOrdersPage({
                       <td className="p-3">{order.city}</td>
                       <td className="p-3">{order._count.items + order._count.collectionItems}</td>
                       <td className="p-3">
-                        <Price nis={order.totalNis} />
+                        <Price nis={order.totalMinor} />
                       </td>
                       <td className="p-3 text-muted">
                         {new Intl.DateTimeFormat("ar", {

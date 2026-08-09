@@ -4,7 +4,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-type OrderEmailItem = { title: string; quantity: number; unitPriceNis: number };
+type OrderEmailItem = { title: string; quantity: number; unitPriceMinor: number };
 type OrderEmailCollectionItem = OrderEmailItem & { bookTitles: string[] };
 
 export async function sendOrderNotification(order: {
@@ -14,7 +14,7 @@ export async function sendOrderNotification(order: {
   email?: string | null;
   city: string;
   notes?: string | null;
-  totalNis: number;
+  totalMinor: number;
   items: OrderEmailItem[];
   collectionItems?: OrderEmailCollectionItem[];
 }) {
@@ -34,7 +34,7 @@ export async function sendOrderNotification(order: {
     .map(
       (i) =>
         `<tr><td style="padding:4px 8px">${i.title}</td><td style="padding:4px 8px">×${i.quantity}</td><td style="padding:4px 8px">${
-          i.unitPriceNis * i.quantity
+          i.unitPriceMinor * i.quantity
         } ₪</td></tr>`
     )
     .join("");
@@ -43,7 +43,7 @@ export async function sendOrderNotification(order: {
     .map(
       (i) =>
         `<tr><td style="padding:4px 8px"><strong>${i.title}</strong> (مجموعة)<br/><span style="color:#666;font-size:13px">${i.bookTitles.join("، ")}</span></td><td style="padding:4px 8px">×${i.quantity}</td><td style="padding:4px 8px">${
-          i.unitPriceNis * i.quantity
+          i.unitPriceMinor * i.quantity
         } ₪</td></tr>`
     )
     .join("");
@@ -62,7 +62,7 @@ export async function sendOrderNotification(order: {
           <p><strong>المدينة:</strong> ${order.city}</p>
           ${order.notes ? `<p><strong>ملاحظات:</strong> ${order.notes}</p>` : ""}
           <table style="border-collapse:collapse;margin-top:12px">${itemsHtml}${collectionItemsHtml}</table>
-          <p style="margin-top:12px"><strong>الإجمالي: ${order.totalNis} ₪</strong></p>
+          <p style="margin-top:12px"><strong>الإجمالي: ${order.totalMinor} ₪</strong></p>
           <p style="margin-top:16px;color:#666">رقم الطلب: ${order.id}</p>
         </div>
       `,

@@ -36,7 +36,7 @@ export default async function AdminStockPage() {
   ]);
 
   const totalUnits = stockLevels.reduce((sum, b) => sum + b.currentStock, 0);
-  const totalValue = stockLevels.reduce((sum, b) => sum + b.currentStock * b.priceNis, 0);
+  const totalValue = stockLevels.reduce((sum, b) => sum + b.currentStock * b.priceMinor, 0);
 
   return (
     <div className="flex flex-col gap-6">

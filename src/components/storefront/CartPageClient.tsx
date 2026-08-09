@@ -20,7 +20,7 @@ export function CartPageClient({
   basePath: string;
   storeSlug: string;
 }) {
-  const { items, updateQty, removeItem, totalNis, clear, hydrated } = useCart();
+  const { items, updateQty, removeItem, totalMinor, clear, hydrated } = useCart();
   const router = useRouter();
 
   const [form, setForm] = useState({
@@ -123,7 +123,7 @@ export function CartPageClient({
                     {item.selectedBooks.map((b) => b.title).join("، ")}
                   </p>
                 )}
-                <Price nis={item.priceNis} className="text-sm text-muted" />
+                <Price nis={item.priceMinor} className="text-sm text-muted" />
               </div>
               <div className="flex items-center rounded-full border border-border bg-white">
                 <button
@@ -157,7 +157,7 @@ export function CartPageClient({
 
           <div className="flex items-center justify-between rounded-2xl border border-border bg-white p-4">
             <span className="font-bold">الإجمالي</span>
-            <Price nis={totalNis} className="text-xl font-extrabold text-brand" />
+            <Price nis={totalMinor} className="text-xl font-extrabold text-brand" />
           </div>
         </div>
 

@@ -9,7 +9,7 @@ export type CreateBookResult = { ok: true; bookId: string } | { ok: false; error
 export async function createBook(input: {
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
   slug: string;
   coverImage: string;
 }): Promise<CreateBookResult> {
@@ -23,7 +23,7 @@ export async function createBook(input: {
   if (!description) return { ok: false, error: "الرجاء إدخال وصف الكتاب" };
   if (!slug) return { ok: false, error: "الرجاء إدخال رابط (slug) للكتاب" };
   if (!input.coverImage) return { ok: false, error: "الرجاء رفع صورة الغلاف" };
-  if (!Number.isFinite(input.priceNis) || input.priceNis <= 0) {
+  if (!Number.isFinite(input.priceMinor) || input.priceMinor <= 0) {
     return { ok: false, error: "الرجاء إدخال سعر صحيح" };
   }
 
@@ -45,7 +45,7 @@ export async function createBook(input: {
       description,
       slug,
       coverImage: input.coverImage,
-      priceNis: Math.round(input.priceNis),
+      priceMinor: Math.round(input.priceMinor),
       position: (maxPosition._max.position ?? 0) + 1,
       storeId: store.id,
     },

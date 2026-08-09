@@ -16,7 +16,7 @@ export type CartBookItem = {
   slug: string;
   title: string;
   coverImage: string;
-  priceNis: number;
+  priceMinor: number;
   quantity: number;
 };
 
@@ -26,7 +26,7 @@ export type CartCollectionItem = {
   collectionId: string;
   slug: string;
   title: string;
-  priceNis: number;
+  priceMinor: number;
   isCustom: boolean;
   selectedBooks: CollectionBookRef[];
   quantity: number;
@@ -150,7 +150,7 @@ type CartContextValue = {
   updateQty: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
   clear: () => void;
-  totalNis: number;
+  totalMinor: number;
   totalCount: number;
 };
 
@@ -182,7 +182,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
               slug: entry.slug,
               title: entry.title,
               coverImage: entry.coverImage,
-              priceNis: entry.priceNis,
+              priceMinor: entry.priceMinor,
               quantity: entry.quantity,
             } as CartBookItem;
           }
@@ -200,7 +200,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
   }, [state.items, state.hydrated]);
 
-  const totalNis = state.items.reduce((sum, i) => sum + i.priceNis * i.quantity, 0);
+  const totalMinor = state.items.reduce((sum, i) => sum + i.priceMinor * i.quantity, 0);
   const totalCount = state.items.reduce((sum, i) => sum + i.quantity, 0);
 
   const value: CartContextValue = {
@@ -211,7 +211,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     updateQty: (id, quantity) => dispatch({ type: "UPDATE_QTY", id, quantity }),
     removeItem: (id) => dispatch({ type: "REMOVE_ITEM", id }),
     clear: () => dispatch({ type: "CLEAR" }),
-    totalNis,
+    totalMinor,
     totalCount,
   };
 

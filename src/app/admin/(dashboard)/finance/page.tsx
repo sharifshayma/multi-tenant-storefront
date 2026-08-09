@@ -53,7 +53,7 @@ export default async function AdminFinancePage() {
         </div>
       </div>
 
-      <ForecastedRevenuePanel totalNis={forecast.totalNis} orders={forecast.orders} />
+      <ForecastedRevenuePanel totalMinor={forecast.totalMinor} orders={forecast.orders} />
 
       <TransactionForm orders={orders} />
 
@@ -74,7 +74,7 @@ export default async function AdminFinancePage() {
                     {t.type === "REVENUE" ? "إيراد" : "مصروف"}
                   </span>
                   <Price
-                    nis={t.amountNis}
+                    nis={t.amountMinor}
                     className={`font-extrabold ${t.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                   />
                 </div>
@@ -128,7 +128,7 @@ export default async function AdminFinancePage() {
                     </td>
                     <td className="p-3">
                       <Price
-                        nis={t.amountNis}
+                        nis={t.amountMinor}
                         className={`font-extrabold ${t.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                       />
                     </td>
@@ -164,7 +164,7 @@ export default async function AdminFinancePage() {
               الخصومات الممنوحة
               <span className="mr-1 text-ink">({discounts.orders.length})</span>
             </span>
-            <Price nis={discounts.totalDiscountNis} className="font-extrabold text-accent" />
+            <Price nis={discounts.totalDiscountMinor} className="font-extrabold text-accent" />
           </summary>
           <div className="mt-3 overflow-x-auto border-t border-border pt-3">
             <table className="w-full text-xs">
@@ -185,7 +185,7 @@ export default async function AdminFinancePage() {
                       </Link>
                     </td>
                     <td className="px-2 py-1.5">
-                      <Price nis={o.discountNis} className="font-bold text-accent" />
+                      <Price nis={o.discountMinor} className="font-bold text-accent" />
                     </td>
                     <td className="max-w-[12rem] truncate px-2 py-1.5 text-muted">
                       {o.discountReason ?? "—"}

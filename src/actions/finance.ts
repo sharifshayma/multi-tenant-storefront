@@ -7,14 +7,14 @@ import type { TransactionType } from "@prisma/client";
 
 export async function createTransaction(input: {
   type: TransactionType;
-  amountNis: number;
+  amountMinor: number;
   category?: string;
   description?: string;
   orderId?: string | null;
   date: Date;
 }) {
   const store = await requireStore();
-  if (!Number.isFinite(input.amountNis) || input.amountNis <= 0) {
+  if (!Number.isFinite(input.amountMinor) || input.amountMinor <= 0) {
     throw new Error("المبلغ غير صالح");
   }
   if (input.orderId) {
@@ -27,7 +27,7 @@ export async function createTransaction(input: {
   await prisma.transaction.create({
     data: {
       type: input.type,
-      amountNis: Math.round(input.amountNis),
+      amountMinor: Math.round(input.amountMinor),
       category: input.category || null,
       description: input.description || null,
       orderId: input.orderId || null,
@@ -47,9 +47,9 @@ export async function deleteTransaction(id: string) {
   revalidatePath("/admin");
 }
 
-export async function recordPayment(input: { orderId: string; amountNis: number }) {
+export async function recordPayment(input: { orderId: string; amountMinor: number }) {
   const store = await requireStore();
-  if (!Number.isFinite(input.amountNis) || input.amountNis <= 0) {
+  if (!Number.isFinite(input.amountMinor) || input.amountMinor <= 0) {
     throw new Error("المبلغ غير صالح");
   }
   const order = await prisma.order.findFirst({
@@ -60,7 +60,7 @@ export async function recordPayment(input: { orderId: string; amountNis: number 
   await prisma.transaction.create({
     data: {
       type: "REVENUE",
-      amountNis: Math.round(input.amountNis),
+      amountMinor: Math.round(input.amountMinor),
       category: "مبيعات",
       orderId: input.orderId,
       date: new Date(),

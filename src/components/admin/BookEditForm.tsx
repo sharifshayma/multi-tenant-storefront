@@ -9,16 +9,16 @@ export function BookEditForm({
   bookId,
   title: initialTitle,
   description: initialDescription,
-  priceNis: initialPrice,
+  priceMinor: initialPrice,
 }: {
   bookId: string;
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
-  const [priceNis, setPriceNis] = useState(initialPrice);
+  const [priceMinor, setPriceMinor] = useState(initialPrice);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -26,7 +26,7 @@ export function BookEditForm({
     e.preventDefault();
     setSaving(true);
     setSaved(false);
-    await updateBook({ bookId, title, description, priceNis });
+    await updateBook({ bookId, title, description, priceMinor });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
@@ -48,13 +48,13 @@ export function BookEditForm({
         onChange={(e) => setDescription(e.target.value)}
       />
       <Input
-        id="priceNis"
+        id="priceMinor"
         label="السعر (شيكل)"
         type="number"
         min={0}
         dir="ltr"
-        value={priceNis}
-        onChange={(e) => setPriceNis(Number(e.target.value))}
+        value={priceMinor}
+        onChange={(e) => setPriceMinor(Number(e.target.value))}
       />
       <Button type="submit" disabled={saving} className="self-start">
         {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : "حفظ التعديلات"}

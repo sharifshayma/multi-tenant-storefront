@@ -47,7 +47,7 @@ export function BundleBuilder({
                 collectionId: collection.id,
                 slug: collection.slug,
                 title: collection.title,
-                priceNis: collection.priceNis,
+                priceMinor: collection.priceMinor,
                 isCustom: true,
                 selectedBooks,
               },

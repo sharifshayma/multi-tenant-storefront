@@ -9,20 +9,20 @@ export function CollectionEditForm({
   collectionId,
   title: initialTitle,
   description: initialDescription,
-  priceNis: initialPrice,
+  priceMinor: initialPrice,
   isCustom,
   requiredCount: initialRequiredCount,
 }: {
   collectionId: string;
   title: string;
   description: string;
-  priceNis: number;
+  priceMinor: number;
   isCustom: boolean;
   requiredCount: number | null;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
-  const [priceNis, setPriceNis] = useState(initialPrice);
+  const [priceMinor, setPriceMinor] = useState(initialPrice);
   const [requiredCount, setRequiredCount] = useState(initialRequiredCount ?? 5);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -35,7 +35,7 @@ export function CollectionEditForm({
       collectionId,
       title,
       description,
-      priceNis,
+      priceMinor,
       requiredCount: isCustom ? requiredCount : undefined,
     });
     setSaving(false);
@@ -54,13 +54,13 @@ export function CollectionEditForm({
         onChange={(e) => setDescription(e.target.value)}
       />
       <Input
-        id="priceNis"
+        id="priceMinor"
         label="سعر المجموعة (شيكل)"
         type="number"
         min={0}
         dir="ltr"
-        value={priceNis}
-        onChange={(e) => setPriceNis(Number(e.target.value))}
+        value={priceMinor}
+        onChange={(e) => setPriceMinor(Number(e.target.value))}
       />
       {isCustom && (
         <Input

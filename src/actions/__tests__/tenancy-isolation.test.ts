@@ -20,7 +20,7 @@ const {
   orderFindFirst: vi.fn(),
   orderUpdateMany: vi.fn(),
   transactionDeleteMany: vi.fn(),
-  transactionAggregate: vi.fn().mockResolvedValue({ _sum: { amountNis: 0 } }),
+  transactionAggregate: vi.fn().mockResolvedValue({ _sum: { amountMinor: 0 } }),
 }));
 
 vi.mock("@/lib/store-context", () => ({ requireStore }));
@@ -50,7 +50,7 @@ beforeEach(() => {
   orderUpdateMany.mockReset();
   transactionDeleteMany.mockReset();
   transactionAggregate.mockReset();
-  transactionAggregate.mockResolvedValue({ _sum: { amountNis: 0 } });
+  transactionAggregate.mockResolvedValue({ _sum: { amountMinor: 0 } });
 });
 
 describe("stock action tenancy", () => {
@@ -83,10 +83,10 @@ describe("stock action tenancy", () => {
 
 describe("orders action tenancy", () => {
   it("reads the order scoped by storeId before applying a discount", async () => {
-    orderFindFirst.mockResolvedValue({ totalNis: 100 });
+    orderFindFirst.mockResolvedValue({ totalMinor: 100 });
     orderUpdateMany.mockResolvedValue({ count: 1 });
 
-    await setOrderDiscount({ orderId: "o1", discountNis: 10 });
+    await setOrderDiscount({ orderId: "o1", discountMinor: 10 });
 
     expect(orderFindFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ id: "o1", storeId: "A" }) })
@@ -96,7 +96,7 @@ describe("orders action tenancy", () => {
   it("cannot discount another store's order (scoped read returns nothing)", async () => {
     orderFindFirst.mockResolvedValue(null);
 
-    const result = await setOrderDiscount({ orderId: "foreign-order", discountNis: 10 });
+    const result = await setOrderDiscount({ orderId: "foreign-order", discountMinor: 10 });
 
     expect(result).toEqual({ ok: false, error: "الطلب غير موجود" });
     expect(orderUpdateMany).not.toHaveBeenCalled();
@@ -124,8 +124,8 @@ describe("finance action tenancy", () => {
 describe("data.ts admin aggregate tenancy", () => {
   it("scopes the finance summary aggregate by storeId", async () => {
     transactionAggregate
-      .mockResolvedValueOnce({ _sum: { amountNis: 500 } }) // REVENUE
-      .mockResolvedValueOnce({ _sum: { amountNis: 200 } }); // EXPENSE
+      .mockResolvedValueOnce({ _sum: { amountMinor: 500 } }) // REVENUE
+      .mockResolvedValueOnce({ _sum: { amountMinor: 200 } }); // EXPENSE
 
     const summary = await getFinanceSummary("A");
 

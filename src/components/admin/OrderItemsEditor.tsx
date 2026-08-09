@@ -11,19 +11,19 @@ type EditableBookLine = {
   bookId: string;
   title: string;
   coverImage: string;
-  priceNis: number;
+  priceMinor: number;
   quantity: number;
 };
 
 type EditableCollectionLine = {
   id: string;
   title: string;
-  unitPriceNis: number;
+  unitPriceMinor: number;
   quantity: number;
   bookTitles: string[];
 };
 
-type SelectableBook = { id: string; title: string; priceNis: number; coverImage: string };
+type SelectableBook = { id: string; title: string; priceMinor: number; coverImage: string };
 
 export function OrderItemsEditor({
   orderId,
@@ -44,8 +44,8 @@ export function OrderItemsEditor({
   const [error, setError] = useState<string | null>(null);
 
   const total =
-    items.reduce((sum, i) => sum + i.priceNis * i.quantity, 0) +
-    collectionItems.reduce((sum, c) => sum + c.unitPriceNis * c.quantity, 0);
+    items.reduce((sum, i) => sum + i.priceMinor * i.quantity, 0) +
+    collectionItems.reduce((sum, c) => sum + c.unitPriceMinor * c.quantity, 0);
 
   function updateQty(bookId: string, qty: number) {
     setItems((prev) =>
@@ -67,7 +67,7 @@ export function OrderItemsEditor({
       if (existing) {
         return prev.map((i) => (i.bookId === book.id ? { ...i, quantity: i.quantity + 1 } : i));
       }
-      return [...prev, { bookId: book.id, title: book.title, coverImage: book.coverImage, priceNis: book.priceNis, quantity: 1 }];
+      return [...prev, { bookId: book.id, title: book.title, coverImage: book.coverImage, priceMinor: book.priceMinor, quantity: 1 }];
     });
     setAddBookId("");
   }
@@ -125,7 +125,7 @@ export function OrderItemsEditor({
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
-            <Price nis={item.priceNis * item.quantity} className="w-16 shrink-0 text-end text-sm font-bold" />
+            <Price nis={item.priceMinor * item.quantity} className="w-16 shrink-0 text-end text-sm font-bold" />
             <button
               type="button"
               onClick={() => updateQty(item.bookId, 0)}
@@ -158,7 +158,7 @@ export function OrderItemsEditor({
                   <Plus className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <Price nis={c.unitPriceNis * c.quantity} className="w-16 shrink-0 text-end text-sm font-bold" />
+              <Price nis={c.unitPriceMinor * c.quantity} className="w-16 shrink-0 text-end text-sm font-bold" />
               <button
                 type="button"
                 onClick={() => updateCollectionQty(c.id, 0)}
@@ -182,7 +182,7 @@ export function OrderItemsEditor({
           <option value="">إضافة كتاب...</option>
           {allBooks.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.title} — {b.priceNis} ₪
+              {b.title} — {b.priceMinor} ₪
             </option>
           ))}
         </select>

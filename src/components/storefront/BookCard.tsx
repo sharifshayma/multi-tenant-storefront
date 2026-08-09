@@ -27,7 +27,7 @@ export function BookCard({ book, basePath }: { book: BookSummary; basePath: stri
         </Link>
         <p className="line-clamp-2 text-sm text-muted">{book.description}</p>
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
-          <Price nis={book.priceNis} className="text-lg font-extrabold text-brand" />
+          <Price nis={book.priceMinor} className="text-lg font-extrabold text-brand" />
         </div>
         <AddToCartButton book={book} size="sm" compact />
       </div>

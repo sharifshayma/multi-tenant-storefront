@@ -6,7 +6,7 @@ export type MessageOrderCollectionItem = { title: string; quantity: number };
 export type MessageOrder = {
   id: string;
   customerName: string;
-  totalNis: number;
+  totalMinor: number;
   items: MessageOrderItem[];
   collectionItems: MessageOrderCollectionItem[];
 };
@@ -21,7 +21,7 @@ function itemsBlock(order: MessageOrder): string {
 
 function orderSummary(order: MessageOrder): string {
   const shortId = order.id.slice(0, 8);
-  return `طلبك رقم #${shortId}:\n${itemsBlock(order)}\nالإجمالي: ${order.totalNis} شيكل`;
+  return `طلبك رقم #${shortId}:\n${itemsBlock(order)}\nالإجمالي: ${order.totalMinor} شيكل`;
 }
 
 export function getStatusMessage(status: OrderStatus, order: MessageOrder): string {

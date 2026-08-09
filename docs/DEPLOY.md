@@ -66,6 +66,65 @@ rows via the adoption script. Do the rollout in this order, once:
 After this one-time rollout, future deploys just run `npm run db:migrate`
 normally — no phased steps needed.
 
+## One-time `money_to_minor_units` production rollout
+
+The `money_to_minor_units` migration renames every money column from `*Nis`
+to `*Minor` (data-preserving `RENAME COLUMN`, not drop/add) and then
+multiplies every existing value by **100** to convert stored prices from
+whole currency units to integer minor units. The rename is safe to replay,
+but the `×100` value transform is **not idempotent** — running it twice on
+the same rows would multiply prices by 10,000 instead of 100. Do this
+rollout carefully, once:
+
+1. **Back up production first:**
+
+   ```sh
+   pg_dump "$PRODUCTION_POSTGRES_URL_NON_POOLING" -Fc -f prod-backup-pre-money-minor.dump
+   ```
+
+2. **Rehearse on a real-data copy before touching production.** Restore the
+   backup into a throwaway local Postgres 17 instance and run the migration
+   there first:
+
+   ```sh
+   createdb money_minor_rehearsal
+   pg_restore -d money_minor_rehearsal prod-backup-pre-money-minor.dump
+   POSTGRES_PRISMA_URL=postgres://localhost/money_minor_rehearsal \
+   POSTGRES_URL_NON_POOLING=postgres://localhost/money_minor_rehearsal \
+     npm run db:migrate
+   ```
+
+   Verify against the rehearsal database:
+   - Every money column (`priceMinor`, `totalMinor`, `discountMinor`,
+     `unitPriceMinor`, `amountMinor`) is now exactly **100×** its
+     pre-migration value (spot-check a sample of rows against the backup).
+   - Order line items still reconcile: for a sample of orders,
+     `sum(OrderItem.unitPriceMinor * quantity) + sum(OrderCollectionItem.unitPriceMinor * quantity)`
+     relates to `Order.totalMinor` the same way it did before the migration
+     (just scaled ×100), and `getAmountPayable(totalMinor, discountMinor)`
+     still nets out correctly against summed `Transaction.amountMinor`
+     (`REVENUE`) rows.
+   - Drop the rehearsal database once satisfied
+     (`dropdb money_minor_rehearsal`).
+
+3. **Run the migration against production**, only after the rehearsal
+   passes:
+
+   ```sh
+   npm run db:migrate
+   ```
+
+4. **Deploy the app build** that expects `*Minor` columns:
+
+   ```sh
+   vercel --prod
+   ```
+
+   Do not deploy the new app build before step 3 completes (it reads/writes
+   `*Minor` columns that won't exist yet), and do not run `npm run db:migrate`
+   a second time against production once `money_to_minor_units` has applied
+   — the `×100` step must run exactly once against live data.
+
 ## Environment variables
 
 Set in the production environment before deploying:

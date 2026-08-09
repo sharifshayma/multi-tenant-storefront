@@ -27,7 +27,7 @@ export function CollectionCard({
         <h3 className="font-extrabold text-ink">{collection.title}</h3>
         <p className="line-clamp-2 text-sm text-muted">{collection.description}</p>
         <div className="mt-auto flex items-center gap-2 pt-1">
-          <Price nis={collection.priceNis} className="text-lg font-extrabold text-brand" />
+          <Price nis={collection.priceMinor} className="text-lg font-extrabold text-brand" />
           <Price
             nis={originalPrice}
             className="text-sm text-muted line-through decoration-brand/60"

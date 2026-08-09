@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 import type { ForecastedRevenueOrder } from "@/lib/data";
 
 export function ForecastedRevenuePanel({
-  totalNis,
+  totalMinor,
   orders,
 }: {
-  totalNis: number;
+  totalMinor: number;
   orders: ForecastedRevenueOrder[];
 }) {
   const [open, setOpen] = useState(false);
@@ -33,7 +33,7 @@ export function ForecastedRevenuePanel({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className="rounded-full bg-brand px-3 py-1 text-sm font-extrabold text-white">
-            <Price nis={totalNis} />
+            <Price nis={totalMinor} />
           </span>
           {orders.length > 0 && (
             <ChevronDown
@@ -54,7 +54,7 @@ export function ForecastedRevenuePanel({
               <span className="font-bold text-brand">{o.customerName}</span>
               <span className="flex items-center gap-2">
                 <StatusBadge status={o.status} />
-                <Price nis={o.outstandingNis} className="font-extrabold text-brand" />
+                <Price nis={o.outstandingMinor} className="font-extrabold text-brand" />
               </span>
             </Link>
           ))}

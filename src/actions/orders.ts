@@ -35,14 +35,14 @@ export async function createOrder(
   const bookIds = data.items.map((i) => i.bookId);
   const books = await prisma.book.findMany({
     where: { id: { in: bookIds }, storeId: store.id },
-    select: { id: true, title: true, priceNis: true },
+    select: { id: true, title: true, priceMinor: true },
   });
   const bookMap = new Map(books.map((b) => [b.id, b]));
 
   const orderItems: {
     bookId: string;
     quantity: number;
-    unitPriceNis: number;
+    unitPriceMinor: number;
     title: string;
   }[] = [];
 
@@ -54,7 +54,7 @@ export async function createOrder(
     orderItems.push({
       bookId: book.id,
       quantity: item.quantity,
-      unitPriceNis: book.priceNis,
+      unitPriceMinor: book.priceMinor,
       title: book.title,
     });
   }
@@ -77,7 +77,7 @@ export async function createOrder(
   const orderCollectionItems: {
     collectionId: string;
     quantity: number;
-    unitPriceNis: number;
+    unitPriceMinor: number;
     title: string;
     bookIds: string[];
     bookTitles: string[];
@@ -111,16 +111,16 @@ export async function createOrder(
     orderCollectionItems.push({
       collectionId: collection.id,
       quantity: item.quantity,
-      unitPriceNis: collection.priceNis,
+      unitPriceMinor: collection.priceMinor,
       title: collection.title,
       bookIds,
       bookTitles: bookIds.map((id) => selectedBookMap.get(id)?.title ?? bookMap.get(id)?.title ?? ""),
     });
   }
 
-  const totalNis =
-    orderItems.reduce((sum, i) => sum + i.unitPriceNis * i.quantity, 0) +
-    orderCollectionItems.reduce((sum, i) => sum + i.unitPriceNis * i.quantity, 0);
+  const totalMinor =
+    orderItems.reduce((sum, i) => sum + i.unitPriceMinor * i.quantity, 0) +
+    orderCollectionItems.reduce((sum, i) => sum + i.unitPriceMinor * i.quantity, 0);
 
   const order = await prisma.order.create({
     data: {
@@ -129,20 +129,20 @@ export async function createOrder(
       email: data.email || null,
       city: data.city,
       notes: data.notes || null,
-      totalNis,
+      totalMinor,
       storeId: store.id,
       items: {
         create: orderItems.map((i) => ({
           bookId: i.bookId,
           quantity: i.quantity,
-          unitPriceNis: i.unitPriceNis,
+          unitPriceMinor: i.unitPriceMinor,
         })),
       },
       collectionItems: {
         create: orderCollectionItems.map((i) => ({
           collectionId: i.collectionId,
           quantity: i.quantity,
-          unitPriceNis: i.unitPriceNis,
+          unitPriceMinor: i.unitPriceMinor,
           selectedBooks: {
             create: i.bookIds.map((bookId) => ({ bookId })),
           },
@@ -159,16 +159,16 @@ export async function createOrder(
       email: order.email,
       city: order.city,
       notes: order.notes,
-      totalNis: order.totalNis,
+      totalMinor: order.totalMinor,
       items: orderItems.map((i) => ({
         title: i.title,
         quantity: i.quantity,
-        unitPriceNis: i.unitPriceNis,
+        unitPriceMinor: i.unitPriceMinor,
       })),
       collectionItems: orderCollectionItems.map((i) => ({
         title: i.title,
         quantity: i.quantity,
-        unitPriceNis: i.unitPriceNis,
+        unitPriceMinor: i.unitPriceMinor,
         bookTitles: i.bookTitles,
       })),
     });
@@ -255,31 +255,31 @@ export type SetOrderDiscountResult = { ok: true } | { ok: false; error: string }
 
 export async function setOrderDiscount(input: {
   orderId: string;
-  discountNis: number;
+  discountMinor: number;
   discountReason?: string;
 }): Promise<SetOrderDiscountResult> {
   const store = await requireStore();
 
   const order = await prisma.order.findFirst({
     where: { id: input.orderId, storeId: store.id },
-    select: { totalNis: true },
+    select: { totalMinor: true },
   });
   if (!order) return { ok: false, error: "الطلب غير موجود" };
 
-  if (!Number.isFinite(input.discountNis) || input.discountNis < 0) {
+  if (!Number.isFinite(input.discountMinor) || input.discountMinor < 0) {
     return { ok: false, error: "قيمة الخصم غير صالحة" };
   }
-  const discountNis = Math.round(input.discountNis);
-  if (discountNis > order.totalNis) {
+  const discountMinor = Math.round(input.discountMinor);
+  if (discountMinor > order.totalMinor) {
     return { ok: false, error: "لا يمكن أن يتجاوز الخصم إجمالي الطلب" };
   }
 
   await prisma.order.updateMany({
     where: { id: input.orderId, storeId: store.id },
     data: {
-      discountNis,
+      discountMinor,
       // Clear the reason when there is no discount, otherwise store the trimmed note.
-      discountReason: discountNis > 0 ? input.discountReason?.trim() || null : null,
+      discountReason: discountMinor > 0 ? input.discountReason?.trim() || null : null,
     },
   });
 
@@ -347,7 +347,7 @@ export async function updateOrderItems(input: {
   const books = bookIds.length
     ? await prisma.book.findMany({
         where: { id: { in: bookIds }, storeId: store.id },
-        select: { id: true, priceNis: true },
+        select: { id: true, priceMinor: true },
       })
     : [];
   const bookMap = new Map(books.map((b) => [b.id, b]));
@@ -368,16 +368,16 @@ export async function updateOrderItems(input: {
     .map((c) => c.id);
 
   const itemsTotal = input.items.reduce(
-    (sum, i) => sum + (bookMap.get(i.bookId)?.priceNis ?? 0) * i.quantity,
+    (sum, i) => sum + (bookMap.get(i.bookId)?.priceMinor ?? 0) * i.quantity,
     0
   );
   const collectionsTotal = input.collectionItems.reduce((sum, c) => {
     const existing = existingCollectionMap.get(c.id)!;
-    return sum + existing.unitPriceNis * c.quantity;
+    return sum + existing.unitPriceMinor * c.quantity;
   }, 0);
-  const totalNis = itemsTotal + collectionsTotal;
+  const totalMinor = itemsTotal + collectionsTotal;
   // A discount can never exceed the (possibly reduced) order total.
-  const discountNis = Math.min(order.discountNis, totalNis);
+  const discountMinor = Math.min(order.discountMinor, totalMinor);
 
   await prisma.$transaction([
     prisma.orderItem.deleteMany({ where: { orderId: input.orderId } }),
@@ -389,7 +389,7 @@ export async function updateOrderItems(input: {
     ),
     prisma.order.updateMany({
       where: { id: input.orderId, storeId: store.id },
-      data: { totalNis, discountNis },
+      data: { totalMinor, discountMinor },
     }),
     ...(input.items.length
       ? [
@@ -398,7 +398,7 @@ export async function updateOrderItems(input: {
               orderId: input.orderId,
               bookId: i.bookId,
               quantity: i.quantity,
-              unitPriceNis: bookMap.get(i.bookId)!.priceNis,
+              unitPriceMinor: bookMap.get(i.bookId)!.priceMinor,
             })),
           }),
         ]

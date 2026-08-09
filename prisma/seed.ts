@@ -100,28 +100,28 @@ const collections = [
     title: "قائدات ملهمات",
     description:
       "خمس قصص عن نساء عربيات غيّرن مجالاتهن بالشجاعة والإصرار — من القانون والعمارة إلى الرياضة والفن.",
-    priceNis: 175,
+    priceMinor: 17500,
     bookSlugs: ["amal-clooney", "huda-kattan", "zaha-hadid", "yusra-mardini", "rama-duwaji"],
   },
   {
     slug: "science",
     title: "علماء ومبتكرون",
     description: "أربع قصص عن عقول عربية أبدعت في العلم والفضاء والتكنولوجيا.",
-    priceNis: 140,
+    priceMinor: 14000,
     bookSlugs: ["farouk-el-baz", "hazza-al-mansouri", "omar-yaghi", "amjad-massad"],
   },
   {
     slug: "activism",
     title: "أصوات التغيير",
     description: "أربع قصص عن أشخاص استخدموا أصواتهم للدفاع عن العدالة والهوية والإنسانية.",
-    priceNis: 140,
+    priceMinor: 14000,
     bookSlugs: ["amal-clooney", "yusra-mardini", "rama-duwaji", "edward-said"],
   },
   {
     slug: "sports",
     title: "أبطال الرياضة",
     description: "أربع قصص عن أبطال عرب أثبتوا للعالم قوة الإصرار في الملاعب.",
-    priceNis: 140,
+    priceMinor: 14000,
     bookSlugs: ["mo-salah", "achraf-hakimi", "yusra-mardini", "salem-saleh"],
   },
 ];
@@ -131,7 +131,7 @@ const customCollection = {
   title: "اختاري ٥ كتب بنفسك",
   description:
     "اختاري أي ٥ كتب من السلسلة بسعر مخفّض — نفس القصص المفضلة لديكِ، بسعر أفضل.",
-  priceNis: 175,
+  priceMinor: 17500,
   requiredCount: 5,
 };
 
@@ -173,14 +173,14 @@ async function main() {
       update: {
         title: c.title,
         description: c.description,
-        priceNis: c.priceNis,
+        priceMinor: c.priceMinor,
         position: i,
       },
       create: {
         slug: c.slug,
         title: c.title,
         description: c.description,
-        priceNis: c.priceNis,
+        priceMinor: c.priceMinor,
         position: i,
         storeId: store.id,
       },
@@ -209,7 +209,7 @@ async function main() {
     update: {
       title: customCollection.title,
       description: customCollection.description,
-      priceNis: customCollection.priceNis,
+      priceMinor: customCollection.priceMinor,
       isCustom: true,
       requiredCount: customCollection.requiredCount,
       position: collections.length,
@@ -218,7 +218,7 @@ async function main() {
       slug: customCollection.slug,
       title: customCollection.title,
       description: customCollection.description,
-      priceNis: customCollection.priceNis,
+      priceMinor: customCollection.priceMinor,
       isCustom: true,
       requiredCount: customCollection.requiredCount,
       position: collections.length,

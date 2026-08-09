@@ -32,14 +32,14 @@ export default async function AdminOrderDetailPage({
         transactions: {
           where: { type: "REVENUE" },
           orderBy: { date: "desc" },
-          select: { id: true, amountNis: true, date: true },
+          select: { id: true, amountMinor: true, date: true },
         },
       },
     }),
     prisma.book.findMany({
       where: { isArchived: false, storeId: store.id },
       orderBy: { position: "asc" },
-      select: { id: true, title: true, priceNis: true, coverImage: true },
+      select: { id: true, title: true, priceMinor: true, coverImage: true },
     }),
   ]);
   if (!order) notFound();
@@ -63,7 +63,7 @@ export default async function AdminOrderDetailPage({
           id: order.id,
           status: order.status,
           customerName: order.customerName,
-          totalNis: order.totalNis,
+          totalMinor: order.totalMinor,
           items: order.items.map((i) => ({ title: i.book.title, quantity: i.quantity })),
           collectionItems: order.collectionItems.map((i) => ({
             title: i.collection.title,
@@ -75,10 +75,10 @@ export default async function AdminOrderDetailPage({
       />
 
       <PaymentPanel
-        key={`${order.transactions.length}-${order.totalNis}-${order.discountNis}`}
+        key={`${order.transactions.length}-${order.totalMinor}-${order.discountMinor}`}
         orderId={order.id}
-        totalNis={order.totalNis}
-        discountNis={order.discountNis}
+        totalMinor={order.totalMinor}
+        discountMinor={order.discountMinor}
         discountReason={order.discountReason}
         payments={order.transactions}
       />
@@ -101,13 +101,13 @@ export default async function AdminOrderDetailPage({
               bookId: i.bookId,
               title: i.book.title,
               coverImage: i.book.coverImage,
-              priceNis: i.unitPriceNis,
+              priceMinor: i.unitPriceMinor,
               quantity: i.quantity,
             }))}
             initialCollectionItems={order.collectionItems.map((i) => ({
               id: i.id,
               title: i.collection.title,
-              unitPriceNis: i.unitPriceNis,
+              unitPriceMinor: i.unitPriceMinor,
               quantity: i.quantity,
               bookTitles: i.selectedBooks.map((sb) => sb.book.title),
             }))}
@@ -122,7 +122,7 @@ export default async function AdminOrderDetailPage({
                   <span>
                     {item.book.title} × {item.quantity}
                   </span>
-                  <Price nis={item.unitPriceNis * item.quantity} />
+                  <Price nis={item.unitPriceMinor * item.quantity} />
                 </div>
               ))}
               {order.collectionItems.map((item) => (
@@ -131,7 +131,7 @@ export default async function AdminOrderDetailPage({
                     <span className="font-bold">
                       {item.collection.title} (مجموعة) × {item.quantity}
                     </span>
-                    <Price nis={item.unitPriceNis * item.quantity} />
+                    <Price nis={item.unitPriceMinor * item.quantity} />
                   </div>
                   <span className="text-xs text-muted">
                     {item.selectedBooks.map((sb) => sb.book.title).join("، ")}
@@ -139,20 +139,20 @@ export default async function AdminOrderDetailPage({
                 </div>
               ))}
             </div>
-            {order.discountNis > 0 ? (
+            {order.discountMinor > 0 ? (
               <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
                 <div className="flex justify-between text-muted">
                   <span>الإجمالي</span>
-                  <Price nis={order.totalNis} />
+                  <Price nis={order.totalMinor} />
                 </div>
                 <div className="flex justify-between text-muted">
                   <span>الخصم</span>
-                  <Price nis={-order.discountNis} className="text-accent" />
+                  <Price nis={-order.discountMinor} className="text-accent" />
                 </div>
                 <div className="flex justify-between pt-1 font-extrabold">
                   <span>المبلغ المستحق</span>
                   <Price
-                    nis={getAmountPayable(order.totalNis, order.discountNis)}
+                    nis={getAmountPayable(order.totalMinor, order.discountMinor)}
                     className="text-brand"
                   />
                 </div>
@@ -160,7 +160,7 @@ export default async function AdminOrderDetailPage({
             ) : (
               <div className="mt-3 flex justify-between border-t border-border pt-3 font-extrabold">
                 <span>الإجمالي</span>
-                <Price nis={order.totalNis} className="text-brand" />
+                <Price nis={order.totalMinor} className="text-brand" />
               </div>
             )}
             <p className="mt-3 text-xs text-muted">

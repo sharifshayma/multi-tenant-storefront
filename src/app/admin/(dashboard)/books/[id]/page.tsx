@@ -64,7 +64,7 @@ export default async function AdminBookDetailPage({
           bookId={book.id}
           title={book.title}
           description={book.description}
-          priceNis={book.priceNis}
+          priceMinor={book.priceMinor}
         />
       </div>
 

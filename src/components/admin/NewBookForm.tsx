@@ -18,7 +18,7 @@ export function NewBookForm() {
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [description, setDescription] = useState("");
-  const [priceNis, setPriceNis] = useState("40");
+  const [priceMinor, setPriceMinor] = useState("4000");
   const [coverImage, setCoverImage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -54,13 +54,13 @@ export function NewBookForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const price = Number(priceNis);
+    const price = Number(priceMinor);
     if (!title.trim() || !description.trim() || !slug.trim() || !coverImage || !price) {
       setError("الرجاء تعبئة جميع الحقول ورفع صورة الغلاف");
       return;
     }
     setSaving(true);
-    const result = await createBook({ title, description, slug, priceNis: price, coverImage });
+    const result = await createBook({ title, description, slug, priceMinor: price, coverImage });
     setSaving(false);
     if (!result.ok) {
       setError(result.error);
@@ -145,8 +145,8 @@ export function NewBookForm() {
         type="number"
         min={0}
         dir="ltr"
-        value={priceNis}
-        onChange={(e) => setPriceNis(e.target.value)}
+        value={priceMinor}
+        onChange={(e) => setPriceMinor(e.target.value)}
       />
 
       {error && <p className="text-sm text-red-600">{error}</p>}

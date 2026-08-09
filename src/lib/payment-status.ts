@@ -5,8 +5,8 @@ export type PaymentStatus = "UNPAID" | "PARTIAL" | "PAID" | "OVERPAID" | "GIFT";
  * never below zero. Payment status, remaining balance and forecasted revenue
  * are all measured against this, not the gross total.
  */
-export function getAmountPayable(totalNis: number, discountNis: number): number {
-  return Math.max(0, totalNis - discountNis);
+export function getAmountPayable(totalMinor: number, discountMinor: number): number {
+  return Math.max(0, totalMinor - discountMinor);
 }
 
 /**
@@ -15,19 +15,19 @@ export function getAmountPayable(totalNis: number, discountNis: number): number 
  * paid), it's a gift rather than "unpaid".
  */
 export function getPaymentStatus(
-  paidNis: number,
-  totalNis: number,
-  discountNis: number
+  paidMinor: number,
+  totalMinor: number,
+  discountMinor: number
 ): PaymentStatus {
-  const payable = getAmountPayable(totalNis, discountNis);
+  const payable = getAmountPayable(totalMinor, discountMinor);
   if (payable <= 0) {
-    if (paidNis > 0) return "OVERPAID";
+    if (paidMinor > 0) return "OVERPAID";
     // Fully covered by a discount => a gift; otherwise a zero-value order.
-    return discountNis > 0 ? "GIFT" : "PAID";
+    return discountMinor > 0 ? "GIFT" : "PAID";
   }
-  if (paidNis <= 0) return "UNPAID";
-  if (paidNis > payable) return "OVERPAID";
-  if (paidNis >= payable) return "PAID";
+  if (paidMinor <= 0) return "UNPAID";
+  if (paidMinor > payable) return "OVERPAID";
+  if (paidMinor >= payable) return "PAID";
   return "PARTIAL";
 }
 
