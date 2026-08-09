@@ -25,3 +25,18 @@ export async function uniqueStoreSlug(
   }
   return candidate;
 }
+
+export type SlugValidation =
+  | { ok: true; slug: string }
+  | { ok: false; error: string };
+
+// Format + reserved-word validation for a store slug. Uniqueness is a DB
+// concern and is checked in the action, not here.
+export function validateStoreSlug(input: string): SlugValidation {
+  const slug = slugify(input);
+  if (!slug) return { ok: false, error: "العنوان غير صالح" };
+  if (isReservedSlug(slug)) {
+    return { ok: false, error: "هذا العنوان محجوز، اختاري عنواناً آخر" };
+  }
+  return { ok: true, slug };
+}

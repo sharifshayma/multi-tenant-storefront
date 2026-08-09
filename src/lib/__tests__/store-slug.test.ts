@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { slugify, isReservedSlug, uniqueStoreSlug } from "@/lib/store-slug";
+import { slugify, isReservedSlug, uniqueStoreSlug, validateStoreSlug } from "@/lib/store-slug";
 
 describe("slugify", () => {
   it("lowercases and hyphenates", () => {
@@ -30,5 +30,18 @@ describe("uniqueStoreSlug", () => {
   });
   it("never returns a reserved slug", async () => {
     expect(await uniqueStoreSlug("admin", async () => false)).toBe("admin-2");
+  });
+});
+
+describe("validateStoreSlug", () => {
+  it("normalizes a valid name to a slug", () => {
+    expect(validateStoreSlug("Jane's Crafts")).toEqual({ ok: true, slug: "janes-crafts" });
+  });
+  it("rejects input that is empty after slugify", () => {
+    expect(validateStoreSlug("!!!")).toEqual({ ok: false, error: "العنوان غير صالح" });
+  });
+  it("rejects a reserved slug", () => {
+    const r = validateStoreSlug("admin");
+    expect(r.ok).toBe(false);
   });
 });
