@@ -78,3 +78,28 @@ export async function sendOrderNotification(order: {
     console.error("Failed to send order notification email", err);
   }
 }
+
+export async function sendPasswordResetOtp(email: string, otp: string): Promise<void> {
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping password reset OTP email");
+    return;
+  }
+  const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  try {
+    await resend.emails.send({
+      from,
+      to: email,
+      subject: "رمز تغيير كلمة المرور",
+      html: `
+        <div dir="rtl" style="font-family:sans-serif">
+          <h2>رمز تغيير كلمة المرور</h2>
+          <p>استخدمي هذا الرمز لتعيين كلمة مرور جديدة:</p>
+          <p style="font-size:28px;font-weight:800;letter-spacing:4px">${otp}</p>
+          <p style="color:#666">ينتهي الرمز خلال بضع دقائق. إن لم تطلبي هذا التغيير، تجاهلي هذه الرسالة.</p>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error("Failed to send password reset OTP email", err);
+  }
+}
