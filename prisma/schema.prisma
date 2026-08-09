@@ -9,22 +9,24 @@ datasource db {
 }
 
 model Store {
-  id             String          @id @default(cuid())
-  slug           String          @unique
-  name           String
-  currency       String          @default("USD")
-  defaultLocale  String          @default("en")
-  customDomain   String?         @unique
-  ownerId        String
-  owner          User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  settings       StoreSettings[]
-  books          Book[]
-  collections    Collection[]
-  orders         Order[]
-  transactions   Transaction[]
-  stockMovements StockMovement[]
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  name             String
+  currency         String          @default("USD")
+  defaultLocale    String          @default("en")
+  itemNounSingular String          @default("منتج")
+  itemNounPlural   String          @default("منتجات")
+  customDomain     String?         @unique
+  ownerId          String
+  owner            User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  settings         StoreSettings[]
+  books            Book[]
+  collections      Collection[]
+  orders           Order[]
+  transactions     Transaction[]
+  stockMovements   StockMovement[]
 
   @@index([ownerId])
 }

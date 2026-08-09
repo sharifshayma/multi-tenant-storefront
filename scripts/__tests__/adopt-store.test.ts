@@ -10,6 +10,8 @@ describe("buildStoreData", () => {
       currency: "ILS",
       defaultLocale: "ar",
       customDomain: "arabstories.shayma.me",
+      itemNounSingular: "كتاب",
+      itemNounPlural: "كتب",
     });
   });
 
@@ -21,6 +23,8 @@ describe("buildStoreData", () => {
         currency: "USD",
         defaultLocale: "en",
         customDomain: "custom.example.com",
+        itemNounSingular: "منتج",
+        itemNounPlural: "منتجات",
       }),
     ).toEqual({
       ownerId: "owner_2",
@@ -29,6 +33,8 @@ describe("buildStoreData", () => {
       currency: "USD",
       defaultLocale: "en",
       customDomain: "custom.example.com",
+      itemNounSingular: "منتج",
+      itemNounPlural: "منتجات",
     });
   });
 

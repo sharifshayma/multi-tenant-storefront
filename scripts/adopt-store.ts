@@ -11,6 +11,8 @@ export const DEFAULT_STORE_NAME = "Arab Roots, Global Wings";
 export const DEFAULT_STORE_CURRENCY = "ILS";
 export const DEFAULT_STORE_LOCALE = "ar";
 export const DEFAULT_STORE_CUSTOM_DOMAIN = "arabstories.shayma.me";
+export const DEFAULT_STORE_ITEM_NOUN_SINGULAR = "كتاب";
+export const DEFAULT_STORE_ITEM_NOUN_PLURAL = "كتب";
 
 export type BuildStoreDataOpts = {
   slug?: string;
@@ -18,6 +20,8 @@ export type BuildStoreDataOpts = {
   currency?: string;
   defaultLocale?: string;
   customDomain?: string | null;
+  itemNounSingular?: string;
+  itemNounPlural?: string;
 };
 
 /**
@@ -37,6 +41,8 @@ export function buildStoreData(
     defaultLocale: opts.defaultLocale ?? DEFAULT_STORE_LOCALE,
     customDomain:
       opts.customDomain === undefined ? DEFAULT_STORE_CUSTOM_DOMAIN : opts.customDomain,
+    itemNounSingular: opts.itemNounSingular ?? DEFAULT_STORE_ITEM_NOUN_SINGULAR,
+    itemNounPlural: opts.itemNounPlural ?? DEFAULT_STORE_ITEM_NOUN_PLURAL,
   };
 }
 
@@ -51,10 +57,18 @@ async function adoptStore(ownerEmail: string, opts: BuildStoreDataOpts = {}) {
   const data = buildStoreData(owner.id, opts);
 
   // Idempotent on slug: re-running this script does not create a duplicate
-  // store or clobber an already-adopted one.
+  // store or clobber an already-adopted one. The `update` clause is
+  // deliberately narrow — it only (re)stamps the item-noun fields, so that
+  // re-running this script against an already-adopted tenant #1 store (e.g.
+  // at prod deploy, after this task ships) backfills "كتاب"/"كتب" onto a row
+  // that was created before these columns existed. It does not touch other
+  // already-adopted fields (name, currency, etc.).
   const store = await prisma.store.upsert({
     where: { slug: data.slug },
-    update: {},
+    update: {
+      itemNounSingular: data.itemNounSingular,
+      itemNounPlural: data.itemNounPlural,
+    },
     create: data,
   });
 
