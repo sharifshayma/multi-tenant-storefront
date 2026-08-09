@@ -16,9 +16,13 @@ import { storeHref } from "@/lib/store-href";
 export function CartPageClient({
   basePath,
   storeSlug,
+  currency,
+  locale,
 }: {
   basePath: string;
   storeSlug: string;
+  currency: string;
+  locale: string;
 }) {
   const { items, updateQty, removeItem, totalMinor, clear, hydrated } = useCart();
   const router = useRouter();
@@ -123,7 +127,7 @@ export function CartPageClient({
                     {item.selectedBooks.map((b) => b.title).join("، ")}
                   </p>
                 )}
-                <Price nis={item.priceMinor} className="text-sm text-muted" />
+                <Price minor={item.priceMinor} currency={currency} locale={locale} className="text-sm text-muted" />
               </div>
               <div className="flex items-center rounded-full border border-border bg-white">
                 <button
@@ -157,7 +161,7 @@ export function CartPageClient({
 
           <div className="flex items-center justify-between rounded-2xl border border-border bg-white p-4">
             <span className="font-bold">الإجمالي</span>
-            <Price nis={totalMinor} className="text-xl font-extrabold text-brand" />
+            <Price minor={totalMinor} currency={currency} locale={locale} className="text-xl font-extrabold text-brand" />
           </div>
         </div>
 

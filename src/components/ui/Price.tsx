@@ -1,7 +1,19 @@
-export function Price({ nis, className }: { nis: number; className?: string }) {
+import { formatMoney } from "@/lib/format-money";
+
+export function Price({
+  minor,
+  currency,
+  locale,
+  className,
+}: {
+  minor: number;
+  currency: string;
+  locale: string;
+  className?: string;
+}) {
   return (
     <span dir="ltr" className={className}>
-      {nis} ₪
+      {formatMoney(minor, currency, locale)}
     </span>
   );
 }

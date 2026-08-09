@@ -142,7 +142,12 @@ export default async function AdminOrdersPage({
                       {order._count.items + order._count.collectionItems} كتب ·{" "}
                       {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(order.createdAt)}
                     </span>
-                    <Price nis={order.totalMinor} className="font-extrabold text-brand" />
+                    <Price
+                      minor={order.totalMinor}
+                      currency={store.currency}
+                      locale={store.defaultLocale}
+                      className="font-extrabold text-brand"
+                    />
                   </div>
                   <div className="flex justify-end pt-1">
                     <DeleteOrderButton orderId={order.id} />
@@ -188,7 +193,7 @@ export default async function AdminOrdersPage({
                       <td className="p-3">{order.city}</td>
                       <td className="p-3">{order._count.items + order._count.collectionItems}</td>
                       <td className="p-3">
-                        <Price nis={order.totalMinor} />
+                        <Price minor={order.totalMinor} currency={store.currency} locale={store.defaultLocale} />
                       </td>
                       <td className="p-3 text-muted">
                         {new Intl.DateTimeFormat("ar", {

@@ -49,7 +49,12 @@ export default async function AdminStockPage() {
         </div>
         <div className="rounded-2xl border border-border bg-white p-5">
           <p className="text-sm text-muted">القيمة التقديرية للمخزون</p>
-          <Price nis={totalValue} className="mt-2 block text-2xl font-extrabold text-brand" />
+          <Price
+            minor={totalValue}
+            currency={store.currency}
+            locale={store.defaultLocale}
+            className="mt-2 block text-2xl font-extrabold text-brand"
+          />
         </div>
       </div>
 

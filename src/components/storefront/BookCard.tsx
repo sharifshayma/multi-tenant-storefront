@@ -5,7 +5,17 @@ import { storeHref } from "@/lib/store-href";
 import { AddToCartButton } from "./AddToCartButton";
 import type { BookSummary } from "@/lib/types";
 
-export function BookCard({ book, basePath }: { book: BookSummary; basePath: string }) {
+export function BookCard({
+  book,
+  basePath,
+  currency,
+  locale,
+}: {
+  book: BookSummary;
+  basePath: string;
+  currency: string;
+  locale: string;
+}) {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
       <Link href={storeHref(basePath, `/books/${book.slug}`)} className="block">
@@ -27,7 +37,12 @@ export function BookCard({ book, basePath }: { book: BookSummary; basePath: stri
         </Link>
         <p className="line-clamp-2 text-sm text-muted">{book.description}</p>
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
-          <Price nis={book.priceMinor} className="text-lg font-extrabold text-brand" />
+          <Price
+            minor={book.priceMinor}
+            currency={currency}
+            locale={locale}
+            className="text-lg font-extrabold text-brand"
+          />
         </div>
         <AddToCartButton book={book} size="sm" compact />
       </div>

@@ -81,6 +81,8 @@ export default async function AdminOrderDetailPage({
         discountMinor={order.discountMinor}
         discountReason={order.discountReason}
         payments={order.transactions}
+        currency={store.currency}
+        locale={store.defaultLocale}
       />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -112,6 +114,8 @@ export default async function AdminOrderDetailPage({
               bookTitles: i.selectedBooks.map((sb) => sb.book.title),
             }))}
             allBooks={allBooks}
+            currency={store.currency}
+            locale={store.defaultLocale}
           />
         ) : (
           <div className="rounded-2xl border border-border bg-white p-5">
@@ -122,7 +126,11 @@ export default async function AdminOrderDetailPage({
                   <span>
                     {item.book.title} × {item.quantity}
                   </span>
-                  <Price nis={item.unitPriceMinor * item.quantity} />
+                  <Price
+                    minor={item.unitPriceMinor * item.quantity}
+                    currency={store.currency}
+                    locale={store.defaultLocale}
+                  />
                 </div>
               ))}
               {order.collectionItems.map((item) => (
@@ -131,7 +139,11 @@ export default async function AdminOrderDetailPage({
                     <span className="font-bold">
                       {item.collection.title} (مجموعة) × {item.quantity}
                     </span>
-                    <Price nis={item.unitPriceMinor * item.quantity} />
+                    <Price
+                      minor={item.unitPriceMinor * item.quantity}
+                      currency={store.currency}
+                      locale={store.defaultLocale}
+                    />
                   </div>
                   <span className="text-xs text-muted">
                     {item.selectedBooks.map((sb) => sb.book.title).join("، ")}
@@ -143,16 +155,23 @@ export default async function AdminOrderDetailPage({
               <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
                 <div className="flex justify-between text-muted">
                   <span>الإجمالي</span>
-                  <Price nis={order.totalMinor} />
+                  <Price minor={order.totalMinor} currency={store.currency} locale={store.defaultLocale} />
                 </div>
                 <div className="flex justify-between text-muted">
                   <span>الخصم</span>
-                  <Price nis={-order.discountMinor} className="text-accent" />
+                  <Price
+                    minor={-order.discountMinor}
+                    currency={store.currency}
+                    locale={store.defaultLocale}
+                    className="text-accent"
+                  />
                 </div>
                 <div className="flex justify-between pt-1 font-extrabold">
                   <span>المبلغ المستحق</span>
                   <Price
-                    nis={getAmountPayable(order.totalMinor, order.discountMinor)}
+                    minor={getAmountPayable(order.totalMinor, order.discountMinor)}
+                    currency={store.currency}
+                    locale={store.defaultLocale}
                     className="text-brand"
                   />
                 </div>
@@ -160,7 +179,7 @@ export default async function AdminOrderDetailPage({
             ) : (
               <div className="mt-3 flex justify-between border-t border-border pt-3 font-extrabold">
                 <span>الإجمالي</span>
-                <Price nis={order.totalMinor} className="text-brand" />
+                <Price minor={order.totalMinor} currency={store.currency} locale={store.defaultLocale} className="text-brand" />
               </div>
             )}
             <p className="mt-3 text-xs text-muted">

@@ -160,6 +160,8 @@ export async function createOrder(
       city: order.city,
       notes: order.notes,
       totalMinor: order.totalMinor,
+      currency: store.currency,
+      locale: store.defaultLocale,
       items: orderItems.map((i) => ({
         title: i.title,
         quantity: i.quantity,

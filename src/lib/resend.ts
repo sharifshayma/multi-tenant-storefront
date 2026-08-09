@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { formatMoney } from "@/lib/format-money";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -15,6 +16,8 @@ export async function sendOrderNotification(order: {
   city: string;
   notes?: string | null;
   totalMinor: number;
+  currency: string;
+  locale: string;
   items: OrderEmailItem[];
   collectionItems?: OrderEmailCollectionItem[];
 }) {
@@ -33,18 +36,22 @@ export async function sendOrderNotification(order: {
   const itemsHtml = order.items
     .map(
       (i) =>
-        `<tr><td style="padding:4px 8px">${i.title}</td><td style="padding:4px 8px">×${i.quantity}</td><td style="padding:4px 8px">${
-          i.unitPriceMinor * i.quantity
-        } ₪</td></tr>`
+        `<tr><td style="padding:4px 8px">${i.title}</td><td style="padding:4px 8px">×${i.quantity}</td><td style="padding:4px 8px">${formatMoney(
+          i.unitPriceMinor * i.quantity,
+          order.currency,
+          order.locale
+        )}</td></tr>`
     )
     .join("");
 
   const collectionItemsHtml = (order.collectionItems ?? [])
     .map(
       (i) =>
-        `<tr><td style="padding:4px 8px"><strong>${i.title}</strong> (مجموعة)<br/><span style="color:#666;font-size:13px">${i.bookTitles.join("، ")}</span></td><td style="padding:4px 8px">×${i.quantity}</td><td style="padding:4px 8px">${
-          i.unitPriceMinor * i.quantity
-        } ₪</td></tr>`
+        `<tr><td style="padding:4px 8px"><strong>${i.title}</strong> (مجموعة)<br/><span style="color:#666;font-size:13px">${i.bookTitles.join("، ")}</span></td><td style="padding:4px 8px">×${i.quantity}</td><td style="padding:4px 8px">${formatMoney(
+          i.unitPriceMinor * i.quantity,
+          order.currency,
+          order.locale
+        )}</td></tr>`
     )
     .join("");
 
@@ -62,7 +69,7 @@ export async function sendOrderNotification(order: {
           <p><strong>المدينة:</strong> ${order.city}</p>
           ${order.notes ? `<p><strong>ملاحظات:</strong> ${order.notes}</p>` : ""}
           <table style="border-collapse:collapse;margin-top:12px">${itemsHtml}${collectionItemsHtml}</table>
-          <p style="margin-top:12px"><strong>الإجمالي: ${order.totalMinor} ₪</strong></p>
+          <p style="margin-top:12px"><strong>الإجمالي: ${formatMoney(order.totalMinor, order.currency, order.locale)}</strong></p>
           <p style="margin-top:16px;color:#666">رقم الطلب: ${order.id}</p>
         </div>
       `,

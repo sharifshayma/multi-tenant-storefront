@@ -60,7 +60,9 @@ export default async function AdminHomePage() {
         >
           <p className="text-sm text-muted">الصافي المالي</p>
           <Price
-            nis={finance.net}
+            minor={finance.net}
+            currency={store.currency}
+            locale={store.defaultLocale}
             className={`mt-2 block text-3xl font-extrabold ${finance.net >= 0 ? "text-brand" : "text-red-600"}`}
           />
         </Link>

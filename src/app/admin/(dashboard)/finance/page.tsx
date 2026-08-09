@@ -38,24 +38,41 @@ export default async function AdminFinancePage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-white p-5">
           <p className="text-sm text-muted">إجمالي الإيرادات</p>
-          <Price nis={summary.totalRevenue} className="mt-2 block text-2xl font-extrabold text-accent" />
+          <Price
+            minor={summary.totalRevenue}
+            currency={store.currency}
+            locale={store.defaultLocale}
+            className="mt-2 block text-2xl font-extrabold text-accent"
+          />
         </div>
         <div className="rounded-2xl border border-border bg-white p-5">
           <p className="text-sm text-muted">إجمالي المصروفات</p>
-          <Price nis={summary.totalExpense} className="mt-2 block text-2xl font-extrabold text-red-600" />
+          <Price
+            minor={summary.totalExpense}
+            currency={store.currency}
+            locale={store.defaultLocale}
+            className="mt-2 block text-2xl font-extrabold text-red-600"
+          />
         </div>
         <div className="rounded-2xl border border-border bg-white p-5">
           <p className="text-sm text-muted">الصافي</p>
           <Price
-            nis={summary.net}
+            minor={summary.net}
+            currency={store.currency}
+            locale={store.defaultLocale}
             className={`mt-2 block text-2xl font-extrabold ${summary.net >= 0 ? "text-brand" : "text-red-600"}`}
           />
         </div>
       </div>
 
-      <ForecastedRevenuePanel totalMinor={forecast.totalMinor} orders={forecast.orders} />
+      <ForecastedRevenuePanel
+        totalMinor={forecast.totalMinor}
+        orders={forecast.orders}
+        currency={store.currency}
+        locale={store.defaultLocale}
+      />
 
-      <TransactionForm orders={orders} />
+      <TransactionForm orders={orders} currency={store.currency} locale={store.defaultLocale} />
 
       {transactions.length === 0 ? (
         <p className="text-muted">لا توجد حركات مالية بعد.</p>
@@ -74,7 +91,9 @@ export default async function AdminFinancePage() {
                     {t.type === "REVENUE" ? "إيراد" : "مصروف"}
                   </span>
                   <Price
-                    nis={t.amountMinor}
+                    minor={t.amountMinor}
+                    currency={store.currency}
+                    locale={store.defaultLocale}
                     className={`font-extrabold ${t.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                   />
                 </div>
@@ -128,7 +147,9 @@ export default async function AdminFinancePage() {
                     </td>
                     <td className="p-3">
                       <Price
-                        nis={t.amountMinor}
+                        minor={t.amountMinor}
+                        currency={store.currency}
+                        locale={store.defaultLocale}
                         className={`font-extrabold ${t.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                       />
                     </td>
@@ -164,7 +185,12 @@ export default async function AdminFinancePage() {
               الخصومات الممنوحة
               <span className="mr-1 text-ink">({discounts.orders.length})</span>
             </span>
-            <Price nis={discounts.totalDiscountMinor} className="font-extrabold text-accent" />
+            <Price
+              minor={discounts.totalDiscountMinor}
+              currency={store.currency}
+              locale={store.defaultLocale}
+              className="font-extrabold text-accent"
+            />
           </summary>
           <div className="mt-3 overflow-x-auto border-t border-border pt-3">
             <table className="w-full text-xs">
@@ -185,7 +211,12 @@ export default async function AdminFinancePage() {
                       </Link>
                     </td>
                     <td className="px-2 py-1.5">
-                      <Price nis={o.discountMinor} className="font-bold text-accent" />
+                      <Price
+                        minor={o.discountMinor}
+                        currency={store.currency}
+                        locale={store.defaultLocale}
+                        className="font-bold text-accent"
+                      />
                     </td>
                     <td className="max-w-[12rem] truncate px-2 py-1.5 text-muted">
                       {o.discountReason ?? "—"}
