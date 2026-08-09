@@ -11,13 +11,19 @@ export { storeHref } from "@/lib/store-href";
 // layout + page calls this exists to collapse into one store lookup).
 const resolveStorefrontContextByKey = cache(
   async (slugParam: string | null, host: string): Promise<{ store: Store; basePath: string } | null> => {
-    const domainSlug = customDomainSlug(host);
-    const slug = domainSlug ?? slugParam;
-    if (!slug) return null;
-    const store = await prisma.store.findUnique({ where: { slug } });
+    // Custom-domain hosts resolve the store BY HOST (not by a slug in the static
+    // map), so an operator can change their slug without breaking their domain.
+    if (customDomainSlug(host)) {
+      const cleanHost = host.toLowerCase().split(":")[0].trim();
+      const store = await prisma.store.findUnique({ where: { customDomain: cleanHost } });
+      if (!store) return null;
+      return { store, basePath: "" };
+    }
+    // Platform host: resolve by the URL slug.
+    if (!slugParam) return null;
+    const store = await prisma.store.findUnique({ where: { slug: slugParam } });
     if (!store) return null;
-    const basePath = domainSlug ? "" : `/${store.slug}`;
-    return { store, basePath };
+    return { store, basePath: `/${store.slug}` };
   }
 );
 
