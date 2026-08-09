@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getCollectionBySlug, getBooks } from "@/lib/data";
 import { resolveStorefrontContext } from "@/lib/storefront-context";
+import { DEFAULT_PRICE_MINOR } from "@/lib/constants";
 import { Price } from "@/components/ui/Price";
 import { AddCollectionToCartButton } from "@/components/storefront/AddCollectionToCartButton";
 import { BundleBuilder } from "@/components/storefront/BundleBuilder";
@@ -23,8 +24,8 @@ export default async function CollectionPage({
   if (!collection) notFound();
 
   const originalPrice = collection.isCustom
-    ? (collection.requiredCount ?? 0) * 40
-    : collection.books.length * 40;
+    ? (collection.requiredCount ?? 0) * DEFAULT_PRICE_MINOR
+    : collection.books.length * DEFAULT_PRICE_MINOR;
 
   if (collection.isCustom) {
     const books = await getBooks(ctx.store.id);
