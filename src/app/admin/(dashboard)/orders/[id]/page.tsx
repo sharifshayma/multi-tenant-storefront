@@ -15,14 +15,23 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminOrderDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ status?: string; payment?: string }>;
 }) {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
   const { singular, plural } = storeNoun(store);
 
   const { id } = await params;
+  // Preserve the orders-list filters (passed in the link) so "back" returns to
+  // exactly where the user left off.
+  const { status, payment } = await searchParams;
+  const backParams = new URLSearchParams();
+  if (status) backParams.set("status", status);
+  if (payment) backParams.set("payment", payment);
+  const backHref = backParams.toString() ? `/admin/orders?${backParams}` : "/admin/orders";
   const [order, allBooks] = await Promise.all([
     prisma.order.findFirst({
       where: { id, storeId: store.id },
@@ -51,7 +60,7 @@ export default async function AdminOrderDetailPage({
   return (
     <div className="flex flex-col gap-6">
       <Link
-        href="/admin/orders"
+        href={backHref}
         className="flex items-center gap-1 text-sm font-bold text-muted hover:text-ink"
       >
         <ArrowRight className="h-4 w-4" />
