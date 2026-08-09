@@ -46,6 +46,8 @@ export default async function StoreHome({
                 key={collection.id}
                 collection={collection}
                 basePath={ctx.basePath}
+                currency={ctx.store.currency}
+                locale={ctx.store.defaultLocale}
               />
             ))}
           </div>
@@ -58,7 +60,13 @@ export default async function StoreHome({
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
           {books.map((book) => (
-            <BookCard key={book.id} book={book} basePath={ctx.basePath} />
+            <BookCard
+              key={book.id}
+              book={book}
+              basePath={ctx.basePath}
+              currency={ctx.store.currency}
+              locale={ctx.store.defaultLocale}
+            />
           ))}
         </div>
       </section>

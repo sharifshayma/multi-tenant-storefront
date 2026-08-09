@@ -8,9 +8,13 @@ import type { CollectionSummary } from "@/lib/types";
 export function CollectionCard({
   collection,
   basePath,
+  currency,
+  locale,
 }: {
   collection: CollectionSummary;
   basePath: string;
+  currency: string;
+  locale: string;
 }) {
   const originalPrice = collection.isCustom
     ? (collection.requiredCount ?? 0) * DEFAULT_PRICE_MINOR
@@ -28,9 +32,16 @@ export function CollectionCard({
         <h3 className="font-extrabold text-ink">{collection.title}</h3>
         <p className="line-clamp-2 text-sm text-muted">{collection.description}</p>
         <div className="mt-auto flex items-center gap-2 pt-1">
-          <Price nis={collection.priceMinor} className="text-lg font-extrabold text-brand" />
           <Price
-            nis={originalPrice}
+            minor={collection.priceMinor}
+            currency={currency}
+            locale={locale}
+            className="text-lg font-extrabold text-brand"
+          />
+          <Price
+            minor={originalPrice}
+            currency={currency}
+            locale={locale}
             className="text-sm text-muted line-through decoration-brand/60"
           />
         </div>

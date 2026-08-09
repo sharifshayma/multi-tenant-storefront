@@ -23,12 +23,16 @@ export function PaymentPanel({
   discountMinor,
   discountReason,
   payments,
+  currency,
+  locale,
 }: {
   orderId: string;
   totalMinor: number;
   discountMinor: number;
   discountReason: string | null;
   payments: Payment[];
+  currency: string;
+  locale: string;
 }) {
   const payable = getAmountPayable(totalMinor, discountMinor);
   const paid = payments.reduce((sum, p) => sum + p.amountMinor, 0);
@@ -98,15 +102,15 @@ export function PaymentPanel({
         <div className="mb-3 flex flex-col gap-1 rounded-xl bg-paper px-4 py-2 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-muted">إجمالي الطلب</span>
-            <Price nis={totalMinor} className="text-muted" />
+            <Price minor={totalMinor} currency={currency} locale={locale} className="text-muted" />
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted">الخصم</span>
-            <Price nis={-discountMinor} className="font-bold text-accent" />
+            <Price minor={-discountMinor} currency={currency} locale={locale} className="font-bold text-accent" />
           </div>
           <div className="flex items-center justify-between border-t border-border pt-1">
             <span className="font-bold">المبلغ المستحق</span>
-            <Price nis={payable} className="font-extrabold text-brand" />
+            <Price minor={payable} currency={currency} locale={locale} className="font-extrabold text-brand" />
           </div>
         </div>
       )}
@@ -114,15 +118,16 @@ export function PaymentPanel({
       <div className="mb-4 flex items-center justify-between text-sm">
         <span className="text-muted">{discountMinor > 0 ? "المدفوع من المستحق" : "المدفوع من الإجمالي"}</span>
         <span className="flex items-center gap-1">
-          <Price nis={paid} className="font-extrabold text-brand" />
+          <Price minor={paid} currency={currency} locale={locale} className="font-extrabold text-brand" />
           <span className="text-muted">/</span>
-          <Price nis={payable} className="text-muted" />
+          <Price minor={payable} currency={currency} locale={locale} className="text-muted" />
         </span>
       </div>
 
       {overpaidBy > 0 && (
         <p className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800">
-          دُفع أكثر من المبلغ المستحق بـ <Price nis={overpaidBy} className="inline" /> — على الأرجح لأن الطلب
+          دُفع أكثر من المبلغ المستحق بـ{" "}
+          <Price minor={overpaidBy} currency={currency} locale={locale} className="inline" /> — على الأرجح لأن الطلب
           تم تعديله بعد الدفع. تحققي مع العميل واسجلي مصروف إرجاع إن لزم من صفحة المالية.
         </p>
       )}
@@ -155,7 +160,7 @@ export function PaymentPanel({
                 {new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(p.date)}
               </span>
               <div className="flex items-center gap-2">
-                <Price nis={p.amountMinor} className="font-bold text-accent" />
+                <Price minor={p.amountMinor} currency={currency} locale={locale} className="font-bold text-accent" />
                 <DeleteTransactionButton id={p.id} />
               </div>
             </div>
@@ -190,7 +195,8 @@ export function PaymentPanel({
         />
         {previewDiscount > 0 && previewDiscount !== discountMinor && (
           <p className="text-xs text-muted">
-            المبلغ المستحق بعد الخصم سيصبح <Price nis={previewPayable} className="inline font-bold text-brand" />
+            المبلغ المستحق بعد الخصم سيصبح{" "}
+            <Price minor={previewPayable} currency={currency} locale={locale} className="inline font-bold text-brand" />
           </p>
         )}
         {discountError && <p className="text-sm text-red-600">{discountError}</p>}

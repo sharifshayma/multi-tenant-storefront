@@ -5,6 +5,7 @@ import { createTransaction } from "@/actions/finance";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { formatMoney } from "@/lib/format-money";
 import type { OrderOption } from "@/lib/data";
 import type { TransactionType } from "@prisma/client";
 
@@ -15,7 +16,15 @@ function todayInputValue() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function TransactionForm({ orders }: { orders: OrderOption[] }) {
+export function TransactionForm({
+  orders,
+  currency,
+  locale,
+}: {
+  orders: OrderOption[];
+  currency: string;
+  locale: string;
+}) {
   const [type, setType] = useState<TransactionType>("REVENUE");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -126,7 +135,8 @@ export function TransactionForm({ orders }: { orders: OrderOption[] }) {
           <option value="">بدون ربط</option>
           {orders.map((o) => (
             <option key={o.id} value={o.id}>
-              {o.customerName} — {o.totalMinor} ₪ — {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
+              {o.customerName} — {formatMoney(o.totalMinor, currency, locale)} —{" "}
+              {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
             </option>
           ))}
         </select>

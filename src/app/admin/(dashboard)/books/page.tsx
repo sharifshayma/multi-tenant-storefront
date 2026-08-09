@@ -177,7 +177,7 @@ export default async function AdminBooksPage({
                     )}
                   </div>
                   <div className="mt-1 flex items-center gap-3 text-sm text-muted">
-                    <Price nis={book.priceMinor} />
+                    <Price minor={book.priceMinor} currency={store.currency} locale={store.defaultLocale} />
                     <span>{book._count.media} ملف وسائط إضافي</span>
                     <span>طُلب {demandById.get(book.id)?.totalCount ?? 0} مرة</span>
                   </div>

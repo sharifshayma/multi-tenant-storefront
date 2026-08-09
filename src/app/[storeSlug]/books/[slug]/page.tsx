@@ -32,7 +32,12 @@ export default async function BookPage({
           <h1 className="text-2xl font-extrabold text-ink sm:text-3xl">
             {book.title}
           </h1>
-          <Price nis={book.priceMinor} className="text-2xl font-extrabold text-brand" />
+          <Price
+            minor={book.priceMinor}
+            currency={ctx.store.currency}
+            locale={ctx.store.defaultLocale}
+            className="text-2xl font-extrabold text-brand"
+          />
           <p className="leading-relaxed text-ink/90">{book.description}</p>
           <div className="mt-2">
             <AddToCartButton book={book} size="lg" />

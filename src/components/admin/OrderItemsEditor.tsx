@@ -6,6 +6,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { updateOrderItems } from "@/actions/orders";
 import { Price } from "@/components/ui/Price";
 import { Button } from "@/components/ui/Button";
+import { formatMoney } from "@/lib/format-money";
 
 type EditableBookLine = {
   bookId: string;
@@ -30,11 +31,15 @@ export function OrderItemsEditor({
   initialItems,
   initialCollectionItems,
   allBooks,
+  currency,
+  locale,
 }: {
   orderId: string;
   initialItems: EditableBookLine[];
   initialCollectionItems: EditableCollectionLine[];
   allBooks: SelectableBook[];
+  currency: string;
+  locale: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [collectionItems, setCollectionItems] = useState(initialCollectionItems);
@@ -125,7 +130,12 @@ export function OrderItemsEditor({
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
-            <Price nis={item.priceMinor * item.quantity} className="w-16 shrink-0 text-end text-sm font-bold" />
+            <Price
+              minor={item.priceMinor * item.quantity}
+              currency={currency}
+              locale={locale}
+              className="w-16 shrink-0 text-end text-sm font-bold"
+            />
             <button
               type="button"
               onClick={() => updateQty(item.bookId, 0)}
@@ -158,7 +168,12 @@ export function OrderItemsEditor({
                   <Plus className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <Price nis={c.unitPriceMinor * c.quantity} className="w-16 shrink-0 text-end text-sm font-bold" />
+              <Price
+                minor={c.unitPriceMinor * c.quantity}
+                currency={currency}
+                locale={locale}
+                className="w-16 shrink-0 text-end text-sm font-bold"
+              />
               <button
                 type="button"
                 onClick={() => updateCollectionQty(c.id, 0)}
@@ -182,7 +197,7 @@ export function OrderItemsEditor({
           <option value="">إضافة كتاب...</option>
           {allBooks.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.title} — {b.priceMinor} ₪
+              {b.title} — {formatMoney(b.priceMinor, currency, locale)}
             </option>
           ))}
         </select>
@@ -197,7 +212,7 @@ export function OrderItemsEditor({
 
       <div className="mt-3 flex items-center justify-between border-t border-border pt-3 font-extrabold">
         <span>الإجمالي الجديد</span>
-        <Price nis={total} className="text-brand" />
+        <Price minor={total} currency={currency} locale={locale} className="text-brand" />
       </div>
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
