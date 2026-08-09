@@ -4,21 +4,24 @@ import { useState } from "react";
 import { updateBook } from "@/actions/media";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { minorToInput, inputToMinor } from "@/lib/money-input";
 
 export function BookEditForm({
   bookId,
   title: initialTitle,
   description: initialDescription,
   priceMinor: initialPrice,
+  currency,
 }: {
   bookId: string;
   title: string;
   description: string;
   priceMinor: number;
+  currency: string;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
-  const [priceMinor, setPriceMinor] = useState(initialPrice);
+  const [price, setPrice] = useState(minorToInput(initialPrice));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -26,7 +29,7 @@ export function BookEditForm({
     e.preventDefault();
     setSaving(true);
     setSaved(false);
-    await updateBook({ bookId, title, description, priceMinor });
+    await updateBook({ bookId, title, description, priceMinor: inputToMinor(price) });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
@@ -49,12 +52,13 @@ export function BookEditForm({
       />
       <Input
         id="priceMinor"
-        label="السعر (شيكل)"
+        label={`السعر (${currency})`}
         type="number"
         min={0}
+        step="0.01"
         dir="ltr"
-        value={priceMinor}
-        onChange={(e) => setPriceMinor(Number(e.target.value))}
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
       />
       <Button type="submit" disabled={saving} className="self-start">
         {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : "حفظ التعديلات"}

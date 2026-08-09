@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { DeleteTransactionButton } from "@/components/admin/DeleteTransactionButton";
 import { cn } from "@/lib/utils";
+import { minorToInput, inputToMinor } from "@/lib/money-input";
 import {
   getAmountPayable,
   getPaymentStatus,
@@ -40,24 +41,24 @@ export function PaymentPanel({
   const overpaidBy = Math.max(0, paid - payable);
   const status = getPaymentStatus(paid, totalMinor, discountMinor);
 
-  const [amount, setAmount] = useState(remaining > 0 ? String(remaining) : "");
+  const [amount, setAmount] = useState(remaining > 0 ? minorToInput(remaining) : "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Discount sub-form state
-  const [discountAmount, setDiscountAmount] = useState(discountMinor > 0 ? String(discountMinor) : "");
+  const [discountAmount, setDiscountAmount] = useState(discountMinor > 0 ? minorToInput(discountMinor) : "");
   const [reason, setReason] = useState(discountReason ?? "");
   const [discountSaving, setDiscountSaving] = useState(false);
   const [discountSaved, setDiscountSaved] = useState(false);
   const [discountError, setDiscountError] = useState<string | null>(null);
 
-  const previewDiscount = Number(discountAmount) || 0;
+  const previewDiscount = inputToMinor(discountAmount);
   const previewPayable = getAmountPayable(totalMinor, previewDiscount);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const val = Number(amount);
+    const val = inputToMinor(amount);
     if (!val || val <= 0) {
       setError("الرجاء إدخال مبلغ صحيح");
       return;
@@ -73,7 +74,7 @@ export function PaymentPanel({
   async function handleDiscountSubmit(e: React.FormEvent) {
     e.preventDefault();
     setDiscountError(null);
-    const val = discountAmount.trim() === "" ? 0 : Number(discountAmount);
+    const val = discountAmount.trim() === "" ? 0 : inputToMinor(discountAmount);
     if (!Number.isFinite(val) || val < 0) {
       setDiscountError("الرجاء إدخال قيمة خصم صحيحة");
       return;
@@ -137,9 +138,10 @@ export function PaymentPanel({
           <div className="min-w-[140px] flex-1">
             <Input
               id="paymentAmount"
-              label="تسجيل دفعة (شيكل)"
+              label={`تسجيل دفعة (${currency})`}
               type="number"
               min={0}
+              step="0.01"
               dir="ltr"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -174,10 +176,11 @@ export function PaymentPanel({
           <div className="min-w-[140px] flex-1">
             <Input
               id="discountAmount"
-              label="خصم (شيكل)"
+              label={`خصم (${currency})`}
               type="number"
               min={0}
-              max={totalMinor}
+              max={minorToInput(totalMinor)}
+              step="0.01"
               dir="ltr"
               value={discountAmount}
               onChange={(e) => setDiscountAmount(e.target.value)}

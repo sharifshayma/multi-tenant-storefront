@@ -49,6 +49,7 @@ export default async function AdminCollectionDetailPage({
         isCustom={collection.isCustom}
         requiredCount={collection.requiredCount}
         itemNounPlural={plural}
+        currency={store.currency}
       />
 
       {collection.isCustom ? (

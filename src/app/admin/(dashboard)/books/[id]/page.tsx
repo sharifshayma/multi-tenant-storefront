@@ -67,6 +67,7 @@ export default async function AdminBookDetailPage({
           title={book.title}
           description={book.description}
           priceMinor={book.priceMinor}
+          currency={store.currency}
         />
       </div>
 

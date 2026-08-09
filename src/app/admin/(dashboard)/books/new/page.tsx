@@ -24,7 +24,7 @@ export default async function NewBookPage() {
 
       <h1 className="text-2xl font-extrabold">إضافة {singular} جديد</h1>
 
-      <NewBookForm itemNounSingular={singular} />
+      <NewBookForm itemNounSingular={singular} currency={store.currency} />
     </div>
   );
 }

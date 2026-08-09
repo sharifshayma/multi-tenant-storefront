@@ -1,4 +1,5 @@
 import type { OrderStatus } from "@prisma/client";
+import { formatMoney } from "@/lib/format-money";
 
 export type MessageOrderItem = { title: string; quantity: number };
 export type MessageOrderCollectionItem = { title: string; quantity: number };
@@ -7,6 +8,8 @@ export type MessageOrder = {
   id: string;
   customerName: string;
   totalMinor: number;
+  currency: string;
+  locale: string;
   items: MessageOrderItem[];
   collectionItems: MessageOrderCollectionItem[];
 };
@@ -21,7 +24,8 @@ function itemsBlock(order: MessageOrder): string {
 
 function orderSummary(order: MessageOrder): string {
   const shortId = order.id.slice(0, 8);
-  return `طلبك رقم #${shortId}:\n${itemsBlock(order)}\nالإجمالي: ${order.totalMinor} شيكل`;
+  const total = formatMoney(order.totalMinor, order.currency, order.locale);
+  return `طلبك رقم #${shortId}:\n${itemsBlock(order)}\nالإجمالي: ${total}`;
 }
 
 export function getStatusMessage(status: OrderStatus, order: MessageOrder): string {
