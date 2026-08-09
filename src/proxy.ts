@@ -13,10 +13,27 @@ export function proxy(request: NextRequest) {
     return NextResponse.rewrite(new URL(rewrite, request.url));
   }
 
-  // Admin guard (unchanged)
+  // On the platform host, a signed-in operator hitting the root goes straight
+  // to their admin — the bare landing is for logged-out visitors, so showing it
+  // to a signed-in user looks like they've been logged out. (Custom-domain
+  // roots were already rewritten to the storefront above, so pathname "/" here
+  // is always the platform host.) This is an optimistic cookie check; the real
+  // session validation still happens inside /admin.
+  if (pathname === "/") {
+    if (getSessionCookie(request)) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+  }
+
+  // Admin guard
   if (pathname.startsWith("/admin")) {
-    if (pathname === "/admin/login") return NextResponse.next();
     const sessionCookie = getSessionCookie(request);
+    // Already signed in? Don't show the login form again — go to the dashboard.
+    if (pathname === "/admin/login") {
+      return sessionCookie
+        ? NextResponse.redirect(new URL("/admin", request.url))
+        : NextResponse.next();
+    }
     if (!sessionCookie) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
