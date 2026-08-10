@@ -29,3 +29,10 @@ body {
   background: var(--paper);
   color: var(--ink);
 }
+
+/* Browsers default <th> to text-align:center, which misaligns header cells
+   over start-aligned <td> data (and doesn't flip for RTL). Inherit the row's
+   alignment instead so headers line up with their columns in both directions. */
+th {
+  text-align: inherit;
+}
