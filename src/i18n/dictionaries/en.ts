@@ -459,4 +459,28 @@ export const en: typeof ar = {
       },
     },
   },
+  auth: {
+    invalidData: "Invalid data",
+    login: {
+      title: "Log in to dashboard",
+      email: "Email",
+      password: "Password",
+      invalidCredentials: "Incorrect login credentials",
+      submitting: "Logging in...",
+      submit: "Log in",
+      noStore: "Don't have a store?",
+      createStore: "Create a new store",
+    },
+    signup: {
+      title: "Create a new store",
+      storeName: "Store name",
+      email: "Email",
+      password: "Password",
+      unexpectedError: "An unexpected error occurred, please try again",
+      submitting: "Creating...",
+      submit: "Create account",
+      hasAccount: "Already have an account?",
+      login: "Log in",
+    },
+  },
 };

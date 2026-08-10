@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { signIn } from "@/lib/auth-client";
 import { loginSchema } from "@/lib/validations";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function LoginForm() {
   const router = useRouter();
+  const { t } = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export function LoginForm() {
 
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "بيانات غير صالحة");
+      setError(parsed.error.issues[0]?.message ?? t("auth.invalidData"));
       return;
     }
 
@@ -29,7 +31,7 @@ export function LoginForm() {
     const { error: signInError } = await signIn.email({ email, password });
     setSubmitting(false);
     if (signInError) {
-      setError("بيانات الدخول غير صحيحة");
+      setError(t("auth.login.invalidCredentials"));
       return;
     }
     router.push("/admin");
@@ -41,11 +43,11 @@ export function LoginForm() {
       onSubmit={handleSubmit}
       className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm"
     >
-      <h1 className="text-center text-xl font-extrabold">دخول لوحة التحكم</h1>
+      <h1 className="text-center text-xl font-extrabold">{t("auth.login.title")}</h1>
       <Input
         id="email"
         type="email"
-        label="البريد الإلكتروني"
+        label={t("auth.login.email")}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         autoComplete="email"
@@ -55,7 +57,7 @@ export function LoginForm() {
       <Input
         id="password"
         type="password"
-        label="كلمة المرور"
+        label={t("auth.login.password")}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         autoComplete="current-password"
@@ -63,12 +65,12 @@ export function LoginForm() {
       />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" disabled={submitting}>
-        {submitting ? "جارِ الدخول..." : "دخول"}
+        {submitting ? t("auth.login.submitting") : t("auth.login.submit")}
       </Button>
       <p className="text-center text-sm text-ink/60">
-        ليس لديك متجر؟{" "}
+        {t("auth.login.noStore")}{" "}
         <Link href="/signup" className="font-bold text-brand hover:underline">
-          إنشاء متجر جديد
+          {t("auth.login.createStore")}
         </Link>
       </p>
     </form>

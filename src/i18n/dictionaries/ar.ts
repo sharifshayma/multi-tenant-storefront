@@ -457,4 +457,28 @@ export const ar = {
       },
     },
   },
+  auth: {
+    invalidData: "بيانات غير صالحة",
+    login: {
+      title: "دخول لوحة التحكم",
+      email: "البريد الإلكتروني",
+      password: "كلمة المرور",
+      invalidCredentials: "بيانات الدخول غير صحيحة",
+      submitting: "جارِ الدخول...",
+      submit: "دخول",
+      noStore: "ليس لديك متجر؟",
+      createStore: "إنشاء متجر جديد",
+    },
+    signup: {
+      title: "إنشاء متجر جديد",
+      storeName: "اسم المتجر",
+      email: "البريد الإلكتروني",
+      password: "كلمة المرور",
+      unexpectedError: "حدث خطأ غير متوقع، حاول مرة أخرى",
+      submitting: "جارِ الإنشاء...",
+      submit: "إنشاء الحساب",
+      hasAccount: "لديك حساب بالفعل؟",
+      login: "دخول",
+    },
+  },
 };
