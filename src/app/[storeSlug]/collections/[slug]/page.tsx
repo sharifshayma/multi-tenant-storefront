@@ -8,6 +8,7 @@ import { Price } from "@/components/ui/Price";
 import { AddCollectionToCartButton } from "@/components/storefront/AddCollectionToCartButton";
 import { BundleBuilder } from "@/components/storefront/BundleBuilder";
 import { CollectionCollage } from "@/components/storefront/CollectionCollage";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function CollectionPage({
   if (!ctx) notFound();
   const collection = await getCollectionBySlug(slug, ctx.store.id);
   if (!collection) notFound();
+  const d = getDictionary(ctx.store.uiLocale as Locale);
 
   const originalPrice = collection.isCustom
     ? (collection.requiredCount ?? 0) * DEFAULT_PRICE_MINOR
@@ -79,7 +81,7 @@ export default async function CollectionPage({
           <p className="leading-relaxed text-ink/90">{collection.description}</p>
 
           <div className="flex flex-col gap-2">
-            <p className="font-bold">تشمل المجموعة:</p>
+            <p className="font-bold">{t(d, "store.collection.includes")}</p>
             <ul className="flex flex-col gap-2">
               {collection.books.map((book) => (
                 <li key={book.bookId} className="flex items-center gap-3">
@@ -102,7 +104,7 @@ export default async function CollectionPage({
             <AddCollectionToCartButton collection={collection} />
           </div>
           <p className="text-sm text-muted">
-            بعد إتمام الطلب، سنتواصل معك هاتفياً لتنسيق التوصيل والدفع.
+            {t(d, "store.postOrderNote")}
           </p>
         </div>
       </div>
