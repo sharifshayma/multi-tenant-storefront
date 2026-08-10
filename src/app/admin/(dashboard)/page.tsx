@@ -5,6 +5,7 @@ import { getCurrentStore } from "@/lib/store-context";
 import { storeNoun } from "@/lib/store-noun";
 import { getFinanceSummary, getStockLevels } from "@/lib/data";
 import { Price } from "@/components/ui/Price";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export default async function AdminHomePage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
   const { plural } = storeNoun(store);
+  const d = getDictionary(store.uiLocale as Locale);
 
   const [newCount, totalCount, bookCount, collectionCount, finance, stockLevels] = await Promise.all([
     prisma.order.count({ where: { status: "NEW", storeId: store.id } }),
@@ -26,41 +28,41 @@ export default async function AdminHomePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-extrabold">أهلاً بك</h1>
+      <h1 className="text-2xl font-extrabold">{t(d, "admin.home.welcome")}</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link
           href="/admin/orders"
           className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
         >
-          <p className="text-sm text-muted">طلبات جديدة</p>
+          <p className="text-sm text-muted">{t(d, "admin.home.newOrders")}</p>
           <p className="mt-2 text-3xl font-extrabold text-brand">{newCount}</p>
         </Link>
         <Link
           href="/admin/orders"
           className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
         >
-          <p className="text-sm text-muted">إجمالي الطلبات</p>
+          <p className="text-sm text-muted">{t(d, "admin.home.totalOrders")}</p>
           <p className="mt-2 text-3xl font-extrabold">{totalCount}</p>
         </Link>
         <Link
           href="/admin/books"
           className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
         >
-          <p className="text-sm text-muted">ال{plural}</p>
+          <p className="text-sm text-muted">{t(d, "admin.home.items", { plural })}</p>
           <p className="mt-2 text-3xl font-extrabold">{bookCount}</p>
         </Link>
         <Link
           href="/admin/collections"
           className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
         >
-          <p className="text-sm text-muted">المجموعات</p>
+          <p className="text-sm text-muted">{t(d, "admin.home.collections")}</p>
           <p className="mt-2 text-3xl font-extrabold">{collectionCount}</p>
         </Link>
         <Link
           href="/admin/finance"
           className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
         >
-          <p className="text-sm text-muted">الصافي المالي</p>
+          <p className="text-sm text-muted">{t(d, "admin.home.netFinance")}</p>
           <Price
             minor={finance.net}
             currency={store.currency}
@@ -72,7 +74,7 @@ export default async function AdminHomePage() {
           href="/admin/stock"
           className="rounded-2xl border border-border bg-card p-6 hover:shadow-md"
         >
-          <p className="text-sm text-muted">إجمالي المخزون</p>
+          <p className="text-sm text-muted">{t(d, "admin.home.totalStock")}</p>
           <p className="mt-2 text-3xl font-extrabold">{totalStockUnits}</p>
         </Link>
       </div>

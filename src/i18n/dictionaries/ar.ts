@@ -63,4 +63,25 @@ export const ar = {
     },
     backToStore: "العودة إلى المتجر",
   },
+  admin: {
+    nav: {
+      dashboard: "لوحة التحكم",
+      orders: "الطلبات",
+      itemsAndMedia: "ال{plural} والوسائط",
+      collections: "المجموعات",
+      finance: "المالية",
+      stock: "المخزون",
+      settings: "الإعدادات",
+      logout: "خروج",
+    },
+    home: {
+      welcome: "أهلاً بك",
+      newOrders: "طلبات جديدة",
+      totalOrders: "إجمالي الطلبات",
+      items: "ال{plural}",
+      collections: "المجموعات",
+      netFinance: "الصافي المالي",
+      totalStock: "إجمالي المخزون",
+    },
+  },
 };

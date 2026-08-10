@@ -4,7 +4,7 @@ import { LogoutButton } from "@/components/admin/LogoutButton";
 import { getCurrentUser } from "@/lib/auth-guard";
 import { getCurrentStore } from "@/lib/store-context";
 import { storeNoun } from "@/lib/store-noun";
-import { dirFor, type Locale } from "@/i18n";
+import { getDictionary, t, dirFor, type Locale } from "@/i18n";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 
 export default async function DashboardLayout({
@@ -18,6 +18,7 @@ export default async function DashboardLayout({
   const store = await getCurrentStore();
   const { plural } = store ? storeNoun(store) : { plural: "منتجات" };
   const locale = (store?.uiLocale ?? "ar") as Locale;
+  const d = getDictionary(locale);
 
   return (
     <LocaleProvider locale={locale}>
@@ -25,26 +26,26 @@ export default async function DashboardLayout({
         <header className="border-b border-border bg-white">
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
             <Link href="/admin" className="shrink-0 font-extrabold text-brand">
-              لوحة التحكم
+              {t(d, "admin.nav.dashboard")}
             </Link>
             <nav className="flex min-w-0 flex-1 items-center gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-muted">
               <Link href="/admin/orders" className="shrink-0 hover:text-ink">
-                الطلبات
+                {t(d, "admin.nav.orders")}
               </Link>
               <Link href="/admin/books" className="shrink-0 hover:text-ink">
-                ال{plural} والوسائط
+                {t(d, "admin.nav.itemsAndMedia", { plural })}
               </Link>
               <Link href="/admin/collections" className="shrink-0 hover:text-ink">
-                المجموعات
+                {t(d, "admin.nav.collections")}
               </Link>
               <Link href="/admin/finance" className="shrink-0 hover:text-ink">
-                المالية
+                {t(d, "admin.nav.finance")}
               </Link>
               <Link href="/admin/stock" className="shrink-0 hover:text-ink">
-                المخزون
+                {t(d, "admin.nav.stock")}
               </Link>
               <Link href="/admin/settings" className="shrink-0 hover:text-ink">
-                الإعدادات
+                {t(d, "admin.nav.settings")}
               </Link>
             </nav>
             <LogoutButton />
