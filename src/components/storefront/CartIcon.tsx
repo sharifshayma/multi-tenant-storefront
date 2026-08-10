@@ -4,15 +4,17 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { storeHref } from "@/lib/store-href";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function CartIcon({ basePath }: { basePath: string }) {
   const { totalCount } = useCart();
+  const { t } = useT();
 
   return (
     <Link
       href={storeHref(basePath, "/cart")}
       className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white border border-border text-brand hover:bg-brand/5"
-      aria-label="السلة"
+      aria-label={t("store.cart.label")}
     >
       <ShoppingBag className="h-5 w-5" />
       {totalCount > 0 && (

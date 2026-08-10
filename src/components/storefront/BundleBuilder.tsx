@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LocaleProvider";
 import type { BookSummary, CollectionSummary } from "@/lib/types";
 
 export function BundleBuilder({
@@ -15,6 +16,7 @@ export function BundleBuilder({
   collection: CollectionSummary;
   books: BookSummary[];
 }) {
+  const { t } = useT();
   const { addCollection } = useCart();
   const requiredCount = collection.requiredCount ?? 5;
   const [selected, setSelected] = useState<string[]>([]);
@@ -34,7 +36,7 @@ export function BundleBuilder({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/40 bg-brand/10 p-4">
         <p className="font-bold">
-          المحدد: <span className="text-brand">{selected.length}</span> / {requiredCount}
+          {t("store.bundle.selectedLabel")} <span className="text-brand">{selected.length}</span> / {requiredCount}
         </p>
         <Button
           disabled={!isComplete}
@@ -60,10 +62,10 @@ export function BundleBuilder({
         >
           {added ? (
             <>
-              <Check className="h-4 w-4" /> أُضيفت
+              <Check className="h-4 w-4" /> {t("store.bundle.added")}
             </>
           ) : (
-            "أضف إلى السلة"
+            t("store.addToCart")
           )}
         </Button>
       </div>
