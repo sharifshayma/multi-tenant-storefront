@@ -11,8 +11,6 @@ const FOOTER_TEXT =
 // The storefront now defaults UNCONFIGURED stores to a neutral palette, so the
 // book store's original warm colors must be written explicitly to preserve it.
 const BRAND_COLOR = "#b5542c";
-const ACCENT_COLOR = "#1f6f6b";
-const GOLD_COLOR = "#d9a441";
 const BACKGROUND_COLOR = "#fdf8f0";
 const TEXT_COLOR = "#241a14";
 
@@ -32,8 +30,6 @@ async function main() {
       heroSubtitle: HERO_SUBTITLE,
       footerText: FOOTER_TEXT,
       brandColor: BRAND_COLOR,
-      accentColor: ACCENT_COLOR,
-      goldColor: GOLD_COLOR,
       backgroundColor: BACKGROUND_COLOR,
       textColor: TEXT_COLOR,
       // heroTitle/logo left null: heroTitle falls back to name; the header

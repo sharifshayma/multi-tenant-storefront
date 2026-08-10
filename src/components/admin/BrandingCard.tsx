@@ -127,27 +127,13 @@ export function BrandingCard({ initial }: { initial: BrandingInput }) {
       <Textarea id="brandFooter" label="نص التذييل (اختياري)" rows={2} value={form.footerText} onChange={(e) => set("footerText", e.target.value)} />
 
       <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <ColorField
             label="اللون الأساسي"
-            hint="الأزرار والروابط والأسعار"
+            hint="الأزرار والروابط والأسعار والعناصر المميّزة"
             value={form.brandColor}
             onChange={(v) => set("brandColor", v)}
             defaultSwatch="#3d6b99"
-          />
-          <ColorField
-            label="اللون الثانوي"
-            hint="علامة تأكيد الطلب"
-            value={form.accentColor}
-            onChange={(v) => set("accentColor", v)}
-            defaultSwatch="#3f8f79"
-          />
-          <ColorField
-            label="اللون الذهبي"
-            hint="إطارات المجموعات والعروض"
-            value={form.goldColor}
-            onChange={(v) => set("goldColor", v)}
-            defaultSwatch="#c9a24b"
           />
           <ColorField
             label="لون الخلفية"

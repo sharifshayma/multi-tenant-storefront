@@ -17,7 +17,7 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="mx-auto max-w-lg px-4 py-20 text-center sm:px-6">
-      <CheckCircle2 className="mx-auto h-16 w-16 text-accent" />
+      <CheckCircle2 className="mx-auto h-16 w-16 text-brand" />
       <h1 className="mt-4 text-2xl font-extrabold">شكراً لطلبك!</h1>
       <p className="mt-3 text-muted">
         استلمنا طلبك بنجاح. سنتصل بك قريباً على رقم هاتفك لتنسيق التوصيل

@@ -32,8 +32,6 @@ export default async function AdminSettingsPage() {
           footerText: store.footerText ?? "",
           logoUrl: store.logoUrl ?? "",
           brandColor: store.brandColor ?? "",
-          accentColor: store.accentColor ?? "",
-          goldColor: store.goldColor ?? "",
           backgroundColor: store.backgroundColor ?? "",
           textColor: store.textColor ?? "",
         }}

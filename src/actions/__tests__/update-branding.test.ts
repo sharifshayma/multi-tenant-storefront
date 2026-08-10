@@ -17,8 +17,6 @@ const base = {
   footerText: "",
   logoUrl: "",
   brandColor: "#aa3366",
-  accentColor: "",
-  goldColor: "",
   backgroundColor: "",
   textColor: "",
 };
@@ -43,8 +41,6 @@ describe("updateBranding", () => {
         footerText: null,
         logoUrl: null,
         brandColor: "#aa3366",
-        accentColor: null,
-        goldColor: null,
         backgroundColor: null,
         textColor: null,
       },
@@ -52,7 +48,7 @@ describe("updateBranding", () => {
   });
 
   it("rejects an invalid non-empty color without writing", async () => {
-    const r = await updateBranding({ ...base, accentColor: "blue" });
+    const r = await updateBranding({ ...base, brandColor: "blue" });
     expect(r.ok).toBe(false);
     expect(storeUpdate).not.toHaveBeenCalled();
   });

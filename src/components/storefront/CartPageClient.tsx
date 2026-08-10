@@ -118,7 +118,7 @@ export function CartPageClient({
                   />
                 </div>
               ) : (
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gold/20 text-brand">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
                   <Package className="h-7 w-7" />
                 </div>
               )}

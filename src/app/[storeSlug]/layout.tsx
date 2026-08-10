@@ -38,21 +38,21 @@ export default async function SiteLayout({
   // (which stays the admin-dashboard default in globals.css :root). The book
   // store keeps its warm look because the backfill writes its colors explicitly.
   const brand = store.brandColor ?? "#3d6b99";
-  const accent = store.accentColor ?? "#3f8f79";
-  const gold = store.goldColor ?? "#c9a24b";
   const paper = store.backgroundColor ?? "#f6f6f7";
   const ink = store.textColor ?? "#22262e";
   const brandStyle = {
     "--brand": brand,
     "--brand-dark": `color-mix(in srgb, ${brand} 82%, #000)`,
-    "--accent": accent,
-    "--gold": gold,
     "--paper": paper,
     "--ink": ink,
     // Card surface derived from the background: ~white on light backgrounds,
     // an elevated lighter shade on dark ones — so text (--ink) stays readable
     // on cards under any theme.
     "--card": `color-mix(in srgb, ${paper} 85%, #fff)`,
+    // Secondary text + borders blend the text color toward the background, so
+    // they stay legible and on-theme under any background (no fixed greys).
+    "--muted": `color-mix(in srgb, ${ink} 58%, ${paper})`,
+    "--border": `color-mix(in srgb, ${ink} 16%, ${paper})`,
   } as React.CSSProperties;
 
   return (
