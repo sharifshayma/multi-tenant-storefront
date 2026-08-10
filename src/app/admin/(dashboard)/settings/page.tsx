@@ -6,6 +6,7 @@ import { storeNoun } from "@/lib/store-noun";
 import { storefrontUrls } from "@/lib/store-url";
 import { AutoStockToggle } from "@/components/admin/AutoStockToggle";
 import { BrandingCard } from "@/components/admin/BrandingCard";
+import { CurrencyCard } from "@/components/admin/CurrencyCard";
 import { ChangePasswordCard } from "@/components/admin/ChangePasswordCard";
 import { StorefrontLinkCard } from "@/components/admin/StorefrontLinkCard";
 
@@ -36,6 +37,7 @@ export default async function AdminSettingsPage() {
           textColor: store.textColor ?? "",
         }}
       />
+      <CurrencyCard currency={store.currency} />
       {user && <ChangePasswordCard email={user.email} />}
 
       <div className="rounded-2xl border border-border bg-white p-5">
