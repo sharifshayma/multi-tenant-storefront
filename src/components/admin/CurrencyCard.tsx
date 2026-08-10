@@ -4,9 +4,11 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateStoreCurrency } from "@/actions/store";
 import { CURRENCIES } from "@/lib/currencies";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function CurrencyCard({ currency }: { currency: string }) {
   const router = useRouter();
+  const { t } = useT();
   const [value, setValue] = useState(currency);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
@@ -16,7 +18,7 @@ export function CurrencyCard({ currency }: { currency: string }) {
     startTransition(async () => {
       const r = await updateStoreCurrency(value);
       if (r.ok) {
-        setMsg({ ok: true, text: "تم تحديث العملة" });
+        setMsg({ ok: true, text: t("admin.settings.currency.saved") });
         router.refresh();
       } else {
         setMsg({ ok: false, text: r.error });
@@ -27,8 +29,8 @@ export function CurrencyCard({ currency }: { currency: string }) {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
       <div>
-        <h2 className="font-extrabold">العملة</h2>
-        <p className="mt-1 text-sm text-muted">تُعرض بها كل الأسعار في متجرك ولوحة التحكم.</p>
+        <h2 className="font-extrabold">{t("admin.settings.currency.heading")}</h2>
+        <p className="mt-1 text-sm text-muted">{t("admin.settings.currency.description")}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <select
@@ -48,7 +50,7 @@ export function CurrencyCard({ currency }: { currency: string }) {
           onClick={save}
           className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
         >
-          {pending ? "..." : "حفظ"}
+          {pending ? "..." : t("common.save")}
         </button>
       </div>
       {msg && (

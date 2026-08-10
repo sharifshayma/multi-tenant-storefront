@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateStoreSlug } from "@/actions/store";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function StoreSlugEditor({
   slug,
@@ -14,6 +15,7 @@ export function StoreSlugEditor({
   onSaved?: () => void;
 }) {
   const router = useRouter();
+  const { t } = useT();
   const origin = platform.slice(0, platform.length - slug.length); // e.g. "https://store.thatsmy.app/"
   const [value, setValue] = useState(slug);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -25,7 +27,7 @@ export function StoreSlugEditor({
       const r = await updateStoreSlug(value);
       if (r.ok) {
         setValue(r.slug);
-        setMsg({ ok: true, text: "تم تحديث العنوان" });
+        setMsg({ ok: true, text: t("admin.settings.slugEditor.saved") });
         router.refresh();
         onSaved?.();
       } else {
@@ -37,7 +39,7 @@ export function StoreSlugEditor({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted">
-        تغيير العنوان يوقف عمل أي روابط قديمة على المنصة شاركتِها سابقاً. رابط النطاق المخصص لا يتأثر.
+        {t("admin.settings.slugEditor.note")}
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <div
@@ -60,7 +62,7 @@ export function StoreSlugEditor({
           onClick={save}
           className="rounded-lg bg-brand px-4 py-1.5 text-sm font-bold text-white disabled:opacity-50"
         >
-          {pending ? "..." : "حفظ"}
+          {pending ? "..." : t("common.save")}
         </button>
       </div>
       {msg && (

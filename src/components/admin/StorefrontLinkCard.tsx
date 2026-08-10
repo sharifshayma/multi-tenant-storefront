@@ -4,8 +4,10 @@ import { useState } from "react";
 import { Copy, Check, ExternalLink, Pencil } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { StoreSlugEditor } from "@/components/admin/StoreSlugEditor";
+import { useT } from "@/i18n/LocaleProvider";
 
 function LinkRow({ label, url }: { label: string; url: string }) {
+  const { t } = useT();
   const [copied, setCopied] = useState(false);
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-paper p-3">
@@ -16,7 +18,7 @@ function LinkRow({ label, url }: { label: string; url: string }) {
       <div className="flex shrink-0 items-center gap-1.5">
         <button
           type="button"
-          aria-label="نسخ الرابط"
+          aria-label={t("admin.settings.storefrontLink.copyLink")}
           onClick={async () => {
             await navigator.clipboard.writeText(url);
             setCopied(true);
@@ -30,7 +32,7 @@ function LinkRow({ label, url }: { label: string; url: string }) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="فتح المتجر"
+          aria-label={t("admin.settings.storefrontLink.openStore")}
           className="rounded-lg border border-border bg-white p-2 text-muted hover:text-ink"
         >
           <ExternalLink className="h-4 w-4" />
@@ -49,14 +51,15 @@ export function StorefrontLinkCard({
   platform: string;
   customDomain: string | null;
 }) {
+  const { t } = useT();
   const [editing, setEditing] = useState(false);
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-extrabold">رابط متجرك</h2>
-          <p className="mt-1 text-sm text-muted">شاركي هذا الرابط مع عملائك لزيارة متجرك.</p>
+          <h2 className="font-extrabold">{t("admin.settings.storefrontLink.heading")}</h2>
+          <p className="mt-1 text-sm text-muted">{t("admin.settings.storefrontLink.description")}</p>
         </div>
         <button
           type="button"
@@ -64,14 +67,14 @@ export function StorefrontLinkCard({
           className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-sm font-bold text-muted hover:text-ink"
         >
           <Pencil className="h-4 w-4" />
-          تعديل العنوان
+          {t("admin.settings.storefrontLink.editAddress")}
         </button>
       </div>
-      {customDomain && <LinkRow label="رابط متجرك (الأساسي)" url={customDomain} />}
-      <LinkRow label="رابط المنصة" url={platform} />
+      {customDomain && <LinkRow label={t("admin.settings.storefrontLink.primaryLabel")} url={customDomain} />}
+      <LinkRow label={t("admin.settings.storefrontLink.platformLabel")} url={platform} />
 
       {editing && (
-        <Modal title="عنوان المتجر" onClose={() => setEditing(false)}>
+        <Modal title={t("admin.settings.storefrontLink.modalTitle")} onClose={() => setEditing(false)}>
           <StoreSlugEditor slug={slug} platform={platform} onSaved={() => setEditing(false)} />
         </Modal>
       )}

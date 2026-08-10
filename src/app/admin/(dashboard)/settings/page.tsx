@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getDictionary, t, type Locale } from "@/i18n";
 import { getAutoStockEnabled } from "@/lib/settings";
 import { getCurrentStore } from "@/lib/store-context";
 import { getCurrentUser } from "@/lib/auth-guard";
@@ -17,13 +18,14 @@ export default async function AdminSettingsPage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
   const user = await getCurrentUser();
+  const d = getDictionary(store.uiLocale as Locale);
   const { plural } = storeNoun(store);
   const autoStockEnabled = await getAutoStockEnabled(store.id);
   const urls = storefrontUrls(store);
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-extrabold">الإعدادات</h1>
+      <h1 className="text-2xl font-extrabold">{t(d, "admin.settings.pageTitle")}</h1>
 
       <StorefrontLinkCard slug={store.slug} platform={urls.platform} customDomain={urls.customDomain} />
       <BrandingCard
