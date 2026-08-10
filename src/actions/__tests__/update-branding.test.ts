@@ -58,4 +58,24 @@ describe("updateBranding", () => {
     expect(r.ok).toBe(false);
     expect(storeUpdate).not.toHaveBeenCalled();
   });
+
+  it("rejects a non-blob logoUrl without writing", async () => {
+    const r = await updateBranding({ ...base, logoUrl: "https://evil.com/x.png" });
+    expect(r.ok).toBe(false);
+    expect(storeUpdate).not.toHaveBeenCalled();
+  });
+
+  it("stores a valid Vercel-blob logoUrl", async () => {
+    const r = await updateBranding({
+      ...base,
+      logoUrl: "https://abc.public.blob.vercel-storage.com/logo.png",
+    });
+    expect(r).toEqual({ ok: true });
+    expect(storeUpdate).toHaveBeenCalledWith({
+      where: { id: "store-1" },
+      data: expect.objectContaining({
+        logoUrl: "https://abc.public.blob.vercel-storage.com/logo.png",
+      }),
+    });
+  });
 });
