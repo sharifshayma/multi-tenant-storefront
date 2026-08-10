@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireStore } from "@/lib/store-context";
 import { validateStoreSlug } from "@/lib/store-slug";
+import { isHexColor } from "@/lib/hex-color";
 
 export async function updateStoreSlug(
   input: string,
@@ -31,4 +32,57 @@ export async function updateStoreSlug(
   }
   revalidatePath("/admin/settings");
   return { ok: true, slug: v.slug };
+}
+
+export type BrandingInput = {
+  name: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  footerText: string;
+  logoUrl: string;
+  brandColor: string;
+  accentColor: string;
+  goldColor: string;
+};
+
+// "" -> null; a non-empty value must be valid hex or the whole action fails.
+function colorOrNull(value: string): string | null | false {
+  const v = value.trim();
+  if (!v) return null;
+  return isHexColor(v) ? v : false;
+}
+
+export async function updateBranding(
+  input: BrandingInput,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const store = await requireStore();
+
+  const name = input.name.trim();
+  if (!name) return { ok: false, error: "الرجاء إدخال اسم المتجر" };
+
+  const brandColor = colorOrNull(input.brandColor);
+  const accentColor = colorOrNull(input.accentColor);
+  const goldColor = colorOrNull(input.goldColor);
+  if (brandColor === false || accentColor === false || goldColor === false) {
+    return { ok: false, error: "أحد الألوان غير صالح" };
+  }
+
+  const orNull = (s: string) => (s.trim() ? s.trim() : null);
+
+  await prisma.store.update({
+    where: { id: store.id },
+    data: {
+      name,
+      heroTitle: orNull(input.heroTitle),
+      heroSubtitle: orNull(input.heroSubtitle),
+      footerText: orNull(input.footerText),
+      logoUrl: orNull(input.logoUrl),
+      brandColor,
+      accentColor,
+      goldColor,
+    },
+  });
+
+  revalidatePath("/");
+  return { ok: true };
 }
