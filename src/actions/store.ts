@@ -116,3 +116,16 @@ export async function updateBranding(
   revalidatePath("/");
   return { ok: true };
 }
+
+export async function updateStoreUiLocale(
+  locale: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const store = await requireStore();
+  if (locale !== "ar" && locale !== "en") {
+    return { ok: false, error: "لغة غير مدعومة" };
+  }
+  await prisma.store.update({ where: { id: store.id }, data: { uiLocale: locale } });
+  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}

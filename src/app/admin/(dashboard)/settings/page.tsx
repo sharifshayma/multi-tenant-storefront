@@ -7,6 +7,7 @@ import { storefrontUrls } from "@/lib/store-url";
 import { AutoStockToggle } from "@/components/admin/AutoStockToggle";
 import { BrandingCard } from "@/components/admin/BrandingCard";
 import { CurrencyCard } from "@/components/admin/CurrencyCard";
+import { LanguageCard } from "@/components/admin/LanguageCard";
 import { ChangePasswordCard } from "@/components/admin/ChangePasswordCard";
 import { StorefrontLinkCard } from "@/components/admin/StorefrontLinkCard";
 
@@ -38,6 +39,7 @@ export default async function AdminSettingsPage() {
         }}
       />
       <CurrencyCard currency={store.currency} />
+      <LanguageCard uiLocale={store.uiLocale} />
       {user && <ChangePasswordCard email={user.email} />}
 
       <div className="rounded-2xl border border-border bg-white p-5">
