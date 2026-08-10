@@ -9,19 +9,14 @@ import { StockMovementForm } from "@/components/admin/StockMovementForm";
 import { DeleteStockMovementButton } from "@/components/admin/DeleteStockMovementButton";
 import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/utils";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
-
-const MOVEMENT_TYPE_LABELS: Record<string, string> = {
-  PRINTED: "إنتاج",
-  SHIPPED: "شحن",
-  ADJUSTMENT: "تصحيح",
-  DAMAGED: "تالف/فاقد",
-};
 
 export default async function AdminStockPage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const d = getDictionary(store.uiLocale as Locale);
   const { singular } = storeNoun(store);
 
   const [stockLevels, orders, movements] = await Promise.all([
@@ -42,15 +37,15 @@ export default async function AdminStockPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-extrabold">المخزون</h1>
+      <h1 className="text-2xl font-extrabold">{t(d, "admin.stock.title")}</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-border bg-white p-5">
-          <p className="text-sm text-muted">إجمالي عدد النسخ في المخزون</p>
+          <p className="text-sm text-muted">{t(d, "admin.stock.totalUnits")}</p>
           <p className="mt-2 text-2xl font-extrabold text-brand">{totalUnits}</p>
         </div>
         <div className="rounded-2xl border border-border bg-white p-5">
-          <p className="text-sm text-muted">القيمة التقديرية للمخزون</p>
+          <p className="text-sm text-muted">{t(d, "admin.stock.totalValue")}</p>
           <Price
             minor={totalValue}
             currency={store.currency}
@@ -61,7 +56,7 @@ export default async function AdminStockPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <h2 className="text-xl font-extrabold">المخزون الحالي لكل {singular}</h2>
+        <h2 className="text-xl font-extrabold">{t(d, "admin.stock.currentStockHeading", { singular })}</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {stockLevels.map((b) => (
             <div key={b.id} className="flex items-center gap-2 rounded-xl border border-border bg-white p-2">
@@ -85,9 +80,9 @@ export default async function AdminStockPage() {
       <StockMovementForm books={stockLevels} orders={orders} itemNounSingular={singular} />
 
       <div className="flex flex-col gap-3">
-        <h2 className="text-xl font-extrabold">سجل حركات المخزون</h2>
+        <h2 className="text-xl font-extrabold">{t(d, "admin.stock.historyHeading")}</h2>
         {movements.length === 0 ? (
-          <p className="text-muted">لا توجد حركات مخزون بعد.</p>
+          <p className="text-muted">{t(d, "admin.stock.empty")}</p>
         ) : (
           <>
             {/* Mobile: stacked cards */}
@@ -101,7 +96,7 @@ export default async function AdminStockPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm text-muted">
-                    <span>{MOVEMENT_TYPE_LABELS[m.type] ?? m.type}</span>
+                    <span>{t(d, `admin.stock.movementTypes.${m.type}`)}</span>
                     <span>{new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(m.createdAt)}</span>
                   </div>
                   {(m.order || m.note) && (
@@ -126,13 +121,13 @@ export default async function AdminStockPage() {
             <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-right text-muted">
-                    <th className="p-3">ال{singular}</th>
-                    <th className="p-3">النوع</th>
-                    <th className="p-3">الكمية</th>
-                    <th className="p-3">الطلب</th>
-                    <th className="p-3">ملاحظات</th>
-                    <th className="p-3">التاريخ</th>
+                  <tr className="border-b border-border text-end text-muted">
+                    <th className="p-3">{t(d, "admin.stock.table.item", { singular })}</th>
+                    <th className="p-3">{t(d, "admin.stock.table.type")}</th>
+                    <th className="p-3">{t(d, "admin.stock.table.quantity")}</th>
+                    <th className="p-3">{t(d, "admin.stock.table.order")}</th>
+                    <th className="p-3">{t(d, "admin.stock.table.notes")}</th>
+                    <th className="p-3">{t(d, "admin.stock.table.date")}</th>
                     <th className="p-3"></th>
                   </tr>
                 </thead>
@@ -140,7 +135,7 @@ export default async function AdminStockPage() {
                   {movements.map((m) => (
                     <tr key={m.id} className="border-b border-border last:border-0">
                       <td className="p-3 font-bold">{m.book.title}</td>
-                      <td className="p-3">{MOVEMENT_TYPE_LABELS[m.type] ?? m.type}</td>
+                      <td className="p-3">{t(d, `admin.stock.movementTypes.${m.type}`)}</td>
                       <td className="p-3">
                         <span className={cn("font-extrabold", m.quantity > 0 ? "text-accent" : "text-red-600")}>
                           {m.quantity > 0 ? `+${m.quantity}` : m.quantity}

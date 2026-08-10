@@ -4,20 +4,24 @@ import { useState } from "react";
 import { createStockMovement } from "@/actions/stock";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/i18n/LocaleProvider";
 import type { OrderOption, StockLevel } from "@/lib/data";
 import type { StockMovementType } from "@prisma/client";
 
+// `key`/`type`/`sign` are never persisted as-is (only `type` and the computed signed
+// `quantity` are saved), so the dictionary key used for the label can freely differ from the
+// original UI keys without affecting stored data.
 const MOVEMENT_OPTIONS: {
   key: string;
-  label: string;
+  labelKey: string;
   type: StockMovementType;
   sign: 1 | -1;
 }[] = [
-  { key: "printed", label: "إنتاج (إضافة مخزون)", type: "PRINTED", sign: 1 },
-  { key: "adjust_up", label: "تصحيح — زيادة", type: "ADJUSTMENT", sign: 1 },
-  { key: "adjust_down", label: "تصحيح — نقصان", type: "ADJUSTMENT", sign: -1 },
-  { key: "damaged", label: "تالف / فاقد", type: "DAMAGED", sign: -1 },
-  { key: "manual_sale", label: "بيع يدوي (خارج الموقع)", type: "SHIPPED", sign: -1 },
+  { key: "printed", labelKey: "printed", type: "PRINTED", sign: 1 },
+  { key: "adjust_up", labelKey: "adjustUp", type: "ADJUSTMENT", sign: 1 },
+  { key: "adjust_down", labelKey: "adjustDown", type: "ADJUSTMENT", sign: -1 },
+  { key: "damaged", labelKey: "damaged", type: "DAMAGED", sign: -1 },
+  { key: "manual_sale", labelKey: "manualSale", type: "SHIPPED", sign: -1 },
 ];
 
 export function StockMovementForm({
@@ -36,13 +40,14 @@ export function StockMovementForm({
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     const qty = Number(quantity);
     if (!qty || qty <= 0) {
-      setError("الرجاء إدخال كمية صحيحة");
+      setError(t("admin.stock.form.invalidQuantity"));
       return;
     }
     const option = MOVEMENT_OPTIONS.find((o) => o.key === optionKey)!;
@@ -62,11 +67,11 @@ export function StockMovementForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
-      <h2 className="font-extrabold">تسجيل حركة مخزون</h2>
+      <h2 className="font-extrabold">{t("admin.stock.form.heading")}</h2>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="bookId" className="text-sm font-bold text-ink">
-          ال{itemNounSingular}
+          {t("admin.stock.form.itemLabel", { singular: itemNounSingular })}
         </label>
         <select
           id="bookId"
@@ -76,7 +81,7 @@ export function StockMovementForm({
         >
           {books.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.title} — المخزون الحالي: {b.currentStock}
+              {b.title} — {t("admin.stock.form.currentStockSuffix", { n: b.currentStock })}
             </option>
           ))}
         </select>
@@ -84,7 +89,7 @@ export function StockMovementForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="movementType" className="text-sm font-bold text-ink">
-          نوع الحركة
+          {t("admin.stock.form.movementTypeLabel")}
         </label>
         <select
           id="movementType"
@@ -94,7 +99,7 @@ export function StockMovementForm({
         >
           {MOVEMENT_OPTIONS.map((o) => (
             <option key={o.key} value={o.key}>
-              {o.label}
+              {t(`admin.stock.movementOptions.${o.labelKey}`)}
             </option>
           ))}
         </select>
@@ -102,7 +107,7 @@ export function StockMovementForm({
 
       <Input
         id="quantity"
-        label="الكمية"
+        label={t("admin.stock.form.quantityLabel")}
         type="number"
         min={1}
         dir="ltr"
@@ -112,7 +117,7 @@ export function StockMovementForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="stockOrderId" className="text-sm font-bold text-ink">
-          ربط بطلب (اختياري)
+          {t("admin.stock.form.orderLabel")}
         </label>
         <select
           id="stockOrderId"
@@ -120,7 +125,7 @@ export function StockMovementForm({
           onChange={(e) => setOrderId(e.target.value)}
           className="rounded-xl border border-border bg-white px-4 py-2.5 text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         >
-          <option value="">بدون ربط</option>
+          <option value="">{t("admin.stock.form.noLink")}</option>
           {orders.map((o) => (
             <option key={o.id} value={o.id}>
               {o.customerName} — {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
@@ -131,7 +136,7 @@ export function StockMovementForm({
 
       <Textarea
         id="note"
-        label="ملاحظات (اختياري)"
+        label={t("admin.stock.form.notesLabel")}
         rows={2}
         value={note}
         onChange={(e) => setNote(e.target.value)}
@@ -140,7 +145,7 @@ export function StockMovementForm({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Button type="submit" disabled={saving} className="self-start">
-        {saving ? "جارِ الحفظ..." : "إضافة"}
+        {saving ? t("common.saving") : t("common.add")}
       </Button>
     </form>
   );
