@@ -51,7 +51,7 @@ export function AddToCartButton({
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center rounded-full border border-border bg-white">
+      <div className="flex items-center rounded-full border border-border bg-card">
         <button
           type="button"
           onClick={() => setQty((q) => Math.max(1, q - 1))}

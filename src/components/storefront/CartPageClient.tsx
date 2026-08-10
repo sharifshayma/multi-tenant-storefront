@@ -131,7 +131,7 @@ export function CartPageClient({
                 )}
                 <Price minor={item.priceMinor} currency={currency} locale={locale} className="text-sm text-muted" />
               </div>
-              <div className="flex items-center rounded-full border border-border bg-white">
+              <div className="flex items-center rounded-full border border-border bg-card">
                 <button
                   type="button"
                   onClick={() => updateQty(item.id, item.quantity - 1)}
@@ -161,7 +161,7 @@ export function CartPageClient({
             </div>
           ))}
 
-          <div className="flex items-center justify-between rounded-2xl border border-border bg-white p-4">
+          <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
             <span className="font-bold">الإجمالي</span>
             <Price minor={totalMinor} currency={currency} locale={locale} className="text-xl font-extrabold text-brand" />
           </div>

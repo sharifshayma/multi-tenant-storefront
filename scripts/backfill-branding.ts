@@ -13,6 +13,8 @@ const FOOTER_TEXT =
 const BRAND_COLOR = "#b5542c";
 const ACCENT_COLOR = "#1f6f6b";
 const GOLD_COLOR = "#d9a441";
+const BACKGROUND_COLOR = "#fdf8f0";
+const TEXT_COLOR = "#241a14";
 
 async function main() {
   const slug = process.argv[2];
@@ -32,6 +34,8 @@ async function main() {
       brandColor: BRAND_COLOR,
       accentColor: ACCENT_COLOR,
       goldColor: GOLD_COLOR,
+      backgroundColor: BACKGROUND_COLOR,
+      textColor: TEXT_COLOR,
       // heroTitle/logo left null: heroTitle falls back to name; the header
       // shows the neutral bag icon until a logo is uploaded.
     },

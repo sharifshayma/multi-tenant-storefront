@@ -19,6 +19,8 @@ const base = {
   brandColor: "#aa3366",
   accentColor: "",
   goldColor: "",
+  backgroundColor: "",
+  textColor: "",
 };
 
 beforeEach(() => {
@@ -43,6 +45,8 @@ describe("updateBranding", () => {
         brandColor: "#aa3366",
         accentColor: null,
         goldColor: null,
+        backgroundColor: null,
+        textColor: null,
       },
     });
   });
@@ -51,6 +55,23 @@ describe("updateBranding", () => {
     const r = await updateBranding({ ...base, accentColor: "blue" });
     expect(r.ok).toBe(false);
     expect(storeUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejects an invalid background/text color without writing", async () => {
+    const bg = await updateBranding({ ...base, backgroundColor: "notacolor" });
+    expect(bg.ok).toBe(false);
+    const text = await updateBranding({ ...base, textColor: "#fff" });
+    expect(text.ok).toBe(false);
+    expect(storeUpdate).not.toHaveBeenCalled();
+  });
+
+  it("stores valid background and text colors", async () => {
+    const r = await updateBranding({ ...base, backgroundColor: "#101820", textColor: "#f5f5f5" });
+    expect(r).toEqual({ ok: true });
+    expect(storeUpdate).toHaveBeenCalledWith({
+      where: { id: "store-1" },
+      data: expect.objectContaining({ backgroundColor: "#101820", textColor: "#f5f5f5" }),
+    });
   });
 
   it("rejects an empty name", async () => {

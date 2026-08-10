@@ -40,15 +40,25 @@ export default async function SiteLayout({
   const brand = store.brandColor ?? "#3d6b99";
   const accent = store.accentColor ?? "#3f8f79";
   const gold = store.goldColor ?? "#c9a24b";
+  const paper = store.backgroundColor ?? "#f6f6f7";
+  const ink = store.textColor ?? "#22262e";
   const brandStyle = {
     "--brand": brand,
     "--brand-dark": `color-mix(in srgb, ${brand} 82%, #000)`,
     "--accent": accent,
     "--gold": gold,
+    "--paper": paper,
+    "--ink": ink,
+    // Card surface derived from the background: ~white on light backgrounds,
+    // an elevated lighter shade on dark ones — so text (--ink) stays readable
+    // on cards under any theme.
+    "--card": `color-mix(in srgb, ${paper} 85%, #fff)`,
   } as React.CSSProperties;
 
   return (
-    <div style={brandStyle} className="flex min-h-full flex-col">
+    // bg-paper/text-ink paint the store's own background + text (the vars above),
+    // overriding the platform defaults for this storefront only.
+    <div style={brandStyle} className="flex min-h-full flex-col bg-paper text-ink">
       <SiteHeader basePath={ctx.basePath} name={store.name} logoUrl={store.logoUrl} />
       <main className="flex-1">{children}</main>
       <SiteFooter footerText={store.footerText} />
