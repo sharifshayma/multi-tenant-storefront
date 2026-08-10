@@ -245,5 +245,47 @@ export const ar = {
         archiveItem: "أرشفة ال{singular}",
       },
     },
+    collections: {
+      create: "إنشاء مجموعة",
+      createFirst: "أنشئي أول مجموعة",
+      createNewTitle: "إنشاء مجموعة جديدة",
+      backToCollections: "العودة إلى المجموعات",
+      customNote:
+        "هذه مجموعة \"اختاري بنفسك\" — العميلة تختار ال{plural} بنفسها عند الطلب، لذا لا توجد {plural} ثابتة لتحديدها هنا.",
+      itemsInCollection: "ال{plural} في هذه المجموعة",
+      types: {
+        fixed: { label: "مجموعة ثابتة" },
+        custom: { label: "اختاري بنفسك" },
+      },
+      empty: {
+        heading: "ما هي المجموعات؟",
+        description: "المجموعة هي عدة {plural} تُباع معاً بسعر واحد. يمكنكِ إنشاء نوعين:",
+        fixedDescription: "— أنتِ تحددين ال{plural} التي تتكوّن منها المجموعة.",
+        customDescription: "— تحددين عدداً معيّناً، والعميلة تختار ال{plural} بنفسها عند الطلب.",
+      },
+      list: {
+        customSummary: "تختار العميلة {count} {plural}",
+        fixedSummary: "{count} {plural} ثابتة",
+      },
+      form: {
+        titleLabel: "العنوان",
+        titleRequired: "الرجاء إدخال عنوان المجموعة",
+        slugLabel: "رابط المجموعة",
+        slugHint: "اكتبي كلمة قصيرة بالإنجليزية تظهر في نهاية الرابط.",
+        descriptionLabel: "الوصف",
+        priceLabel: "سعر المجموعة ({currency})",
+        typeLabel: "نوع المجموعة",
+        fixedTypeDescription: "أنتِ تحددين ال{plural} في المجموعة.",
+        customTypeDescription: "العميلة تختار عدداً من ال{plural} بنفسها.",
+        requiredCountLabel: "عدد ال{plural} التي تختارها العميلة",
+        create: "إنشاء المجموعة",
+        creating: "جارِ الإنشاء...",
+        saveChanges: "حفظ التعديلات",
+        afterCreateNote: "بعد الإنشاء ستنتقلين لاختيار ال{plural} التي تتكوّن منها المجموعة.",
+      },
+      picker: {
+        saveSelected: "حفظ ال{plural} المختارة ({count})",
+      },
+    },
   },
 };

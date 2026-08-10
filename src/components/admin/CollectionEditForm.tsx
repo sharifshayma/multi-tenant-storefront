@@ -5,6 +5,7 @@ import { updateCollection } from "@/actions/collections";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { minorToInput, inputToMinor } from "@/lib/money-input";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function CollectionEditForm({
   collectionId,
@@ -25,6 +26,7 @@ export function CollectionEditForm({
   itemNounPlural: string;
   currency: string;
 }) {
+  const { t } = useT();
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [price, setPrice] = useState(minorToInput(initialPrice));
@@ -50,17 +52,22 @@ export function CollectionEditForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <Input id="title" label="العنوان" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <Input
+        id="title"
+        label={t("admin.collections.form.titleLabel")}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
       <Textarea
         id="description"
-        label="الوصف"
+        label={t("admin.collections.form.descriptionLabel")}
         rows={3}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
       <Input
         id="priceMinor"
-        label={`سعر المجموعة (${currency})`}
+        label={t("admin.collections.form.priceLabel", { currency })}
         type="number"
         min={0}
         step="0.01"
@@ -71,7 +78,7 @@ export function CollectionEditForm({
       {isCustom && (
         <Input
           id="requiredCount"
-          label={`عدد ال${itemNounPlural} التي تختارها العميلة`}
+          label={t("admin.collections.form.requiredCountLabel", { plural: itemNounPlural })}
           type="number"
           min={1}
           dir="ltr"
@@ -80,7 +87,7 @@ export function CollectionEditForm({
         />
       )}
       <Button type="submit" disabled={saving} className="self-start">
-        {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : "حفظ التعديلات"}
+        {saving ? t("common.saving") : saved ? t("common.savedCheck") : t("admin.collections.form.saveChanges")}
       </Button>
     </form>
   );
