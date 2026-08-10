@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { resolveStorefrontContext } from "@/lib/storefront-context";
 import { SiteHeader } from "@/components/storefront/SiteHeader";
 import { SiteFooter } from "@/components/storefront/SiteFooter";
+import { dirFor, type Locale } from "@/i18n";
+import { LocaleProvider } from "@/i18n/LocaleProvider";
 
 export async function generateMetadata({
   params,
@@ -32,6 +34,7 @@ export default async function SiteLayout({
   const ctx = await resolveStorefrontContext({ slugParam: storeSlug, host });
   if (!ctx) notFound();
   const { store } = ctx;
+  const locale = (store.uiLocale ?? "ar") as Locale;
 
   // Storefront colors: a store's own colors, else neutral defaults so an
   // unconfigured store looks unbranded — NOT the platform's warm book palette
@@ -58,10 +61,17 @@ export default async function SiteLayout({
   return (
     // bg-paper/text-ink paint the store's own background + text (the vars above),
     // overriding the platform defaults for this storefront only.
-    <div style={brandStyle} className="flex min-h-full flex-col bg-paper text-ink">
-      <SiteHeader basePath={ctx.basePath} name={store.name} logoUrl={store.logoUrl} />
-      <main className="flex-1">{children}</main>
-      <SiteFooter footerText={store.footerText} />
+    <div
+      style={brandStyle}
+      dir={dirFor(locale)}
+      lang={locale}
+      className="flex min-h-full flex-col bg-paper text-ink"
+    >
+      <LocaleProvider locale={locale}>
+        <SiteHeader basePath={ctx.basePath} name={store.name} logoUrl={store.logoUrl} />
+        <main className="flex-1">{children}</main>
+        <SiteFooter footerText={store.footerText} />
+      </LocaleProvider>
     </div>
   );
 }
