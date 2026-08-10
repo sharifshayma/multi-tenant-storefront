@@ -4,7 +4,7 @@
   --paper: #fdf8f0;
   --ink: #241a14;
   --brand: #b5542c;
-  --brand-dark: #8a3d1f;
+  --brand-dark: color-mix(in srgb, var(--brand) 82%, #000);
   --accent: #1f6f6b;
   --gold: #d9a441;
   --card: #ffffff;
