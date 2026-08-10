@@ -25,6 +25,7 @@ model Store {
   goldColor        String?
   backgroundColor  String?
   textColor        String?
+  uiLocale         String          @default("ar")
   customDomain     String?         @unique
   ownerId          String
   owner            User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
