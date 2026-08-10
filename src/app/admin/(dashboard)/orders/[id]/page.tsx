@@ -10,6 +10,7 @@ import { PaymentPanel } from "@/components/admin/PaymentPanel";
 import { CustomerInfoEditForm } from "@/components/admin/CustomerInfoEditForm";
 import { OrderItemsEditor } from "@/components/admin/OrderItemsEditor";
 import { getAmountPayable } from "@/lib/payment-status";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export default async function AdminOrderDetailPage({
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
   const { singular, plural } = storeNoun(store);
+  const d = getDictionary(store.uiLocale as Locale);
 
   const { id } = await params;
   // Preserve the orders-list filters (passed in the link) so "back" returns to
@@ -64,10 +66,12 @@ export default async function AdminOrderDetailPage({
         className="flex items-center gap-1 text-sm font-bold text-muted hover:text-ink"
       >
         <ArrowRight className="h-4 w-4" />
-        العودة إلى الطلبات
+        {t(d, "admin.orders.backToOrders")}
       </Link>
 
-      <h1 className="text-2xl font-extrabold">طلب #{order.id.slice(0, 8)}</h1>
+      <h1 className="text-2xl font-extrabold">
+        {t(d, "admin.orders.orderNumber", { id: order.id.slice(0, 8) })}
+      </h1>
 
       <OrderStatusManager
         order={{
@@ -134,7 +138,7 @@ export default async function AdminOrderDetailPage({
           />
         ) : (
           <div className="rounded-2xl border border-border bg-white p-5">
-            <h2 className="mb-3 font-extrabold">ال{plural} والمجموعات المطلوبة</h2>
+            <h2 className="mb-3 font-extrabold">{t(d, "admin.orders.itemsHeading", { plural })}</h2>
             <div className="flex flex-col divide-y divide-border">
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between py-2 text-sm">
@@ -152,7 +156,7 @@ export default async function AdminOrderDetailPage({
                 <div key={item.id} className="flex flex-col gap-1 py-2 text-sm">
                   <div className="flex justify-between">
                     <span className="font-bold">
-                      {item.collection.title} (مجموعة) × {item.quantity}
+                      {item.collection.title} {t(d, "admin.orders.collectionSuffix")} × {item.quantity}
                     </span>
                     <Price
                       minor={item.unitPriceMinor * item.quantity}
@@ -161,7 +165,9 @@ export default async function AdminOrderDetailPage({
                     />
                   </div>
                   <span className="text-xs text-muted">
-                    {item.selectedBooks.map((sb) => sb.book.title).join("، ")}
+                    {item.selectedBooks
+                      .map((sb) => sb.book.title)
+                      .join(t(d, "store.cart.itemSeparator"))}
                   </span>
                 </div>
               ))}
@@ -169,11 +175,11 @@ export default async function AdminOrderDetailPage({
             {order.discountMinor > 0 ? (
               <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
                 <div className="flex justify-between text-muted">
-                  <span>الإجمالي</span>
+                  <span>{t(d, "admin.orders.amounts.total")}</span>
                   <Price minor={order.totalMinor} currency={store.currency} locale={store.defaultLocale} />
                 </div>
                 <div className="flex justify-between text-muted">
-                  <span>الخصم</span>
+                  <span>{t(d, "admin.orders.amounts.discount")}</span>
                   <Price
                     minor={-order.discountMinor}
                     currency={store.currency}
@@ -182,7 +188,7 @@ export default async function AdminOrderDetailPage({
                   />
                 </div>
                 <div className="flex justify-between pt-1 font-extrabold">
-                  <span>المبلغ المستحق</span>
+                  <span>{t(d, "admin.orders.amounts.payable")}</span>
                   <Price
                     minor={getAmountPayable(order.totalMinor, order.discountMinor)}
                     currency={store.currency}
@@ -193,12 +199,12 @@ export default async function AdminOrderDetailPage({
               </div>
             ) : (
               <div className="mt-3 flex justify-between border-t border-border pt-3 font-extrabold">
-                <span>الإجمالي</span>
+                <span>{t(d, "admin.orders.amounts.total")}</span>
                 <Price minor={order.totalMinor} currency={store.currency} locale={store.defaultLocale} className="text-brand" />
               </div>
             )}
             <p className="mt-3 text-xs text-muted">
-              لا يمكن تعديل محتويات الطلب بعد بدء التجهيز أو الشحن.
+              {t(d, "admin.orders.cannotEditNote")}
             </p>
           </div>
         )}

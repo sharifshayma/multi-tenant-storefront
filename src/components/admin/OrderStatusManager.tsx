@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Copy, Check, RotateCcw, Trash2 } from "lucide-react";
 import { updateOrderStatus, deleteOrder } from "@/actions/orders";
 import { getStatusMessage, getWhatsAppLink, getEmailLink, type MessageOrder } from "@/lib/messages";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/order-status";
+import { ORDER_STATUSES } from "@/lib/order-status";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/i18n/LocaleProvider";
 import type { OrderStatus } from "@prisma/client";
 
 export function OrderStatusManager({
@@ -18,6 +19,7 @@ export function OrderStatusManager({
   phone: string;
   email?: string | null;
 }) {
+  const { t, dir } = useT();
   const router = useRouter();
   const [status, setStatus] = useState(order.status);
   const [message, setMessage] = useState(() => getStatusMessage(order.status, order));
@@ -27,8 +29,8 @@ export function OrderStatusManager({
 
   const whatsappLink = useMemo(() => getWhatsAppLink(phone, message), [phone, message]);
   const emailLink = useMemo(
-    () => (email ? getEmailLink(email, `تحديث بخصوص طلبك من جذور عربية، أجنحة عالمية`, message) : null),
-    [email, message]
+    () => (email ? getEmailLink(email, t("admin.orders.emailSubject"), message) : null),
+    [email, message, t]
   );
 
   function handleStatusChange(next: OrderStatus) {
@@ -61,7 +63,7 @@ export function OrderStatusManager({
         >
           {ORDER_STATUSES.map((s) => (
             <option key={s} value={s}>
-              {ORDER_STATUS_LABELS[s]}
+              {t(`admin.orders.status.${s}`)}
             </option>
           ))}
         </select>
@@ -77,27 +79,27 @@ export function OrderStatusManager({
           }
         >
           <Trash2 className="h-3.5 w-3.5" />
-          {deleting ? "اضغط للتأكيد" : "حذف الطلب"}
+          {deleting ? t("admin.orders.confirmDelete") : t("admin.orders.deleteOrder")}
         </button>
       </div>
 
       <div className="rounded-2xl border border-border bg-white p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-extrabold">رسالة للعميل</h2>
+          <h2 className="font-extrabold">{t("admin.orders.messageForCustomer")}</h2>
           <button
             type="button"
             onClick={() => setMessage(getStatusMessage(status, order))}
             className="flex items-center gap-1 text-xs font-bold text-muted hover:text-ink"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            إعادة إنشاء
+            {t("admin.orders.regenerate")}
           </button>
         </div>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
-          dir="rtl"
+          dir={dir}
           className="w-full rounded-xl border border-border bg-white p-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         />
         <div className="mt-3 flex flex-wrap gap-2">
@@ -112,17 +114,17 @@ export function OrderStatusManager({
             }}
           >
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? "تم النسخ" : "نسخ الرسالة"}
+            {copied ? t("admin.orders.copied") : t("admin.orders.copyMessage")}
           </Button>
           <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
             <Button type="button" variant="secondary" size="sm">
-              إرسال عبر واتساب
+              {t("admin.orders.sendViaWhatsapp")}
             </Button>
           </a>
           {emailLink && (
             <a href={emailLink}>
               <Button type="button" variant="ghost" size="sm">
-                إرسال عبر البريد
+                {t("admin.orders.sendViaEmail")}
               </Button>
             </a>
           )}

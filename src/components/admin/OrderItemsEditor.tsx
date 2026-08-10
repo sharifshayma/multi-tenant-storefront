@@ -7,6 +7,7 @@ import { updateOrderItems } from "@/actions/orders";
 import { Price } from "@/components/ui/Price";
 import { Button } from "@/components/ui/Button";
 import { formatMoney } from "@/lib/format-money";
+import { useT } from "@/i18n/LocaleProvider";
 
 type EditableBookLine = {
   bookId: string;
@@ -45,6 +46,7 @@ export function OrderItemsEditor({
   itemNounSingular: string;
   itemNounPlural: string;
 }) {
+  const { t } = useT();
   const [items, setItems] = useState(initialItems);
   const [collectionItems, setCollectionItems] = useState(initialCollectionItems);
   const [addBookId, setAddBookId] = useState("");
@@ -84,7 +86,7 @@ export function OrderItemsEditor({
   async function handleSave() {
     setError(null);
     if (items.length === 0 && collectionItems.length === 0) {
-      setError(`يجب أن يحتوي الطلب على ${itemNounSingular} واحد على الأقل`);
+      setError(t("admin.orders.items.minOneError", { item: itemNounSingular }));
       return;
     }
     setSaving(true);
@@ -104,10 +106,12 @@ export function OrderItemsEditor({
 
   return (
     <div className="rounded-2xl border border-border bg-white p-5">
-      <h2 className="mb-3 font-extrabold">ال{itemNounPlural} والمجموعات المطلوبة</h2>
+      <h2 className="mb-3 font-extrabold">
+        {t("admin.orders.itemsHeading", { plural: itemNounPlural })}
+      </h2>
 
       {items.length === 0 && collectionItems.length === 0 && (
-        <p className="text-sm text-muted">لا توجد عناصر في هذا الطلب.</p>
+        <p className="text-sm text-muted">{t("admin.orders.items.empty")}</p>
       )}
 
       <div className="flex flex-col divide-y divide-border">
@@ -144,7 +148,7 @@ export function OrderItemsEditor({
               type="button"
               onClick={() => updateQty(item.bookId, 0)}
               className="shrink-0 text-muted hover:text-red-600"
-              aria-label="إزالة"
+              aria-label={t("admin.orders.items.remove")}
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -154,7 +158,9 @@ export function OrderItemsEditor({
         {collectionItems.map((c) => (
           <div key={c.id} className="flex flex-col gap-1 py-2">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="min-w-0 flex-1 truncate text-sm font-bold">{c.title} (مجموعة)</span>
+              <span className="min-w-0 flex-1 truncate text-sm font-bold">
+                {c.title} {t("admin.orders.collectionSuffix")}
+              </span>
               <div className="flex items-center rounded-full border border-border">
                 <button
                   type="button"
@@ -182,12 +188,14 @@ export function OrderItemsEditor({
                 type="button"
                 onClick={() => updateCollectionQty(c.id, 0)}
                 className="shrink-0 text-muted hover:text-red-600"
-                aria-label="إزالة"
+                aria-label={t("admin.orders.items.remove")}
               >
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
-            <span className="text-xs text-muted">{c.bookTitles.join("، ")}</span>
+            <span className="text-xs text-muted">
+              {c.bookTitles.join(t("store.cart.itemSeparator"))}
+            </span>
           </div>
         ))}
       </div>
@@ -198,7 +206,7 @@ export function OrderItemsEditor({
           onChange={(e) => setAddBookId(e.target.value)}
           className="min-w-[160px] flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-brand"
         >
-          <option value="">إضافة {itemNounSingular}...</option>
+          <option value="">{t("admin.orders.items.addPlaceholder", { item: itemNounSingular })}</option>
           {allBooks.map((b) => (
             <option key={b.id} value={b.id}>
               {b.title} — {formatMoney(b.priceMinor, currency, locale)}
@@ -206,23 +214,21 @@ export function OrderItemsEditor({
           ))}
         </select>
         <Button type="button" variant="ghost" size="sm" onClick={addBook} disabled={!addBookId}>
-          إضافة
+          {t("common.add")}
         </Button>
       </div>
 
-      <p className="mt-2 text-xs text-muted">
-        لا يمكن إضافة مجموعة جديدة أو تغيير محتوياتها من هنا — يمكن فقط تعديل الكمية أو إزالتها.
-      </p>
+      <p className="mt-2 text-xs text-muted">{t("admin.orders.items.collectionEditNote")}</p>
 
       <div className="mt-3 flex items-center justify-between border-t border-border pt-3 font-extrabold">
-        <span>الإجمالي الجديد</span>
+        <span>{t("admin.orders.items.newTotal")}</span>
         <Price minor={total} currency={currency} locale={locale} className="text-brand" />
       </div>
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       <Button onClick={handleSave} disabled={saving} size="sm" className="mt-3">
-        {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : "حفظ تعديلات الطلب"}
+        {saving ? t("common.saving") : saved ? t("common.savedCheck") : t("admin.orders.items.saveButton")}
       </Button>
     </div>
   );
