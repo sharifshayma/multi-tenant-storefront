@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, ExternalLink } from "lucide-react";
+import { Copy, Check, ExternalLink, Pencil } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import { StoreSlugEditor } from "@/components/admin/StoreSlugEditor";
 
 function LinkRow({ label, url }: { label: string; url: string }) {
   const [copied, setCopied] = useState(false);
@@ -39,20 +41,40 @@ function LinkRow({ label, url }: { label: string; url: string }) {
 }
 
 export function StorefrontLinkCard({
+  slug,
   platform,
   customDomain,
 }: {
+  slug: string;
   platform: string;
   customDomain: string | null;
 }) {
+  const [editing, setEditing] = useState(false);
+
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
-      <div>
-        <h2 className="font-extrabold">رابط متجرك</h2>
-        <p className="mt-1 text-sm text-muted">شاركي هذا الرابط مع عملائك لزيارة متجرك.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-extrabold">رابط متجرك</h2>
+          <p className="mt-1 text-sm text-muted">شاركي هذا الرابط مع عملائك لزيارة متجرك.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-sm font-bold text-muted hover:text-ink"
+        >
+          <Pencil className="h-4 w-4" />
+          تعديل العنوان
+        </button>
       </div>
       {customDomain && <LinkRow label="رابط متجرك (الأساسي)" url={customDomain} />}
       <LinkRow label="رابط المنصة" url={platform} />
+
+      {editing && (
+        <Modal title="عنوان المتجر" onClose={() => setEditing(false)}>
+          <StoreSlugEditor slug={slug} platform={platform} onSaved={() => setEditing(false)} />
+        </Modal>
+      )}
     </div>
   );
 }

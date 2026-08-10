@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Pencil } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { Modal } from "@/components/ui/Modal";
 
-export function ChangePasswordCard({ email }: { email: string }) {
+function ChangePasswordForm({ email, onDone }: { email: string; onDone: () => void }) {
   const [stage, setStage] = useState<"idle" | "code">("idle");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
@@ -43,20 +45,15 @@ export function ChangePasswordCard({ email }: { email: string }) {
         setMsg({ ok: false, text: "الرمز غير صحيح أو منتهي، حاولي مرة أخرى" });
         return;
       }
-      setStage("idle");
-      setOtp(""); setPassword(""); setConfirm("");
-      setMsg({ ok: true, text: "تم تغيير كلمة المرور بنجاح" });
+      onDone();
     });
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
-      <div>
-        <h2 className="font-extrabold">كلمة المرور</h2>
-        <p className="mt-1 text-sm text-muted">
-          لتغيير كلمة المرور، سنرسل رمزاً إلى بريدك ({email}) للتأكد من هويتك.
-        </p>
-      </div>
+    <div className="flex flex-col gap-3">
+      <p className="text-sm text-muted">
+        لتغيير كلمة المرور، سنرسل رمزاً إلى بريدك ({email}) للتأكد من هويتك.
+      </p>
 
       {stage === "idle" ? (
         <button
@@ -65,7 +62,7 @@ export function ChangePasswordCard({ email }: { email: string }) {
           onClick={sendCode}
           className="self-start rounded-lg bg-brand px-4 py-1.5 text-sm font-bold text-white disabled:opacity-50"
         >
-          {pending ? "..." : "تغيير كلمة المرور"}
+          {pending ? "..." : "إرسال الرمز"}
         </button>
       ) : (
         <div className="flex flex-col gap-2">
@@ -105,6 +102,49 @@ export function ChangePasswordCard({ email }: { email: string }) {
         <p className={msg.ok ? "text-sm font-bold text-accent" : "text-sm font-bold text-red-600"}>
           {msg.text}
         </p>
+      )}
+    </div>
+  );
+}
+
+export function ChangePasswordCard({ email }: { email: string }) {
+  const [open, setOpen] = useState(false);
+  const [done, setDone] = useState(false);
+
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-extrabold">كلمة المرور</h2>
+          <p className="mt-1 text-sm text-muted">
+            غيّري كلمة المرور الخاصة بدخولك إلى لوحة التحكم.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setDone(false);
+            setOpen(true);
+          }}
+          className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-sm font-bold text-muted hover:text-ink"
+        >
+          <Pencil className="h-4 w-4" />
+          تغيير كلمة المرور
+        </button>
+      </div>
+
+      {done && <p className="text-sm font-bold text-accent">تم تغيير كلمة المرور بنجاح</p>}
+
+      {open && (
+        <Modal title="كلمة المرور" onClose={() => setOpen(false)}>
+          <ChangePasswordForm
+            email={email}
+            onDone={() => {
+              setDone(true);
+              setOpen(false);
+            }}
+          />
+        </Modal>
       )}
     </div>
   );
