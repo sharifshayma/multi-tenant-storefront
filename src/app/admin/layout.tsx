@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "لوحة التحكم | جذور عربية، أجنحة عالمية",
+  title: "Dashboard | My Store",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
