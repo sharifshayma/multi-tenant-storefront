@@ -40,13 +40,20 @@ export function StoreSlugEditor({
         تغيير العنوان يوقف عمل أي روابط قديمة على المنصة شاركتِها سابقاً. رابط النطاق المخصص لا يتأثر.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <span dir="ltr" className="text-sm text-muted">{origin}</span>
-        <input
+        <div
           dir="ltr"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          className="min-w-0 flex-1 rounded-lg border border-border px-3 py-1.5 text-sm font-bold"
-        />
+          className="flex min-w-0 flex-1 items-stretch overflow-hidden rounded-lg border border-border bg-white focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20"
+        >
+          <span className="flex items-center whitespace-nowrap bg-paper px-2.5 text-sm text-muted">
+            {origin}
+          </span>
+          <input
+            dir="ltr"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className="min-w-0 flex-1 bg-white px-2.5 py-1.5 text-sm font-bold text-ink outline-none"
+          />
+        </div>
         <button
           type="button"
           disabled={pending}
