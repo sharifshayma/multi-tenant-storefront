@@ -6,6 +6,7 @@ import { getCurrentStore } from "@/lib/store-context";
 import { storeNoun } from "@/lib/store-noun";
 import { CollectionEditForm } from "@/components/admin/CollectionEditForm";
 import { CollectionBooksPicker } from "@/components/admin/CollectionBooksPicker";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function AdminCollectionDetailPage({
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
   const { plural } = storeNoun(store);
+  const d = getDictionary(store.uiLocale as Locale);
 
   const { id } = await params;
   const collection = await prisma.collection.findFirst({
@@ -38,7 +40,7 @@ export default async function AdminCollectionDetailPage({
         className="flex items-center gap-1 text-sm font-bold text-muted hover:text-ink"
       >
         <ArrowRight className="h-4 w-4" />
-        العودة إلى المجموعات
+        {t(d, "admin.collections.backToCollections")}
       </Link>
 
       <CollectionEditForm
@@ -54,13 +56,11 @@ export default async function AdminCollectionDetailPage({
 
       {collection.isCustom ? (
         <div className="rounded-2xl border border-border bg-white p-5">
-          <p className="text-sm text-muted">
-            هذه مجموعة "اختاري بنفسك" — العميلة تختار ال{plural} بنفسها عند الطلب، لذا لا توجد {plural} ثابتة لتحديدها هنا.
-          </p>
+          <p className="text-sm text-muted">{t(d, "admin.collections.customNote", { plural })}</p>
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-white p-5">
-          <h2 className="mb-4 font-extrabold">ال{plural} في هذه المجموعة</h2>
+          <h2 className="mb-4 font-extrabold">{t(d, "admin.collections.itemsInCollection", { plural })}</h2>
           <CollectionBooksPicker
             collectionId={collection.id}
             books={allBooks}

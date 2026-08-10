@@ -247,5 +247,47 @@ export const en: typeof ar = {
         archiveItem: "Archive {singular}",
       },
     },
+    collections: {
+      create: "Create collection",
+      createFirst: "Create your first collection",
+      createNewTitle: "Create new collection",
+      backToCollections: "Back to collections",
+      customNote:
+        "This is a \"choose your own\" collection — the customer picks the {plural} herself when ordering, so there are no fixed {plural} to select here.",
+      itemsInCollection: "{plural} in this collection",
+      types: {
+        fixed: { label: "Fixed collection" },
+        custom: { label: "Choose your own" },
+      },
+      empty: {
+        heading: "What are collections?",
+        description: "A collection is several {plural} sold together for one price. You can create two types:",
+        fixedDescription: "— You choose the {plural} that make up the collection.",
+        customDescription: "— You set a specific count, and the customer chooses the {plural} herself when ordering.",
+      },
+      list: {
+        customSummary: "Customer chooses {count} {plural}",
+        fixedSummary: "{count} {plural} fixed",
+      },
+      form: {
+        titleLabel: "Title",
+        titleRequired: "Please enter a collection title",
+        slugLabel: "Collection URL",
+        slugHint: "Type a short word in English that appears at the end of the URL.",
+        descriptionLabel: "Description",
+        priceLabel: "Collection price ({currency})",
+        typeLabel: "Collection type",
+        fixedTypeDescription: "You choose the {plural} in the collection.",
+        customTypeDescription: "The customer chooses a number of {plural} herself.",
+        requiredCountLabel: "Number of {plural} the customer chooses",
+        create: "Create collection",
+        creating: "Creating...",
+        saveChanges: "Save changes",
+        afterCreateNote: "After creating it, you'll move on to choosing the {plural} that make up the collection.",
+      },
+      picker: {
+        saveSelected: "Save selected {plural} ({count})",
+      },
+    },
   },
 };

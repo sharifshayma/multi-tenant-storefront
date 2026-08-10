@@ -7,6 +7,7 @@ import { setCollectionBooks } from "@/actions/collections";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { BookSummary } from "@/lib/types";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function CollectionBooksPicker({
   collectionId,
@@ -19,6 +20,7 @@ export function CollectionBooksPicker({
   initialSelectedIds: string[];
   itemNounPlural: string;
 }) {
+  const { t } = useT();
   const [selected, setSelected] = useState<string[]>(initialSelectedIds);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -67,7 +69,11 @@ export function CollectionBooksPicker({
         })}
       </div>
       <Button onClick={handleSave} disabled={saving} className="self-start">
-        {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : `حفظ ال${itemNounPlural} المختارة (${selected.length})`}
+        {saving
+          ? t("common.saving")
+          : saved
+            ? t("common.savedCheck")
+            : t("admin.collections.picker.saveSelected", { plural: itemNounPlural, count: selected.length })}
       </Button>
     </div>
   );

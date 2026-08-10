@@ -8,6 +8,7 @@ import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { minorToInput, inputToMinor } from "@/lib/money-input";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function NewCollectionForm({
   itemNounPlural,
@@ -19,6 +20,7 @@ export function NewCollectionForm({
   urlPrefix: string;
 }) {
   const router = useRouter();
+  const { t } = useT();
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -34,7 +36,7 @@ export function NewCollectionForm({
     e.preventDefault();
     setError(null);
     if (!title.trim()) {
-      setError("الرجاء إدخال عنوان المجموعة");
+      setError(t("admin.collections.form.titleRequired"));
       return;
     }
     setSaving(true);
@@ -59,7 +61,7 @@ export function NewCollectionForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-5">
       <Input
         id="newCollectionTitle"
-        label="العنوان"
+        label={t("admin.collections.form.titleLabel")}
         value={title}
         onChange={(e) => {
           const value = e.target.value;
@@ -70,9 +72,9 @@ export function NewCollectionForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="newCollectionSlug" className="text-sm font-bold text-ink">
-          رابط المجموعة
+          {t("admin.collections.form.slugLabel")}
         </label>
-        <p className="text-xs text-muted">اكتبي كلمة قصيرة بالإنجليزية تظهر في نهاية الرابط.</p>
+        <p className="text-xs text-muted">{t("admin.collections.form.slugHint")}</p>
         <div
           dir="ltr"
           className="flex items-stretch overflow-hidden rounded-xl border border-border bg-white focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20"
@@ -99,7 +101,7 @@ export function NewCollectionForm({
 
       <Textarea
         id="newCollectionDescription"
-        label="الوصف"
+        label={t("admin.collections.form.descriptionLabel")}
         rows={3}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -107,7 +109,7 @@ export function NewCollectionForm({
 
       <Input
         id="newCollectionPrice"
-        label={`سعر المجموعة (${currency})`}
+        label={t("admin.collections.form.priceLabel", { currency })}
         type="number"
         min={0}
         step="0.01"
@@ -117,7 +119,7 @@ export function NewCollectionForm({
       />
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-bold text-ink">نوع المجموعة</span>
+        <span className="text-sm font-bold text-ink">{t("admin.collections.form.typeLabel")}</span>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <button
             type="button"
@@ -127,8 +129,10 @@ export function NewCollectionForm({
               !isCustom ? "border-brand bg-brand/5" : "border-border bg-white hover:border-brand/40"
             )}
           >
-            <span className="font-bold">مجموعة ثابتة</span>
-            <span className="text-xs text-muted">أنتِ تحددين ال{itemNounPlural} في المجموعة.</span>
+            <span className="font-bold">{t("admin.collections.types.fixed.label")}</span>
+            <span className="text-xs text-muted">
+              {t("admin.collections.form.fixedTypeDescription", { plural: itemNounPlural })}
+            </span>
           </button>
           <button
             type="button"
@@ -138,8 +142,10 @@ export function NewCollectionForm({
               isCustom ? "border-brand bg-brand/5" : "border-border bg-white hover:border-brand/40"
             )}
           >
-            <span className="font-bold">اختاري بنفسك</span>
-            <span className="text-xs text-muted">العميلة تختار عدداً من ال{itemNounPlural} بنفسها.</span>
+            <span className="font-bold">{t("admin.collections.types.custom.label")}</span>
+            <span className="text-xs text-muted">
+              {t("admin.collections.form.customTypeDescription", { plural: itemNounPlural })}
+            </span>
           </button>
         </div>
       </div>
@@ -147,7 +153,7 @@ export function NewCollectionForm({
       {isCustom && (
         <Input
           id="newCollectionRequiredCount"
-          label={`عدد ال${itemNounPlural} التي تختارها العميلة`}
+          label={t("admin.collections.form.requiredCountLabel", { plural: itemNounPlural })}
           type="number"
           min={1}
           dir="ltr"
@@ -159,12 +165,12 @@ export function NewCollectionForm({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Button type="submit" disabled={saving} className="self-start">
-        {saving ? "جارِ الإنشاء..." : `إنشاء المجموعة`}
+        {saving ? t("admin.collections.form.creating") : t("admin.collections.form.create")}
       </Button>
 
       {!isCustom && (
         <p className="text-xs text-muted">
-          بعد الإنشاء ستنتقلين لاختيار ال{itemNounPlural} التي تتكوّن منها المجموعة.
+          {t("admin.collections.form.afterCreateNote", { plural: itemNounPlural })}
         </p>
       )}
     </form>
