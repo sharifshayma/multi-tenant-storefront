@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AdminNav } from "@/components/admin/AdminNav";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 import { getCurrentUser } from "@/lib/auth-guard";
 import { getCurrentStore } from "@/lib/store-context";
@@ -28,26 +29,7 @@ export default async function DashboardLayout({
             <Link href="/admin" className="shrink-0 font-extrabold text-brand">
               {t(d, "admin.nav.dashboard")}
             </Link>
-            <nav className="flex min-w-0 flex-1 items-center gap-4 overflow-x-auto whitespace-nowrap text-sm font-bold text-muted">
-              <Link href="/admin/orders" className="shrink-0 hover:text-ink">
-                {t(d, "admin.nav.orders")}
-              </Link>
-              <Link href="/admin/books" className="shrink-0 hover:text-ink">
-                {t(d, "admin.nav.itemsAndMedia", { plural })}
-              </Link>
-              <Link href="/admin/collections" className="shrink-0 hover:text-ink">
-                {t(d, "admin.nav.collections")}
-              </Link>
-              <Link href="/admin/finance" className="shrink-0 hover:text-ink">
-                {t(d, "admin.nav.finance")}
-              </Link>
-              <Link href="/admin/stock" className="shrink-0 hover:text-ink">
-                {t(d, "admin.nav.stock")}
-              </Link>
-              <Link href="/admin/settings" className="shrink-0 hover:text-ink">
-                {t(d, "admin.nav.settings")}
-              </Link>
-            </nav>
+            <AdminNav plural={plural} />
             <LogoutButton />
           </div>
         </header>
