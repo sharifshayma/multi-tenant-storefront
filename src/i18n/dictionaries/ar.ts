@@ -45,5 +45,22 @@ export const ar = {
       selectedLabel: "المحدد:",
       added: "أُضيفت",
     },
+    home: {
+      collectionsHeading: "مجموعات بأسعار مميزة",
+      individualHeading: "ال{plural} الفردية",
+    },
+    postOrderNote: "بعد إتمام الطلب، سنتواصل معك هاتفياً لتنسيق التوصيل والدفع.",
+    collection: {
+      includes: "تشمل المجموعة:",
+    },
+    confirmation: {
+      title: "شكراً لطلبك!",
+      message: "استلمنا طلبك بنجاح. سنتصل بك قريباً على رقم هاتفك لتنسيق التوصيل والدفع.",
+    },
+    notFound: {
+      title: "الصفحة غير موجودة",
+      message: "لم نتمكن من العثور على ما تبحثين عنه.",
+    },
+    backToStore: "العودة إلى المتجر",
   },
 };

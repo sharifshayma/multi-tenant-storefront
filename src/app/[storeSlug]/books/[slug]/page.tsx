@@ -5,6 +5,7 @@ import { resolveStorefrontContext } from "@/lib/storefront-context";
 import { MediaGallery } from "@/components/storefront/MediaGallery";
 import { AddToCartButton } from "@/components/storefront/AddToCartButton";
 import { Price } from "@/components/ui/Price";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export default async function BookPage({
   if (!ctx) notFound();
   const book = await getBookBySlug(slug, ctx.store.id);
   if (!book) notFound();
+  const d = getDictionary(ctx.store.uiLocale as Locale);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
@@ -43,7 +45,7 @@ export default async function BookPage({
             <AddToCartButton book={book} size="lg" />
           </div>
           <p className="text-sm text-muted">
-            بعد إتمام الطلب، سنتواصل معك هاتفياً لتنسيق التوصيل والدفع.
+            {t(d, "store.postOrderNote")}
           </p>
         </div>
       </div>

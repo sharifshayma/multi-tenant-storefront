@@ -47,5 +47,22 @@ export const en: typeof ar = {
       selectedLabel: "Selected:",
       added: "Added",
     },
+    home: {
+      collectionsHeading: "Special-price collections",
+      individualHeading: "Individual {plural}",
+    },
+    postOrderNote: "After placing your order, we'll contact you by phone to arrange delivery and payment.",
+    collection: {
+      includes: "This collection includes:",
+    },
+    confirmation: {
+      title: "Thank you for your order!",
+      message: "We've received your order. We'll call you soon at your phone number to arrange delivery and payment.",
+    },
+    notFound: {
+      title: "Page not found",
+      message: "We couldn't find what you were looking for.",
+    },
+    backToStore: "Back to store",
   },
 };
