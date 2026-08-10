@@ -37,7 +37,7 @@ export default async function BookPage({
           <Price
             minor={book.priceMinor}
             currency={ctx.store.currency}
-            locale={ctx.store.defaultLocale}
+            locale={ctx.store.uiLocale}
             className="text-2xl font-extrabold text-brand"
           />
           <p className="leading-relaxed text-ink/90">{book.description}</p>

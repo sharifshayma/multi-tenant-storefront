@@ -49,7 +49,7 @@ export default async function StoreHome({
                 collection={collection}
                 basePath={ctx.basePath}
                 currency={ctx.store.currency}
-                locale={ctx.store.defaultLocale}
+                locale={ctx.store.uiLocale}
               />
             ))}
           </div>
@@ -67,7 +67,7 @@ export default async function StoreHome({
               book={book}
               basePath={ctx.basePath}
               currency={ctx.store.currency}
-              locale={ctx.store.defaultLocale}
+              locale={ctx.store.uiLocale}
             />
           ))}
         </div>

@@ -73,7 +73,7 @@ export default async function AdminCollectionsPage() {
             >
               <p className="font-bold">{c.title}</p>
               <div className="flex items-center gap-2 text-sm text-muted">
-                <Price minor={c.priceMinor} currency={store.currency} locale={store.defaultLocale} />
+                <Price minor={c.priceMinor} currency={store.currency} locale={store.uiLocale} />
                 <span>
                   {c.isCustom
                     ? t(d, "admin.collections.list.customSummary", { count: c.requiredCount ?? "", plural })

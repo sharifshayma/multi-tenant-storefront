@@ -49,7 +49,7 @@ export default async function AdminStockPage() {
           <Price
             minor={totalValue}
             currency={store.currency}
-            locale={store.defaultLocale}
+            locale={store.uiLocale}
             className="mt-2 block text-2xl font-extrabold text-brand"
           />
         </div>
@@ -97,7 +97,7 @@ export default async function AdminStockPage() {
                   </div>
                   <div className="flex items-center justify-between text-sm text-muted">
                     <span>{t(d, `admin.stock.movementTypes.${m.type}`)}</span>
-                    <span>{new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(m.createdAt)}</span>
+                    <span>{new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "short" }).format(m.createdAt)}</span>
                   </div>
                   {(m.order || m.note) && (
                     <div className="text-sm text-muted">
@@ -152,7 +152,7 @@ export default async function AdminStockPage() {
                       </td>
                       <td className="max-w-xs truncate p-3">{m.note ?? "—"}</td>
                       <td className="p-3 text-muted">
-                        {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(m.createdAt)}
+                        {new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "short" }).format(m.createdAt)}
                       </td>
                       <td className="p-3">
                         <DeleteStockMovementButton id={m.id} />

@@ -20,7 +20,7 @@ export default async function CartPage({
       basePath={ctx.basePath}
       storeSlug={storeSlug}
       currency={ctx.store.currency}
-      locale={ctx.store.defaultLocale}
+      locale={ctx.store.uiLocale}
       itemNounPlural={plural}
     />
   );

@@ -211,12 +211,12 @@ export default async function AdminOrdersPage({
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted">
                     {order._count.items + order._count.collectionItems} {plural} ·{" "}
-                    {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(order.createdAt)}
+                    {new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "short" }).format(order.createdAt)}
                   </span>
                   <Price
                     minor={order.totalMinor}
                     currency={store.currency}
-                    locale={store.defaultLocale}
+                    locale={store.uiLocale}
                     className="font-extrabold text-brand"
                   />
                 </div>
@@ -263,11 +263,11 @@ export default async function AdminOrdersPage({
                       <Price
                         minor={order.totalMinor}
                         currency={store.currency}
-                        locale={store.defaultLocale}
+                        locale={store.uiLocale}
                       />
                     </td>
                     <td className="p-3 text-muted">
-                      {new Intl.DateTimeFormat("ar", {
+                      {new Intl.DateTimeFormat(store.uiLocale, {
                         dateStyle: "short",
                         timeStyle: "short",
                       }).format(order.createdAt)}

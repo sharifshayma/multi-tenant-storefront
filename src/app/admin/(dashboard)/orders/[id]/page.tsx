@@ -80,7 +80,7 @@ export default async function AdminOrderDetailPage({
           customerName: order.customerName,
           totalMinor: order.totalMinor,
           currency: store.currency,
-          locale: store.defaultLocale,
+          locale: store.uiLocale,
           items: order.items.map((i) => ({ title: i.book.title, quantity: i.quantity })),
           collectionItems: order.collectionItems.map((i) => ({
             title: i.collection.title,
@@ -89,6 +89,7 @@ export default async function AdminOrderDetailPage({
         }}
         phone={order.phone}
         email={order.email}
+        storeName={store.name}
       />
 
       <PaymentPanel
@@ -99,7 +100,7 @@ export default async function AdminOrderDetailPage({
         discountReason={order.discountReason}
         payments={order.transactions}
         currency={store.currency}
-        locale={store.defaultLocale}
+        locale={store.uiLocale}
       />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -132,7 +133,7 @@ export default async function AdminOrderDetailPage({
             }))}
             allBooks={allBooks}
             currency={store.currency}
-            locale={store.defaultLocale}
+            locale={store.uiLocale}
             itemNounSingular={singular}
             itemNounPlural={plural}
           />
@@ -148,7 +149,7 @@ export default async function AdminOrderDetailPage({
                   <Price
                     minor={item.unitPriceMinor * item.quantity}
                     currency={store.currency}
-                    locale={store.defaultLocale}
+                    locale={store.uiLocale}
                   />
                 </div>
               ))}
@@ -161,7 +162,7 @@ export default async function AdminOrderDetailPage({
                     <Price
                       minor={item.unitPriceMinor * item.quantity}
                       currency={store.currency}
-                      locale={store.defaultLocale}
+                      locale={store.uiLocale}
                     />
                   </div>
                   <span className="text-xs text-muted">
@@ -176,14 +177,14 @@ export default async function AdminOrderDetailPage({
               <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
                 <div className="flex justify-between text-muted">
                   <span>{t(d, "admin.orders.amounts.total")}</span>
-                  <Price minor={order.totalMinor} currency={store.currency} locale={store.defaultLocale} />
+                  <Price minor={order.totalMinor} currency={store.currency} locale={store.uiLocale} />
                 </div>
                 <div className="flex justify-between text-muted">
                   <span>{t(d, "admin.orders.amounts.discount")}</span>
                   <Price
                     minor={-order.discountMinor}
                     currency={store.currency}
-                    locale={store.defaultLocale}
+                    locale={store.uiLocale}
                     className="text-accent"
                   />
                 </div>
@@ -192,7 +193,7 @@ export default async function AdminOrderDetailPage({
                   <Price
                     minor={getAmountPayable(order.totalMinor, order.discountMinor)}
                     currency={store.currency}
-                    locale={store.defaultLocale}
+                    locale={store.uiLocale}
                     className="text-brand"
                   />
                 </div>
@@ -200,7 +201,7 @@ export default async function AdminOrderDetailPage({
             ) : (
               <div className="mt-3 flex justify-between border-t border-border pt-3 font-extrabold">
                 <span>{t(d, "admin.orders.amounts.total")}</span>
-                <Price minor={order.totalMinor} currency={store.currency} locale={store.defaultLocale} className="text-brand" />
+                <Price minor={order.totalMinor} currency={store.currency} locale={store.uiLocale} className="text-brand" />
               </div>
             )}
             <p className="mt-3 text-xs text-muted">

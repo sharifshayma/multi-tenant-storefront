@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function Modal({
   title,
@@ -12,6 +13,7 @@ export function Modal({
   onClose: () => void;
   children: ReactNode;
 }) {
+  const { t } = useT();
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -39,7 +41,7 @@ export function Modal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="إغلاق"
+            aria-label={t("common.close")}
             className="rounded-lg border border-border bg-white p-1.5 text-muted hover:text-ink"
           >
             <X className="h-4 w-4" />

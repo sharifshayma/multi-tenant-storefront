@@ -14,28 +14,32 @@ export function OrderStatusManager({
   order,
   phone,
   email,
+  storeName,
 }: {
   order: MessageOrder & { status: OrderStatus };
   phone: string;
   email?: string | null;
+  storeName: string;
 }) {
   const { t, dir, locale } = useT();
   const router = useRouter();
   const [status, setStatus] = useState(order.status);
-  const [message, setMessage] = useState(() => getStatusMessage(order.status, order, locale));
+  const [message, setMessage] = useState(() =>
+    getStatusMessage(order.status, order, storeName, locale)
+  );
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const whatsappLink = useMemo(() => getWhatsAppLink(phone, message), [phone, message]);
   const emailLink = useMemo(
-    () => (email ? getEmailLink(email, t("admin.orders.emailSubject"), message) : null),
-    [email, message, t]
+    () => (email ? getEmailLink(email, t("admin.orders.emailSubject", { storeName }), message) : null),
+    [email, message, t, storeName]
   );
 
   function handleStatusChange(next: OrderStatus) {
     setStatus(next);
-    setMessage(getStatusMessage(next, order, locale));
+    setMessage(getStatusMessage(next, order, storeName, locale));
     startTransition(() => {
       updateOrderStatus(order.id, next);
     });
@@ -88,7 +92,7 @@ export function OrderStatusManager({
           <h2 className="font-extrabold">{t("admin.orders.messageForCustomer")}</h2>
           <button
             type="button"
-            onClick={() => setMessage(getStatusMessage(status, order, locale))}
+            onClick={() => setMessage(getStatusMessage(status, order, storeName, locale))}
             className="flex items-center gap-1 text-xs font-bold text-muted hover:text-ink"
           >
             <RotateCcw className="h-3.5 w-3.5" />

@@ -23,7 +23,7 @@ export function CustomerInfoEditForm({
   notes: string | null;
   createdAt: Date;
 }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [name, setName] = useState(customerName);
   const [phoneVal, setPhoneVal] = useState(phone);
   const [emailVal, setEmailVal] = useState(email ?? "");
@@ -97,7 +97,7 @@ export function CustomerInfoEditForm({
       />
       <p className="text-xs text-muted">
         {t("admin.orders.customerForm.orderDate")}{" "}
-        {new Intl.DateTimeFormat("ar", { dateStyle: "medium", timeStyle: "short" }).format(createdAt)}
+        {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(createdAt)}
       </p>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" disabled={saving} size="sm" className="self-start">

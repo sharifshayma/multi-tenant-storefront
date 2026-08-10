@@ -40,13 +40,13 @@ export default async function CollectionPage({
             <Price
               minor={collection.priceMinor}
               currency={ctx.store.currency}
-              locale={ctx.store.defaultLocale}
+              locale={ctx.store.uiLocale}
               className="text-2xl font-extrabold text-brand"
             />
             <Price
               minor={originalPrice}
               currency={ctx.store.currency}
-              locale={ctx.store.defaultLocale}
+              locale={ctx.store.uiLocale}
               className="text-muted line-through"
             />
           </div>
@@ -68,13 +68,13 @@ export default async function CollectionPage({
             <Price
               minor={collection.priceMinor}
               currency={ctx.store.currency}
-              locale={ctx.store.defaultLocale}
+              locale={ctx.store.uiLocale}
               className="text-2xl font-extrabold text-brand"
             />
             <Price
               minor={originalPrice}
               currency={ctx.store.currency}
-              locale={ctx.store.defaultLocale}
+              locale={ctx.store.uiLocale}
               className="text-muted line-through"
             />
           </div>
