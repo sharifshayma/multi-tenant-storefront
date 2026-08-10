@@ -43,6 +43,8 @@ export type BrandingInput = {
   brandColor: string;
   accentColor: string;
   goldColor: string;
+  backgroundColor: string;
+  textColor: string;
 };
 
 // "" -> null; a non-empty value must be valid hex or the whole action fails.
@@ -75,8 +77,16 @@ export async function updateBranding(
   const brandColor = colorOrNull(input.brandColor);
   const accentColor = colorOrNull(input.accentColor);
   const goldColor = colorOrNull(input.goldColor);
+  const backgroundColor = colorOrNull(input.backgroundColor);
+  const textColor = colorOrNull(input.textColor);
   const logoUrl = logoUrlOrNull(input.logoUrl);
-  if (brandColor === false || accentColor === false || goldColor === false) {
+  if (
+    brandColor === false ||
+    accentColor === false ||
+    goldColor === false ||
+    backgroundColor === false ||
+    textColor === false
+  ) {
     return { ok: false, error: "أحد الألوان غير صالح" };
   }
   if (logoUrl === false) {
@@ -96,6 +106,8 @@ export async function updateBranding(
       brandColor,
       accentColor,
       goldColor,
+      backgroundColor,
+      textColor,
     },
   });
 

@@ -79,7 +79,7 @@ export function BundleBuilder({
               disabled={disabled}
               onClick={() => toggle(book.id)}
               className={cn(
-                "relative flex flex-col overflow-hidden rounded-xl border-2 bg-white text-start transition disabled:opacity-40",
+                "relative flex flex-col overflow-hidden rounded-xl border-2 bg-card text-start transition disabled:opacity-40",
                 isSelected ? "border-brand ring-2 ring-brand/30" : "border-border"
               )}
             >

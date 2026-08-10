@@ -34,6 +34,8 @@ export default async function AdminSettingsPage() {
           brandColor: store.brandColor ?? "",
           accentColor: store.accentColor ?? "",
           goldColor: store.goldColor ?? "",
+          backgroundColor: store.backgroundColor ?? "",
+          textColor: store.textColor ?? "",
         }}
       />
       {user && <ChangePasswordCard email={user.email} />}

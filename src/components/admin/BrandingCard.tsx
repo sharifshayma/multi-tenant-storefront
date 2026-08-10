@@ -11,27 +11,32 @@ import { Button } from "@/components/ui/Button";
 
 function ColorField({
   label,
+  hint,
   value,
   onChange,
+  defaultSwatch = "#b5542c",
 }: {
   label: string;
+  hint: string;
   value: string;
   onChange: (v: string) => void;
+  defaultSwatch?: string;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-bold text-ink">{label}</label>
+      <p className="text-xs text-muted">{hint}</p>
       <div className="flex items-center gap-2">
         <input
           type="color"
-          value={value || "#b5542c"}
+          value={value || defaultSwatch}
           onChange={(e) => onChange(e.target.value)}
           className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-white"
         />
         <input
           dir="ltr"
           value={value}
-          placeholder="#b5542c"
+          placeholder={defaultSwatch}
           onChange={(e) => onChange(e.target.value)}
           className="w-32 rounded-xl border border-border bg-white px-3 py-2 text-sm text-ink outline-none focus:border-brand"
         />
@@ -121,10 +126,47 @@ export function BrandingCard({ initial }: { initial: BrandingInput }) {
       <Textarea id="brandHeroSubtitle" label="وصف قصير تحت العنوان (اختياري)" rows={3} value={form.heroSubtitle} onChange={(e) => set("heroSubtitle", e.target.value)} />
       <Textarea id="brandFooter" label="نص التذييل (اختياري)" rows={2} value={form.footerText} onChange={(e) => set("footerText", e.target.value)} />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <ColorField label="اللون الأساسي" value={form.brandColor} onChange={(v) => set("brandColor", v)} />
-        <ColorField label="اللون الثانوي" value={form.accentColor} onChange={(v) => set("accentColor", v)} />
-        <ColorField label="اللون الذهبي" value={form.goldColor} onChange={(v) => set("goldColor", v)} />
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ColorField
+            label="اللون الأساسي"
+            hint="الأزرار والروابط والأسعار"
+            value={form.brandColor}
+            onChange={(v) => set("brandColor", v)}
+            defaultSwatch="#3d6b99"
+          />
+          <ColorField
+            label="اللون الثانوي"
+            hint="علامة تأكيد الطلب"
+            value={form.accentColor}
+            onChange={(v) => set("accentColor", v)}
+            defaultSwatch="#3f8f79"
+          />
+          <ColorField
+            label="اللون الذهبي"
+            hint="إطارات المجموعات والعروض"
+            value={form.goldColor}
+            onChange={(v) => set("goldColor", v)}
+            defaultSwatch="#c9a24b"
+          />
+          <ColorField
+            label="لون الخلفية"
+            hint="خلفية صفحات المتجر"
+            value={form.backgroundColor}
+            onChange={(v) => set("backgroundColor", v)}
+            defaultSwatch="#f6f6f7"
+          />
+          <ColorField
+            label="لون الكتابة"
+            hint="لون النص الأساسي"
+            value={form.textColor}
+            onChange={(v) => set("textColor", v)}
+            defaultSwatch="#22262e"
+          />
+        </div>
+        <p className="text-xs text-muted">
+          اختاري لون خلفية وكتابة متباينين لتبقى النصوص واضحة للعميلة.
+        </p>
       </div>
 
       {msg && <p className={msg.ok ? "text-sm font-bold text-accent" : "text-sm font-bold text-red-600"}>{msg.text}</p>}
