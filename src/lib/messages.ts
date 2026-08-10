@@ -1,7 +1,6 @@
 import type { OrderStatus } from "@prisma/client";
 import { formatMoney } from "@/lib/format-money";
 import { getDictionary, t, type Dictionary, type Locale } from "@/i18n";
-import { SITE_NAME, SITE_NAME_EN } from "@/lib/constants";
 
 export type MessageOrderItem = { title: string; quantity: number };
 export type MessageOrderCollectionItem = { title: string; quantity: number };
@@ -11,7 +10,7 @@ export type MessageOrder = {
   customerName: string;
   totalMinor: number;
   currency: string;
-  // Number-formatting locale only (store.defaultLocale) — passed to
+  // Number-formatting locale only (store.uiLocale) — passed to
   // formatMoney below. NOT the text locale for this message's wording; see
   // the `uiLocale` param on getStatusMessage for that.
   locale: string;
@@ -45,16 +44,21 @@ function orderSummary(d: Dictionary, order: MessageOrder): string {
  * NOT `order.locale`, which only controls number formatting (see
  * MessageOrder above). Defaults to "ar" for any caller that doesn't (yet)
  * thread the locale through.
+ *
+ * `siteName` is the SENDING STORE's own name (store.name) — this is
+ * multi-tenant, so a hardcoded brand here would leak one store's identity
+ * into every other store's customer messages. It's user data: interpolated
+ * as-is, never translated.
  */
 export function getStatusMessage(
   status: OrderStatus,
   order: MessageOrder,
+  siteName: string,
   uiLocale: Locale = "ar"
 ): string {
   const d = getDictionary(uiLocale);
   const greeting = t(d, "messages.greeting", { name: order.customerName });
   const summary = orderSummary(d, order);
-  const siteName = uiLocale === "en" ? SITE_NAME_EN : SITE_NAME;
   const bodyKey = `messages.status.${status}`;
   const body = t(d, bodyKey, { siteName });
   if (body === bodyKey) return ""; // unknown status — mirrors the original default case

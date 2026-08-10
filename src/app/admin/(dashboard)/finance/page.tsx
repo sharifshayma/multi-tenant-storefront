@@ -43,7 +43,7 @@ export default async function AdminFinancePage() {
           <Price
             minor={summary.totalRevenue}
             currency={store.currency}
-            locale={store.defaultLocale}
+            locale={store.uiLocale}
             className="mt-2 block text-2xl font-extrabold text-accent"
           />
         </div>
@@ -52,7 +52,7 @@ export default async function AdminFinancePage() {
           <Price
             minor={summary.totalExpense}
             currency={store.currency}
-            locale={store.defaultLocale}
+            locale={store.uiLocale}
             className="mt-2 block text-2xl font-extrabold text-red-600"
           />
         </div>
@@ -61,7 +61,7 @@ export default async function AdminFinancePage() {
           <Price
             minor={summary.net}
             currency={store.currency}
-            locale={store.defaultLocale}
+            locale={store.uiLocale}
             className={`mt-2 block text-2xl font-extrabold ${summary.net >= 0 ? "text-brand" : "text-red-600"}`}
           />
         </div>
@@ -71,10 +71,10 @@ export default async function AdminFinancePage() {
         totalMinor={forecast.totalMinor}
         orders={forecast.orders}
         currency={store.currency}
-        locale={store.defaultLocale}
+        locale={store.uiLocale}
       />
 
-      <TransactionForm orders={orders} currency={store.currency} locale={store.defaultLocale} />
+      <TransactionForm orders={orders} currency={store.currency} locale={store.uiLocale} />
 
       {transactions.length === 0 ? (
         <p className="text-muted">{t(d, "admin.finance.empty")}</p>
@@ -95,7 +95,7 @@ export default async function AdminFinancePage() {
                   <Price
                     minor={tx.amountMinor}
                     currency={store.currency}
-                    locale={store.defaultLocale}
+                    locale={store.uiLocale}
                     className={`font-extrabold ${tx.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                   />
                 </div>
@@ -107,7 +107,7 @@ export default async function AdminFinancePage() {
                   </p>
                 )}
                 <div className="flex items-center justify-between text-sm text-muted">
-                  <span>{new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(tx.date)}</span>
+                  <span>{new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "medium" }).format(tx.date)}</span>
                   {tx.order && (
                     <Link href={`/admin/orders/${tx.order.id}`} className="text-brand hover:underline">
                       {tx.order.customerName}
@@ -151,7 +151,7 @@ export default async function AdminFinancePage() {
                       <Price
                         minor={tx.amountMinor}
                         currency={store.currency}
-                        locale={store.defaultLocale}
+                        locale={store.uiLocale}
                         className={`font-extrabold ${tx.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                       />
                     </td>
@@ -167,7 +167,7 @@ export default async function AdminFinancePage() {
                       )}
                     </td>
                     <td className="p-3 text-muted">
-                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(tx.date)}
+                      {new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "short" }).format(tx.date)}
                     </td>
                     <td className="p-3">
                       <DeleteTransactionButton id={tx.id} />
@@ -190,7 +190,7 @@ export default async function AdminFinancePage() {
             <Price
               minor={discounts.totalDiscountMinor}
               currency={store.currency}
-              locale={store.defaultLocale}
+              locale={store.uiLocale}
               className="font-extrabold text-accent"
             />
           </summary>
@@ -216,7 +216,7 @@ export default async function AdminFinancePage() {
                       <Price
                         minor={o.discountMinor}
                         currency={store.currency}
-                        locale={store.defaultLocale}
+                        locale={store.uiLocale}
                         className="font-bold text-accent"
                       />
                     </td>
@@ -224,7 +224,7 @@ export default async function AdminFinancePage() {
                       {o.discountReason ?? "—"}
                     </td>
                     <td className="px-2 py-1.5 text-muted">
-                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
+                      {new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "short" }).format(o.createdAt)}
                     </td>
                   </tr>
                 ))}

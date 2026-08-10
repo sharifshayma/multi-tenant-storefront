@@ -183,7 +183,7 @@ export default async function AdminBooksPage({
                     <Price
                       minor={book.priceMinor}
                       currency={store.currency}
-                      locale={store.defaultLocale}
+                      locale={store.uiLocale}
                       className="font-bold text-ink"
                     />
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5">

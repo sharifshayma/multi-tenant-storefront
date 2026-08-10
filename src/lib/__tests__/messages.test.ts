@@ -17,20 +17,33 @@ const baseOrder: MessageOrder = {
 
 describe("getStatusMessage", () => {
   it("renders the formatted total (40.00), not the raw minor-unit integer (4000)", () => {
-    const message = getStatusMessage("NEW", baseOrder);
+    const message = getStatusMessage("NEW", baseOrder, "Test Store");
     expect(message).not.toContain("4000");
     expect(message).toMatch(/40(\.00)?/);
   });
 
   it("does not hard-code a currency word — it uses the store's currency", () => {
-    const ils = getStatusMessage("NEW", { ...baseOrder, currency: "ILS", locale: "ar" });
-    const usd = getStatusMessage("NEW", { ...baseOrder, currency: "USD", locale: "en" });
+    const ils = getStatusMessage("NEW", { ...baseOrder, currency: "ILS", locale: "ar" }, "Test Store");
+    const usd = getStatusMessage("NEW", { ...baseOrder, currency: "USD", locale: "en" }, "Test Store", "en");
     expect(ils).not.toBe(usd);
     expect(usd).toContain("$");
   });
 
   it("formats totals for different stores/currencies correctly", () => {
-    const message = getStatusMessage("CONFIRMED", { ...baseOrder, totalMinor: 4050, currency: "USD", locale: "en" });
+    const message = getStatusMessage(
+      "CONFIRMED",
+      { ...baseOrder, totalMinor: 4050, currency: "USD", locale: "en" },
+      "Test Store",
+      "en"
+    );
     expect(message).toContain("$40.50");
+  });
+
+  it("uses the sending store's own name, not a hard-coded brand", () => {
+    const storeA = getStatusMessage("CONFIRMED", baseOrder, "Sara's Makeup");
+    const storeB = getStatusMessage("CONFIRMED", baseOrder, "Bookish Co");
+    expect(storeA).toContain("Sara's Makeup");
+    expect(storeB).toContain("Bookish Co");
+    expect(storeA).not.toContain("Bookish Co");
   });
 });

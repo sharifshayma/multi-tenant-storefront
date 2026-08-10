@@ -171,7 +171,7 @@ export async function createOrder(
       notes: order.notes,
       totalMinor: order.totalMinor,
       currency: store.currency,
-      locale: store.defaultLocale,
+      locale: store.uiLocale,
       storeUiLocale: store.uiLocale,
       storeName: store.name,
       items: orderItems.map((i) => ({

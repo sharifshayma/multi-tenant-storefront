@@ -66,7 +66,7 @@ export default async function AdminHomePage() {
           <Price
             minor={finance.net}
             currency={store.currency}
-            locale={store.defaultLocale}
+            locale={store.uiLocale}
             className={`mt-2 block text-3xl font-extrabold ${finance.net >= 0 ? "text-brand" : "text-red-600"}`}
           />
         </Link>

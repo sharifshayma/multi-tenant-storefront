@@ -164,7 +164,7 @@ export function PaymentPanel({
           {payments.map((p) => (
             <div key={p.id} className="flex items-center justify-between py-2 text-sm">
               <span className="text-muted">
-                {new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(p.date)}
+                {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(p.date)}
               </span>
               <div className="flex items-center gap-2">
                 <Price minor={p.amountMinor} currency={currency} locale={locale} className="font-bold text-accent" />

@@ -40,7 +40,7 @@ export function StockMovementForm({
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useT();
+  const { t, locale } = useT();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,7 +128,7 @@ export function StockMovementForm({
           <option value="">{t("admin.stock.form.noLink")}</option>
           {orders.map((o) => (
             <option key={o.id} value={o.id}>
-              {o.customerName} — {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
+              {o.customerName} — {new Intl.DateTimeFormat(locale, { dateStyle: "short" }).format(o.createdAt)}
             </option>
           ))}
         </select>

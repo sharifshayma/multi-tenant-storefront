@@ -106,7 +106,7 @@ export default async function AdminBookDetailPage({
                     <span>× {entry.quantity}</span>
                   </div>
                   <div className="text-xs text-muted">
-                    {new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(entry.createdAt)}
+                    {new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "medium" }).format(entry.createdAt)}
                   </div>
                 </div>
               ))}
@@ -148,7 +148,7 @@ export default async function AdminBookDetailPage({
                         />
                       </td>
                       <td className="p-3 text-muted">
-                        {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(entry.createdAt)}
+                        {new Intl.DateTimeFormat(store.uiLocale, { dateStyle: "short" }).format(entry.createdAt)}
                       </td>
                     </tr>
                   ))}

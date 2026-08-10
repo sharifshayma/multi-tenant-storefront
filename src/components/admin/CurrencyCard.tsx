@@ -40,7 +40,7 @@ export function CurrencyCard({ currency }: { currency: string }) {
         >
           {CURRENCIES.map((c) => (
             <option key={c.code} value={c.code}>
-              {c.label}
+              {t(`currencies.${c.code}`)} ({c.code})
             </option>
           ))}
         </select>

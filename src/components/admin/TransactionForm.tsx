@@ -46,7 +46,7 @@ export function TransactionForm({
   const [date, setDate] = useState(todayInputValue());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useT();
+  const { t, locale: uiLocale } = useT();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -153,7 +153,7 @@ export function TransactionForm({
           {orders.map((o) => (
             <option key={o.id} value={o.id}>
               {o.customerName} — {formatMoney(o.totalMinor, currency, locale)} —{" "}
-              {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(o.createdAt)}
+              {new Intl.DateTimeFormat(uiLocale, { dateStyle: "short" }).format(o.createdAt)}
             </option>
           ))}
         </select>
