@@ -8,6 +8,11 @@ const HERO_SUBTITLE =
   "سلسلة كتب أطفال ثنائية اللغة (عربي-إنجليزي)، تروي قصص شخصيات عربية ألهمت العالم. أضيفي الكتب إلى سلتك واملئي بياناتك، وسنتواصل معك هاتفياً لتنسيق التوصيل والدفع.";
 const FOOTER_TEXT =
   "جذور عربية، أجنحة عالمية — سلسلة كتب أطفال ثنائية اللغة\nنتواصل معك هاتفياً بعد إتمام الطلب لتنسيق التوصيل والدفع";
+// The storefront now defaults UNCONFIGURED stores to a neutral palette, so the
+// book store's original warm colors must be written explicitly to preserve it.
+const BRAND_COLOR = "#b5542c";
+const ACCENT_COLOR = "#1f6f6b";
+const GOLD_COLOR = "#d9a441";
 
 async function main() {
   const slug = process.argv[2];
@@ -24,8 +29,11 @@ async function main() {
       name: NAME,
       heroSubtitle: HERO_SUBTITLE,
       footerText: FOOTER_TEXT,
-      // heroTitle/logo/colors left as-is (null): heroTitle falls back to name,
-      // colors fall back to the defaults that already match.
+      brandColor: BRAND_COLOR,
+      accentColor: ACCENT_COLOR,
+      goldColor: GOLD_COLOR,
+      // heroTitle/logo left null: heroTitle falls back to name; the header
+      // shows the neutral bag icon until a logo is uploaded.
     },
   });
   console.log(`Backfilled branding for "${slug}".`);
