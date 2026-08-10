@@ -10,9 +10,8 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://shop.example.com"),
-  title: "جذور عربية، أجنحة عالمية | كتب أطفال ثنائية اللغة",
-  description:
-    "سلسلة كتب أطفال ثنائية اللغة (عربي-إنجليزي) تحكي قصص شخصيات عربية ملهمة. اطلبي الآن بأسعار مناسبة.",
+  title: "My Store",
+  description: "A simple online store.",
 };
 
 export default function RootLayout({

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { Ornament } from "@/components/brand/Ornament";
 import { BRAND_PEACH, BRAND_NAVY } from "@/lib/brand";
 
-export const alt = "جذور عربية، أجنحة عالمية — Arab Roots, Global Wings";
+export const alt = "My Store";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -29,7 +29,7 @@ export default function Image() {
               letterSpacing: 6,
             }}
           >
-            ARAB
+            MY
           </span>
           <Ornament size={80} color={BRAND_NAVY} />
           <span
@@ -40,7 +40,7 @@ export default function Image() {
               letterSpacing: 6,
             }}
           >
-            ROOTS
+            STORE
           </span>
         </div>
         <div
@@ -52,7 +52,7 @@ export default function Image() {
             letterSpacing: 3,
           }}
         >
-          global wings
+          online store
         </div>
       </div>
     ),
