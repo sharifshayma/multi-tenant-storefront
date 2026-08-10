@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 const MOVEMENT_TYPE_LABELS: Record<string, string> = {
-  PRINTED: "طباعة",
+  PRINTED: "إنتاج",
   SHIPPED: "شحن",
   ADJUSTMENT: "تصحيح",
   DAMAGED: "تالف/فاقد",

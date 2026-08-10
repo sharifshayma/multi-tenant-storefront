@@ -10,7 +10,7 @@ import { minorToInput, inputToMinor } from "@/lib/money-input";
 import type { OrderOption } from "@/lib/data";
 import type { TransactionType } from "@prisma/client";
 
-const EXPENSE_CATEGORIES = ["طباعة", "شحن وتوصيل", "تسويق", "مواد تعبئة", "أخرى"];
+const EXPENSE_CATEGORIES = ["إنتاج", "شحن وتوصيل", "تسويق", "مواد تعبئة", "أخرى"];
 const REVENUE_CATEGORIES = ["مبيعات", "أخرى"];
 
 function todayInputValue() {
