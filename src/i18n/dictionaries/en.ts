@@ -567,4 +567,28 @@ export const en: typeof ar = {
         "We hope you enjoyed the books! 💛 Thanks for ordering from {siteName}. We'd love to hear your feedback anytime.",
     },
   },
+  // Transactional emails sent via Resend (src/lib/resend.ts). Rendered in
+  // the SENDING STORE's uiLocale (not a fixed locale) — resend.ts receives
+  // storeUiLocale/storeName from its caller for every send.
+  email: {
+    orderNotification: {
+      subject: "New order #{shortId} from {storeName} — {customerName}",
+      heading: "New order — {storeName}",
+      status: "Status:",
+      name: "Name:",
+      phone: "Phone:",
+      email: "Email:",
+      city: "City:",
+      notes: "Notes:",
+      total: "Total:",
+      orderNumber: "Order number:",
+      listSeparator: ", ",
+    },
+    otp: {
+      subject: "Password reset code",
+      heading: "Password reset code",
+      instructions: "Use this code to set a new password:",
+      expiry: "This code expires in a few minutes. If you didn't request this, ignore this message.",
+    },
+  },
 };
