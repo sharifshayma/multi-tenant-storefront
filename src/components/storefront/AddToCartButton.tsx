@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, Minus, Check } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/i18n/LocaleProvider";
 import type { BookSummary } from "@/lib/types";
 
 export function AddToCartButton({
@@ -16,6 +17,7 @@ export function AddToCartButton({
   /** Compact mode: single full-width button, no quantity stepper. Use in cards/grids where space is tight. */
   compact?: boolean;
 }) {
+  const { t } = useT();
   const { addBook } = useCart();
   const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
@@ -40,10 +42,10 @@ export function AddToCartButton({
       <Button size={size} onClick={() => handleAdd(1)} className="w-full">
         {added ? (
           <>
-            <Check className="h-4 w-4 shrink-0" /> أُضيف
+            <Check className="h-4 w-4 shrink-0" /> {t("store.added")}
           </>
         ) : (
-          "أضف إلى السلة"
+          t("store.addToCart")
         )}
       </Button>
     );
@@ -56,7 +58,7 @@ export function AddToCartButton({
           type="button"
           onClick={() => setQty((q) => Math.max(1, q - 1))}
           className="flex h-11 w-11 items-center justify-center text-muted hover:text-ink"
-          aria-label="إنقاص الكمية"
+          aria-label={t("store.decreaseQty")}
         >
           <Minus className="h-4 w-4" />
         </button>
@@ -65,7 +67,7 @@ export function AddToCartButton({
           type="button"
           onClick={() => setQty((q) => q + 1)}
           className="flex h-11 w-11 items-center justify-center text-muted hover:text-ink"
-          aria-label="زيادة الكمية"
+          aria-label={t("store.increaseQty")}
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -80,10 +82,10 @@ export function AddToCartButton({
       >
         {added ? (
           <>
-            <Check className="h-4 w-4 shrink-0" /> أُضيف
+            <Check className="h-4 w-4 shrink-0" /> {t("store.added")}
           </>
         ) : (
-          "أضف إلى السلة"
+          t("store.addToCart")
         )}
       </Button>
     </div>

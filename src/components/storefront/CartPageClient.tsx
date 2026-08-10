@@ -12,6 +12,7 @@ import { Input, Textarea } from "@/components/ui/Input";
 import { checkoutSchema } from "@/lib/validations";
 import { createOrder } from "@/actions/orders";
 import { storeHref } from "@/lib/store-href";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function CartPageClient({
   basePath,
@@ -28,6 +29,7 @@ export function CartPageClient({
 }) {
   const { items, updateQty, removeItem, totalMinor, clear, hydrated } = useCart();
   const router = useRouter();
+  const { t } = useT();
 
   const [form, setForm] = useState({
     customerName: "",
@@ -87,10 +89,10 @@ export function CartPageClient({
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6">
-        <h1 className="text-2xl font-extrabold">سلتك فارغة</h1>
-        <p className="mt-2 text-muted">أضيفي بعض ال{itemNounPlural} لتظهر هنا.</p>
+        <h1 className="text-2xl font-extrabold">{t("store.cart.empty.title")}</h1>
+        <p className="mt-2 text-muted">{t("store.cart.empty.subtitle", { item: itemNounPlural })}</p>
         <Link href={storeHref(basePath, "/")} className="mt-6 inline-block">
-          <Button>تصفّحي ال{itemNounPlural}</Button>
+          <Button>{t("store.cart.empty.browse", { item: itemNounPlural })}</Button>
         </Link>
       </div>
     );
@@ -98,7 +100,7 @@ export function CartPageClient({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="mb-6 text-2xl font-extrabold">السلة والدفع</h1>
+      <h1 className="mb-6 text-2xl font-extrabold">{t("store.cart.title")}</h1>
 
       <div className="grid min-w-0 grid-cols-1 gap-8 lg:grid-cols-[1.2fr_1fr]">
         <div className="flex min-w-0 flex-col gap-4">
@@ -126,7 +128,7 @@ export function CartPageClient({
                 <p className="truncate font-bold">{item.title}</p>
                 {item.kind === "collection" && (
                   <p className="truncate text-xs text-muted">
-                    {item.selectedBooks.map((b) => b.title).join("، ")}
+                    {item.selectedBooks.map((b) => b.title).join(t("store.cart.itemSeparator"))}
                   </p>
                 )}
                 <Price minor={item.priceMinor} currency={currency} locale={locale} className="text-sm text-muted" />
@@ -154,7 +156,7 @@ export function CartPageClient({
                 type="button"
                 onClick={() => removeItem(item.id)}
                 className="text-muted hover:text-red-600"
-                aria-label="إزالة"
+                aria-label={t("store.cart.remove")}
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -162,7 +164,7 @@ export function CartPageClient({
           ))}
 
           <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
-            <span className="font-bold">الإجمالي</span>
+            <span className="font-bold">{t("store.cart.total")}</span>
             <Price minor={totalMinor} currency={currency} locale={locale} className="text-xl font-extrabold text-brand" />
           </div>
         </div>
@@ -171,17 +173,17 @@ export function CartPageClient({
           onSubmit={handleSubmit}
           className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5"
         >
-          <h2 className="font-extrabold">بيانات التوصيل</h2>
+          <h2 className="font-extrabold">{t("store.cart.deliveryInfo")}</h2>
           <Input
             id="customerName"
-            label="الاسم الكامل"
+            label={t("store.cart.fullName")}
             value={form.customerName}
             onChange={(e) => setForm({ ...form, customerName: e.target.value })}
             error={errors.customerName}
           />
           <Input
             id="phone"
-            label="رقم الهاتف"
+            label={t("store.cart.phone")}
             dir="ltr"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -189,7 +191,7 @@ export function CartPageClient({
           />
           <Input
             id="email"
-            label="البريد الإلكتروني (اختياري)"
+            label={t("store.cart.emailOptional")}
             dir="ltr"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -197,24 +199,24 @@ export function CartPageClient({
           />
           <Input
             id="city"
-            label="المدينة"
+            label={t("store.cart.city")}
             value={form.city}
             onChange={(e) => setForm({ ...form, city: e.target.value })}
             error={errors.city}
           />
           <Textarea
             id="notes"
-            label="ملاحظات (اختياري)"
+            label={t("store.cart.notesOptional")}
             rows={2}
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
           />
           {submitError && <p className="text-sm text-red-600">{submitError}</p>}
           <Button type="submit" disabled={submitting} size="lg">
-            {submitting ? "جارِ الإرسال..." : "إتمام الطلب"}
+            {submitting ? t("store.cart.submitting") : t("store.cart.placeOrder")}
           </Button>
           <p className="text-center text-xs text-muted">
-            لن يتم الدفع الآن — سنتصل بك لتنسيق التوصيل والدفع.
+            {t("store.cart.paymentNote")}
           </p>
         </form>
       </div>

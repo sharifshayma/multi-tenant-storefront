@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/i18n/LocaleProvider";
 import type { CollectionSummary } from "@/lib/types";
 
 export function AddCollectionToCartButton({
@@ -13,6 +14,7 @@ export function AddCollectionToCartButton({
   collection: CollectionSummary;
   size?: "sm" | "md" | "lg";
 }) {
+  const { t } = useT();
   const { addCollection } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -37,10 +39,10 @@ export function AddCollectionToCartButton({
     >
       {added ? (
         <>
-          <Check className="h-4 w-4" /> أُضيفت المجموعة
+          <Check className="h-4 w-4" /> {t("store.addedCollection")}
         </>
       ) : (
-        "أضف المجموعة إلى السلة"
+        t("store.addCollectionToCart")
       )}
     </Button>
   );
