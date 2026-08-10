@@ -125,7 +125,7 @@ export default async function AdminFinancePage() {
           <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-end text-muted">
+                <tr className="border-b border-border text-start text-muted">
                   <th className="p-3">{t(d, "admin.finance.table.type")}</th>
                   <th className="p-3">{t(d, "admin.finance.table.amount")}</th>
                   <th className="p-3">{t(d, "admin.finance.table.category")}</th>
@@ -197,7 +197,7 @@ export default async function AdminFinancePage() {
           <div className="mt-3 overflow-x-auto border-t border-border pt-3">
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-end text-muted">
+                <tr className="text-start text-muted">
                   <th className="px-2 py-1.5 font-bold">{t(d, "admin.finance.table.order")}</th>
                   <th className="px-2 py-1.5 font-bold">{t(d, "admin.finance.discounts.amount")}</th>
                   <th className="px-2 py-1.5 font-bold">{t(d, "admin.finance.discounts.reason")}</th>

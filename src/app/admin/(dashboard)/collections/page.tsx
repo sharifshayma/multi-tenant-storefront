@@ -44,7 +44,7 @@ export default async function AdminCollectionsPage() {
             <p className="max-w-2xl text-sm leading-relaxed text-muted">
               {t(d, "admin.collections.empty.description", { plural })}
             </p>
-            <ul className="flex max-w-2xl list-disc flex-col gap-1 pe-5 text-sm leading-relaxed text-muted">
+            <ul className="flex max-w-2xl list-disc flex-col gap-1 ps-5 text-sm leading-relaxed text-muted">
               <li>
                 <span className="font-bold text-ink">{t(d, "admin.collections.types.fixed.label")}</span>{" "}
                 {t(d, "admin.collections.empty.fixedDescription", { plural })}

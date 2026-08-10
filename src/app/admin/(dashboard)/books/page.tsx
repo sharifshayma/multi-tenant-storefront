@@ -83,7 +83,7 @@ export default async function AdminBooksPage({
             <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-end text-muted">
+                  <tr className="border-b border-border text-start text-muted">
                     <th className="p-3">#</th>
                     <th className="p-3">{t(d, "admin.products.demand.itemColumn", { singular })}</th>
                     <th className="p-3">{t(d, "admin.products.demand.directOrders")}</th>

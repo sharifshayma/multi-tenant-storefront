@@ -121,7 +121,7 @@ export default async function AdminStockPage() {
             <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-end text-muted">
+                  <tr className="border-b border-border text-start text-muted">
                     <th className="p-3">{t(d, "admin.stock.table.item", { singular })}</th>
                     <th className="p-3">{t(d, "admin.stock.table.type")}</th>
                     <th className="p-3">{t(d, "admin.stock.table.quantity")}</th>
