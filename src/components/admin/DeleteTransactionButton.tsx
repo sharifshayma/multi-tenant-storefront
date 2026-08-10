@@ -4,10 +4,12 @@ import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { deleteTransaction } from "@/actions/finance";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function DeleteTransactionButton({ id }: { id: string }) {
   const [confirming, setConfirming] = useState(false);
   const [pending, startTransition] = useTransition();
+  const { t } = useT();
 
   return (
     <button
@@ -28,7 +30,7 @@ export function DeleteTransactionButton({ id }: { id: string }) {
         confirming ? "bg-red-600 text-white" : "border border-red-200 text-red-600 hover:bg-red-50"
       )}
     >
-      {pending ? "..." : confirming ? "تأكيد الحذف؟" : <Trash2 className="h-3.5 w-3.5" />}
+      {pending ? "..." : confirming ? t("admin.finance.deleteTransaction.confirm") : <Trash2 className="h-3.5 w-3.5" />}
     </button>
   );
 }

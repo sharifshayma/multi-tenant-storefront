@@ -12,12 +12,14 @@ import { TransactionForm } from "@/components/admin/TransactionForm";
 import { DeleteTransactionButton } from "@/components/admin/DeleteTransactionButton";
 import { ForecastedRevenuePanel } from "@/components/admin/ForecastedRevenuePanel";
 import { Price } from "@/components/ui/Price";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminFinancePage() {
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
+  const d = getDictionary(store.uiLocale as Locale);
 
   const [summary, orders, transactions, forecast, discounts] = await Promise.all([
     getFinanceSummary(store.id),
@@ -33,11 +35,11 @@ export default async function AdminFinancePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-extrabold">المالية</h1>
+      <h1 className="text-2xl font-extrabold">{t(d, "admin.finance.title")}</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-white p-5">
-          <p className="text-sm text-muted">إجمالي الإيرادات</p>
+          <p className="text-sm text-muted">{t(d, "admin.finance.totalRevenue")}</p>
           <Price
             minor={summary.totalRevenue}
             currency={store.currency}
@@ -46,7 +48,7 @@ export default async function AdminFinancePage() {
           />
         </div>
         <div className="rounded-2xl border border-border bg-white p-5">
-          <p className="text-sm text-muted">إجمالي المصروفات</p>
+          <p className="text-sm text-muted">{t(d, "admin.finance.totalExpense")}</p>
           <Price
             minor={summary.totalExpense}
             currency={store.currency}
@@ -55,7 +57,7 @@ export default async function AdminFinancePage() {
           />
         </div>
         <div className="rounded-2xl border border-border bg-white p-5">
-          <p className="text-sm text-muted">الصافي</p>
+          <p className="text-sm text-muted">{t(d, "admin.finance.net")}</p>
           <Price
             minor={summary.net}
             currency={store.currency}
@@ -75,45 +77,45 @@ export default async function AdminFinancePage() {
       <TransactionForm orders={orders} currency={store.currency} locale={store.defaultLocale} />
 
       {transactions.length === 0 ? (
-        <p className="text-muted">لا توجد حركات مالية بعد.</p>
+        <p className="text-muted">{t(d, "admin.finance.empty")}</p>
       ) : (
         <>
           {/* Mobile: stacked cards */}
           <div className="flex flex-col gap-3 sm:hidden">
-            {transactions.map((t) => (
-              <div key={t.id} className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4">
+            {transactions.map((tx) => (
+              <div key={tx.id} className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-bold ${
-                      t.type === "REVENUE" ? "bg-accent/10 text-accent" : "bg-red-50 text-red-600"
+                      tx.type === "REVENUE" ? "bg-accent/10 text-accent" : "bg-red-50 text-red-600"
                     }`}
                   >
-                    {t.type === "REVENUE" ? "إيراد" : "مصروف"}
+                    {t(d, `admin.finance.types.${tx.type}`)}
                   </span>
                   <Price
-                    minor={t.amountMinor}
+                    minor={tx.amountMinor}
                     currency={store.currency}
                     locale={store.defaultLocale}
-                    className={`font-extrabold ${t.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
+                    className={`font-extrabold ${tx.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                   />
                 </div>
-                {(t.category || t.description) && (
+                {(tx.category || tx.description) && (
                   <p className="text-sm">
-                    {t.category && <span className="font-bold">{t.category}</span>}
-                    {t.category && t.description && " · "}
-                    {t.description}
+                    {tx.category && <span className="font-bold">{tx.category}</span>}
+                    {tx.category && tx.description && " · "}
+                    {tx.description}
                   </p>
                 )}
                 <div className="flex items-center justify-between text-sm text-muted">
-                  <span>{new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(t.date)}</span>
-                  {t.order && (
-                    <Link href={`/admin/orders/${t.order.id}`} className="text-brand hover:underline">
-                      {t.order.customerName}
+                  <span>{new Intl.DateTimeFormat("ar", { dateStyle: "medium" }).format(tx.date)}</span>
+                  {tx.order && (
+                    <Link href={`/admin/orders/${tx.order.id}`} className="text-brand hover:underline">
+                      {tx.order.customerName}
                     </Link>
                   )}
                 </div>
                 <div className="flex justify-end pt-1">
-                  <DeleteTransactionButton id={t.id} />
+                  <DeleteTransactionButton id={tx.id} />
                 </div>
               </div>
             ))}
@@ -123,52 +125,52 @@ export default async function AdminFinancePage() {
           <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-right text-muted">
-                  <th className="p-3">النوع</th>
-                  <th className="p-3">المبلغ</th>
-                  <th className="p-3">الفئة</th>
-                  <th className="p-3">ملاحظات</th>
-                  <th className="p-3">الطلب</th>
-                  <th className="p-3">التاريخ</th>
+                <tr className="border-b border-border text-end text-muted">
+                  <th className="p-3">{t(d, "admin.finance.table.type")}</th>
+                  <th className="p-3">{t(d, "admin.finance.table.amount")}</th>
+                  <th className="p-3">{t(d, "admin.finance.table.category")}</th>
+                  <th className="p-3">{t(d, "admin.finance.table.notes")}</th>
+                  <th className="p-3">{t(d, "admin.finance.table.order")}</th>
+                  <th className="p-3">{t(d, "admin.finance.table.date")}</th>
                   <th className="p-3"></th>
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((t) => (
-                  <tr key={t.id} className="border-b border-border last:border-0">
+                {transactions.map((tx) => (
+                  <tr key={tx.id} className="border-b border-border last:border-0">
                     <td className="p-3">
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-bold ${
-                          t.type === "REVENUE" ? "bg-accent/10 text-accent" : "bg-red-50 text-red-600"
+                          tx.type === "REVENUE" ? "bg-accent/10 text-accent" : "bg-red-50 text-red-600"
                         }`}
                       >
-                        {t.type === "REVENUE" ? "إيراد" : "مصروف"}
+                        {t(d, `admin.finance.types.${tx.type}`)}
                       </span>
                     </td>
                     <td className="p-3">
                       <Price
-                        minor={t.amountMinor}
+                        minor={tx.amountMinor}
                         currency={store.currency}
                         locale={store.defaultLocale}
-                        className={`font-extrabold ${t.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
+                        className={`font-extrabold ${tx.type === "REVENUE" ? "text-accent" : "text-red-600"}`}
                       />
                     </td>
-                    <td className="p-3">{t.category ?? "—"}</td>
-                    <td className="max-w-xs truncate p-3">{t.description ?? "—"}</td>
+                    <td className="p-3">{tx.category ?? "—"}</td>
+                    <td className="max-w-xs truncate p-3">{tx.description ?? "—"}</td>
                     <td className="p-3">
-                      {t.order ? (
-                        <Link href={`/admin/orders/${t.order.id}`} className="text-brand hover:underline">
-                          {t.order.customerName}
+                      {tx.order ? (
+                        <Link href={`/admin/orders/${tx.order.id}`} className="text-brand hover:underline">
+                          {tx.order.customerName}
                         </Link>
                       ) : (
                         "—"
                       )}
                     </td>
                     <td className="p-3 text-muted">
-                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(t.date)}
+                      {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(tx.date)}
                     </td>
                     <td className="p-3">
-                      <DeleteTransactionButton id={t.id} />
+                      <DeleteTransactionButton id={tx.id} />
                     </td>
                   </tr>
                 ))}
@@ -182,8 +184,8 @@ export default async function AdminFinancePage() {
         <details className="rounded-2xl border border-border bg-white px-4 py-3">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-bold">
             <span className="text-muted">
-              الخصومات الممنوحة
-              <span className="mr-1 text-ink">({discounts.orders.length})</span>
+              {t(d, "admin.finance.discounts.heading")}
+              <span className="ms-1 text-ink">({discounts.orders.length})</span>
             </span>
             <Price
               minor={discounts.totalDiscountMinor}
@@ -195,11 +197,11 @@ export default async function AdminFinancePage() {
           <div className="mt-3 overflow-x-auto border-t border-border pt-3">
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-right text-muted">
-                  <th className="px-2 py-1.5 font-bold">الطلب</th>
-                  <th className="px-2 py-1.5 font-bold">الخصم</th>
-                  <th className="px-2 py-1.5 font-bold">السبب</th>
-                  <th className="px-2 py-1.5 font-bold">التاريخ</th>
+                <tr className="text-end text-muted">
+                  <th className="px-2 py-1.5 font-bold">{t(d, "admin.finance.table.order")}</th>
+                  <th className="px-2 py-1.5 font-bold">{t(d, "admin.finance.discounts.amount")}</th>
+                  <th className="px-2 py-1.5 font-bold">{t(d, "admin.finance.discounts.reason")}</th>
+                  <th className="px-2 py-1.5 font-bold">{t(d, "admin.finance.table.date")}</th>
                 </tr>
               </thead>
               <tbody>

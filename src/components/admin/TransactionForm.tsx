@@ -7,11 +7,23 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
 import { minorToInput, inputToMinor } from "@/lib/money-input";
+import { useT } from "@/i18n/LocaleProvider";
 import type { OrderOption } from "@/lib/data";
 import type { TransactionType } from "@prisma/client";
 
-const EXPENSE_CATEGORIES = ["إنتاج", "شحن وتوصيل", "تسويق", "مواد تعبئة", "أخرى"];
-const REVENUE_CATEGORIES = ["مبيعات", "أخرى"];
+// Category *keys* are UI-only and never persisted. The *values* stored on the transaction
+// (and shown/typed via the datalist) are the original Arabic strings — unchanged, so existing
+// transaction data isn't affected by translating the displayed label.
+const EXPENSE_CATEGORY_KEYS = ["production", "shipping", "marketing", "packaging", "other"] as const;
+const REVENUE_CATEGORY_KEYS = ["sales", "other"] as const;
+const CATEGORY_STORED_VALUES: Record<string, string> = {
+  production: "إنتاج",
+  shipping: "شحن وتوصيل",
+  marketing: "تسويق",
+  packaging: "مواد تعبئة",
+  other: "أخرى",
+  sales: "مبيعات",
+};
 
 function todayInputValue() {
   return new Date().toISOString().slice(0, 10);
@@ -34,13 +46,14 @@ export function TransactionForm({
   const [date, setDate] = useState(todayInputValue());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     const amountMinor = inputToMinor(amount);
     if (!amountMinor || amountMinor <= 0) {
-      setError("الرجاء إدخال مبلغ صحيح");
+      setError(t("admin.finance.form.invalidAmount"));
       return;
     }
     setSaving(true);
@@ -60,11 +73,11 @@ export function TransactionForm({
     setDate(todayInputValue());
   }
 
-  const categories = type === "REVENUE" ? REVENUE_CATEGORIES : EXPENSE_CATEGORIES;
+  const categoryKeys = type === "REVENUE" ? REVENUE_CATEGORY_KEYS : EXPENSE_CATEGORY_KEYS;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
-      <h2 className="font-extrabold">تسجيل حركة مالية</h2>
+      <h2 className="font-extrabold">{t("admin.finance.form.heading")}</h2>
 
       <div className="flex gap-2">
         <button
@@ -75,7 +88,7 @@ export function TransactionForm({
             type === "REVENUE" ? "border-accent bg-accent/10 text-accent" : "border-border text-muted"
           )}
         >
-          إيراد
+          {t("admin.finance.types.REVENUE")}
         </button>
         <button
           type="button"
@@ -85,13 +98,13 @@ export function TransactionForm({
             type === "EXPENSE" ? "border-red-300 bg-red-50 text-red-600" : "border-border text-muted"
           )}
         >
-          مصروف
+          {t("admin.finance.types.EXPENSE")}
         </button>
       </div>
 
       <Input
         id="amount"
-        label={`المبلغ (${currency})`}
+        label={t("admin.finance.form.amountLabel", { currency })}
         type="number"
         min={0}
         step="0.01"
@@ -102,7 +115,7 @@ export function TransactionForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="category" className="text-sm font-bold text-ink">
-          الفئة (اختياري)
+          {t("admin.finance.form.categoryLabel")}
         </label>
         <input
           id="category"
@@ -112,15 +125,17 @@ export function TransactionForm({
           className="rounded-xl border border-border bg-white px-4 py-2.5 text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         />
         <datalist id="category-options">
-          {categories.map((c) => (
-            <option key={c} value={c} />
+          {categoryKeys.map((key) => (
+            <option key={key} value={CATEGORY_STORED_VALUES[key]}>
+              {t(`admin.finance.categories.${key}`)}
+            </option>
           ))}
         </datalist>
       </div>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="orderId" className="text-sm font-bold text-ink">
-          ربط بطلب (اختياري)
+          {t("admin.finance.form.orderLabel")}
         </label>
         <select
           id="orderId"
@@ -134,7 +149,7 @@ export function TransactionForm({
           }}
           className="rounded-xl border border-border bg-white px-4 py-2.5 text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         >
-          <option value="">بدون ربط</option>
+          <option value="">{t("admin.finance.form.noLink")}</option>
           {orders.map((o) => (
             <option key={o.id} value={o.id}>
               {o.customerName} — {formatMoney(o.totalMinor, currency, locale)} —{" "}
@@ -146,7 +161,7 @@ export function TransactionForm({
 
       <Input
         id="date"
-        label="التاريخ"
+        label={t("admin.finance.form.dateLabel")}
         type="date"
         dir="ltr"
         value={date}
@@ -155,7 +170,7 @@ export function TransactionForm({
 
       <Textarea
         id="description"
-        label="ملاحظات (اختياري)"
+        label={t("admin.finance.form.notesLabel")}
         rows={2}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -164,7 +179,7 @@ export function TransactionForm({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Button type="submit" disabled={saving} className="self-start">
-        {saving ? "جارِ الحفظ..." : "إضافة"}
+        {saving ? t("common.saving") : t("common.add")}
       </Button>
     </form>
   );
