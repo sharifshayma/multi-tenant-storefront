@@ -5,6 +5,20 @@ import { prisma } from "@/lib/prisma";
 import { requireStore } from "@/lib/store-context";
 import { validateStoreSlug } from "@/lib/store-slug";
 import { isHexColor } from "@/lib/hex-color";
+import { CURRENCY_CODES } from "@/lib/currencies";
+
+export async function updateStoreCurrency(
+  currency: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const store = await requireStore();
+  if (!CURRENCY_CODES.has(currency)) {
+    return { ok: false, error: "عملة غير مدعومة" };
+  }
+  await prisma.store.update({ where: { id: store.id }, data: { currency } });
+  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
 
 export async function updateStoreSlug(
   input: string,
