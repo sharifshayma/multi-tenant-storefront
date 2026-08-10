@@ -8,6 +8,7 @@ import { Upload, Loader2 } from "lucide-react";
 import { updateBranding, type BrandingInput } from "@/actions/store";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/i18n/LocaleProvider";
 
 function ColorField({
   label,
@@ -47,6 +48,7 @@ function ColorField({
 
 export function BrandingCard({ initial }: { initial: BrandingInput }) {
   const router = useRouter();
+  const { t } = useT();
   const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<BrandingInput>(initial);
   const [uploading, setUploading] = useState(false);
@@ -69,7 +71,7 @@ export function BrandingCard({ initial }: { initial: BrandingInput }) {
       });
       set("logoUrl", blob.url);
     } catch (err) {
-      setMsg({ ok: false, text: (err as Error).message || "فشل رفع الشعار" });
+      setMsg({ ok: false, text: (err as Error).message || t("admin.settings.branding.uploadFailed") });
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -83,7 +85,7 @@ export function BrandingCard({ initial }: { initial: BrandingInput }) {
     const r = await updateBranding(form);
     setSaving(false);
     if (r.ok) {
-      setMsg({ ok: true, text: "تم حفظ الهوية" });
+      setMsg({ ok: true, text: t("admin.settings.branding.saved") });
       router.refresh();
     } else {
       setMsg({ ok: false, text: r.error });
@@ -93,12 +95,12 @@ export function BrandingCard({ initial }: { initial: BrandingInput }) {
   return (
     <form onSubmit={save} className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-5">
       <div>
-        <h2 className="font-extrabold">الهوية والتصميم</h2>
-        <p className="mt-1 text-sm text-muted">اسم متجرك وألوانه وشعاره كما تظهر لعملائك.</p>
+        <h2 className="font-extrabold">{t("admin.settings.branding.heading")}</h2>
+        <p className="mt-1 text-sm text-muted">{t("admin.settings.branding.description")}</p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-bold text-ink">الشعار</span>
+        <span className="text-sm font-bold text-ink">{t("admin.settings.branding.logoLabel")}</span>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleLogo(e.target.files)} />
         <div className="flex items-center gap-4">
           {form.logoUrl ? (
@@ -107,58 +109,58 @@ export function BrandingCard({ initial }: { initial: BrandingInput }) {
             </div>
           ) : (
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-border text-xs text-muted">
-              لا يوجد
+              {t("admin.settings.branding.noLogo")}
             </div>
           )}
           <Button type="button" variant="ghost" disabled={uploading} onClick={() => fileRef.current?.click()}>
-            {uploading ? (<><Loader2 className="h-4 w-4 animate-spin" /> جارِ الرفع...</>) : (<><Upload className="h-4 w-4" /> {form.logoUrl ? "تغيير الشعار" : "رفع الشعار"}</>)}
+            {uploading ? (<><Loader2 className="h-4 w-4 animate-spin" /> {t("admin.settings.branding.uploading")}</>) : (<><Upload className="h-4 w-4" /> {form.logoUrl ? t("admin.settings.branding.changeLogo") : t("admin.settings.branding.uploadLogo")}</>)}
           </Button>
           {form.logoUrl && (
             <button type="button" onClick={() => set("logoUrl", "")} className="text-sm font-bold text-muted hover:text-ink">
-              إزالة
+              {t("admin.settings.branding.removeLogo")}
             </button>
           )}
         </div>
       </div>
 
-      <Input id="brandName" label="اسم المتجر" value={form.name} onChange={(e) => set("name", e.target.value)} />
-      <Input id="brandHeroTitle" label="عنوان الصفحة الرئيسية (اختياري)" value={form.heroTitle} onChange={(e) => set("heroTitle", e.target.value)} />
-      <Textarea id="brandHeroSubtitle" label="وصف قصير تحت العنوان (اختياري)" rows={3} value={form.heroSubtitle} onChange={(e) => set("heroSubtitle", e.target.value)} />
-      <Textarea id="brandFooter" label="نص التذييل (اختياري)" rows={2} value={form.footerText} onChange={(e) => set("footerText", e.target.value)} />
+      <Input id="brandName" label={t("admin.settings.branding.nameLabel")} value={form.name} onChange={(e) => set("name", e.target.value)} />
+      <Input id="brandHeroTitle" label={t("admin.settings.branding.heroTitleLabel")} value={form.heroTitle} onChange={(e) => set("heroTitle", e.target.value)} />
+      <Textarea id="brandHeroSubtitle" label={t("admin.settings.branding.heroSubtitleLabel")} rows={3} value={form.heroSubtitle} onChange={(e) => set("heroSubtitle", e.target.value)} />
+      <Textarea id="brandFooter" label={t("admin.settings.branding.footerLabel")} rows={2} value={form.footerText} onChange={(e) => set("footerText", e.target.value)} />
 
       <div className="flex flex-col gap-3">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <ColorField
-            label="اللون الأساسي"
-            hint="الأزرار والروابط والأسعار والعناصر المميّزة"
+            label={t("admin.settings.branding.brandColorLabel")}
+            hint={t("admin.settings.branding.brandColorHint")}
             value={form.brandColor}
             onChange={(v) => set("brandColor", v)}
             defaultSwatch="#3d6b99"
           />
           <ColorField
-            label="لون الخلفية"
-            hint="خلفية صفحات المتجر"
+            label={t("admin.settings.branding.backgroundColorLabel")}
+            hint={t("admin.settings.branding.backgroundColorHint")}
             value={form.backgroundColor}
             onChange={(v) => set("backgroundColor", v)}
             defaultSwatch="#f6f6f7"
           />
           <ColorField
-            label="لون الكتابة"
-            hint="لون النص الأساسي"
+            label={t("admin.settings.branding.textColorLabel")}
+            hint={t("admin.settings.branding.textColorHint")}
             value={form.textColor}
             onChange={(v) => set("textColor", v)}
             defaultSwatch="#22262e"
           />
         </div>
         <p className="text-xs text-muted">
-          اختاري لون خلفية وكتابة متباينين لتبقى النصوص واضحة للعميلة.
+          {t("admin.settings.branding.contrastNote")}
         </p>
       </div>
 
       {msg && <p className={msg.ok ? "text-sm font-bold text-accent" : "text-sm font-bold text-red-600"}>{msg.text}</p>}
 
       <Button type="submit" disabled={saving || uploading} className="self-start">
-        {saving ? "جارِ الحفظ..." : "حفظ"}
+        {saving ? t("common.saving") : t("common.save")}
       </Button>
     </form>
   );

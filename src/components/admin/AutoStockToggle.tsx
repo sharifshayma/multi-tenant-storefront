@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateAutoStockSetting } from "@/actions/settings";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function AutoStockToggle({
   enabled: initialEnabled,
@@ -11,6 +12,7 @@ export function AutoStockToggle({
   enabled: boolean;
   itemNounPlural: string;
 }) {
+  const { t } = useT();
   const [enabled, setEnabled] = useState(initialEnabled);
   const [pending, startTransition] = useTransition();
 
@@ -25,15 +27,14 @@ export function AutoStockToggle({
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <h2 className="font-extrabold">تحديث المخزون تلقائياً</h2>
+        <h2 className="font-extrabold">{t("admin.settings.autoStock.heading")}</h2>
         <p className="mt-1 text-sm text-muted">
-          عند نقل الطلب إلى «تم الشحن» أو «تم التسليم»، تُخصم ال{itemNounPlural} المطلوبة من المخزون تلقائياً.
-          يُخصم الطلب مرة واحدة فقط حتى لو مرّ بالحالتين. عند الإيقاف، يمكنك تعديل المخزون يدوياً من صفحة المخزون.
+          {t("admin.settings.autoStock.description", { plural: itemNounPlural })}
         </p>
         <p className="mt-2 text-xs font-bold">
-          الحالة الآن:{" "}
+          {t("admin.settings.autoStock.statusNow")}{" "}
           <span className={enabled ? "text-accent" : "text-muted"}>
-            {enabled ? "مُفعّل" : "متوقف"}
+            {enabled ? t("admin.settings.autoStock.enabled") : t("admin.settings.autoStock.disabled")}
           </span>
         </p>
       </div>
@@ -42,7 +43,7 @@ export function AutoStockToggle({
         type="button"
         role="switch"
         aria-checked={enabled}
-        aria-label="تحديث المخزون تلقائياً"
+        aria-label={t("admin.settings.autoStock.heading")}
         disabled={pending}
         onClick={toggle}
         className={cn(
