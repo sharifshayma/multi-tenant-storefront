@@ -65,4 +65,25 @@ export const en: typeof ar = {
     },
     backToStore: "Back to store",
   },
+  admin: {
+    nav: {
+      dashboard: "Dashboard",
+      orders: "Orders",
+      itemsAndMedia: "{plural} & media",
+      collections: "Collections",
+      finance: "Finance",
+      stock: "Stock",
+      settings: "Settings",
+      logout: "Log out",
+    },
+    home: {
+      welcome: "Welcome",
+      newOrders: "New orders",
+      totalOrders: "Total orders",
+      items: "{plural}",
+      collections: "Collections",
+      netFinance: "Net revenue",
+      totalStock: "Total stock",
+    },
+  },
 };
