@@ -33,15 +33,18 @@ export default async function SiteLayout({
   if (!ctx) notFound();
   const { store } = ctx;
 
+  // Storefront colors: a store's own colors, else neutral defaults so an
+  // unconfigured store looks unbranded — NOT the platform's warm book palette
+  // (which stays the admin-dashboard default in globals.css :root). The book
+  // store keeps its warm look because the backfill writes its colors explicitly.
+  const brand = store.brandColor ?? "#3d6b99";
+  const accent = store.accentColor ?? "#3f8f79";
+  const gold = store.goldColor ?? "#c9a24b";
   const brandStyle = {
-    ...(store.brandColor
-      ? {
-          "--brand": store.brandColor,
-          "--brand-dark": `color-mix(in srgb, ${store.brandColor} 82%, #000)`,
-        }
-      : {}),
-    ...(store.accentColor ? { "--accent": store.accentColor } : {}),
-    ...(store.goldColor ? { "--gold": store.goldColor } : {}),
+    "--brand": brand,
+    "--brand-dark": `color-mix(in srgb, ${brand} 82%, #000)`,
+    "--accent": accent,
+    "--gold": gold,
   } as React.CSSProperties;
 
   return (
