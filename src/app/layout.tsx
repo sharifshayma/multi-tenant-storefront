@@ -21,6 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // Platform-level fallback for pages with no resolved store (e.g. admin
+    // login). The storefront (`[storeSlug]`) and admin dashboard layouts
+    // override `lang`/`dir` per store's `uiLocale` further down the tree.
     <html lang="ar" dir="rtl" className={`${cairo.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-paper text-ink font-sans">
         <CartProvider>{children}</CartProvider>
