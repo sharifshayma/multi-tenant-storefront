@@ -5,13 +5,13 @@ describe("buildStoreData", () => {
   it("returns the tenant #1 defaults", () => {
     expect(buildStoreData("owner_1")).toEqual({
       ownerId: "owner_1",
-      slug: "shaymas-books",
-      name: "Arab Roots, Global Wings",
-      currency: "ILS",
+      slug: "my-store",
+      name: "My Store",
+      currency: "USD",
       defaultLocale: "ar",
-      customDomain: "arabstories.shayma.me",
-      itemNounSingular: "كتاب",
-      itemNounPlural: "كتب",
+      customDomain: "shop.example.com",
+      itemNounSingular: "منتج",
+      itemNounPlural: "منتجات",
     });
   });
 

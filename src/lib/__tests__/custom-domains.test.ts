@@ -3,10 +3,10 @@ import { customDomainSlug, storefrontRewritePath } from "@/lib/custom-domains";
 
 describe("customDomainSlug", () => {
   it("maps the bookstore domain to its slug", () => {
-    expect(customDomainSlug("arabstories.shayma.me")).toBe("shaymas-books");
+    expect(customDomainSlug("shop.example.com")).toBe("my-store");
   });
   it("ignores port and case", () => {
-    expect(customDomainSlug("ARABSTORIES.shayma.me:443")).toBe("shaymas-books");
+    expect(customDomainSlug("SHOP.EXAMPLE.COM:443")).toBe("my-store");
   });
   it("returns null for the platform host", () => {
     expect(customDomainSlug("store.thatsmy.app")).toBeNull();
@@ -14,15 +14,15 @@ describe("customDomainSlug", () => {
 });
 
 describe("storefrontRewritePath", () => {
-  const HOST = "arabstories.shayma.me";
+  const HOST = "shop.example.com";
 
   it("rewrites the bare root to the store slug", () => {
-    expect(storefrontRewritePath(HOST, "/")).toBe("/shaymas-books");
+    expect(storefrontRewritePath(HOST, "/")).toBe("/my-store");
   });
   it("rewrites bare storefront routes under the slug", () => {
-    expect(storefrontRewritePath(HOST, "/books/mo-salah")).toBe("/shaymas-books/books/mo-salah");
+    expect(storefrontRewritePath(HOST, "/books/mo-salah")).toBe("/my-store/books/mo-salah");
     expect(storefrontRewritePath(HOST, "/collections/science")).toBe(
-      "/shaymas-books/collections/science",
+      "/my-store/collections/science",
     );
   });
   it("does NOT rewrite static public assets (they would 404 under the slug)", () => {
