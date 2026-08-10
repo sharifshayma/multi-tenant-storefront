@@ -4,8 +4,10 @@ import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { deleteOrder } from "@/actions/orders";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function DeleteOrderButton({ orderId }: { orderId: string }) {
+  const { t } = useT();
   const [confirming, setConfirming] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -30,7 +32,7 @@ export function DeleteOrderButton({ orderId }: { orderId: string }) {
           : "text-red-600 hover:bg-red-50 border border-red-200"
       )}
     >
-      {pending ? "..." : confirming ? "تأكيد الحذف؟" : <Trash2 className="h-3.5 w-3.5" />}
+      {pending ? "..." : confirming ? t("admin.orders.confirmDeleteQuestion") : <Trash2 className="h-3.5 w-3.5" />}
     </button>
   );
 }

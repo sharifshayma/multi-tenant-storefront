@@ -8,7 +8,7 @@ import { Price } from "@/components/ui/Price";
 import { DeleteOrderButton } from "@/components/admin/DeleteOrderButton";
 import { InlineOrderStatusSelect } from "@/components/admin/InlineOrderStatusSelect";
 import { cn } from "@/lib/utils";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/order-status";
+import { ORDER_STATUSES } from "@/lib/order-status";
 import { getPrintList, getOrderPaymentTotals } from "@/lib/data";
 import {
   getPaymentStatus,
@@ -16,22 +16,18 @@ import {
   PAYMENT_STATUS_STYLES,
   type PaymentStatus,
 } from "@/lib/payment-status";
+import { getDictionary, t, type Locale } from "@/i18n";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-const statusTabs: { value: OrderStatus | "ALL"; label: string }[] = [
-  { value: "ALL", label: "الكل" },
-  ...ORDER_STATUSES.map((value) => ({ value, label: ORDER_STATUS_LABELS[value] })),
-];
-
 // Payment is a derived status (paid-vs-payable), so these filters are applied
 // in-memory after computing each order's payment status. "مدفوع" includes
 // overpaid orders (money fully collected); gifts show only under "الكل".
-const paymentFilters: { value: string; label: string; match: PaymentStatus[] }[] = [
-  { value: "PAID", label: "مدفوع", match: ["PAID", "OVERPAID"] },
-  { value: "PARTIAL", label: "دفع جزئي", match: ["PARTIAL"] },
-  { value: "UNPAID", label: "لم يُدفع", match: ["UNPAID"] },
+const paymentFilterDefs: { value: string; statusKey: "paid" | "partial" | "unpaid"; match: PaymentStatus[] }[] = [
+  { value: "PAID", statusKey: "paid", match: ["PAID", "OVERPAID"] },
+  { value: "PARTIAL", statusKey: "partial", match: ["PARTIAL"] },
+  { value: "UNPAID", statusKey: "unpaid", match: ["UNPAID"] },
 ];
 
 function ordersHref(status?: string, payment?: string): string {
@@ -56,6 +52,19 @@ export default async function AdminOrdersPage({
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
   const { singular, plural } = storeNoun(store);
+  const d = getDictionary(store.uiLocale as Locale);
+
+  const statusTabs: { value: OrderStatus | "ALL"; label: string }[] = [
+    { value: "ALL", label: t(d, "admin.orders.filters.all") },
+    ...ORDER_STATUSES.map((value) => ({
+      value,
+      label: t(d, `admin.orders.status.${value}`),
+    })),
+  ];
+  const paymentFilters = paymentFilterDefs.map((pf) => ({
+    ...pf,
+    label: t(d, `admin.orders.filters.${pf.statusKey}`),
+  }));
 
   const { status, payment } = await searchParams;
   const filter =
@@ -93,19 +102,19 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-extrabold">الطلبات</h1>
+      <h1 className="text-2xl font-extrabold">{t(d, "admin.orders.title")}</h1>
 
       {printList.length > 0 && (
         <div className="rounded-2xl border-2 border-gold/40 bg-gold/10 p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="font-extrabold">قائمة الإنتاج</h2>
+              <h2 className="font-extrabold">{t(d, "admin.orders.printList.title")}</h2>
               <p className="text-sm text-muted">
-                عدد النسخ المطلوبة لكل {singular} في الطلبات المؤكدة (مؤكد)
+                {t(d, "admin.orders.printList.subtitle", { item: singular })}
               </p>
             </div>
             <span className="rounded-full bg-brand px-3 py-1 text-sm font-extrabold text-white">
-              {totalCopies} نسخة إجمالاً
+              {t(d, "admin.orders.printList.totalCopies", { n: totalCopies })}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -134,7 +143,9 @@ export default async function AdminOrdersPage({
       {/* Filters — status and payment combine (e.g. قيد التجهيز + لم يُدفع) */}
       <div className="flex flex-col gap-3 border-b border-border pb-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="w-12 shrink-0 text-sm font-bold text-muted">الحالة</span>
+          <span className="w-12 shrink-0 text-sm font-bold text-muted">
+            {t(d, "admin.orders.filters.statusLabel")}
+          </span>
           {statusTabs.map((tab) => (
             <Link
               key={tab.value}
@@ -146,9 +157,11 @@ export default async function AdminOrdersPage({
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="w-12 shrink-0 text-sm font-bold text-muted">الدفع</span>
+          <span className="w-12 shrink-0 text-sm font-bold text-muted">
+            {t(d, "admin.orders.filters.paymentLabel")}
+          </span>
           <Link href={ordersHref(filter, undefined)} className={chipClass(!paymentFilter)}>
-            الكل
+            {t(d, "admin.orders.filters.all")}
           </Link>
           {paymentFilters.map((pf) => (
             <Link
@@ -163,7 +176,7 @@ export default async function AdminOrdersPage({
       </div>
 
       {visible.length === 0 ? (
-        <p className="text-muted">لا توجد طلبات.</p>
+        <p className="text-muted">{t(d, "admin.orders.empty")}</p>
       ) : (
         <>
           {/* Mobile: stacked cards */}
@@ -219,15 +232,15 @@ export default async function AdminOrdersPage({
           <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-right text-muted">
-                  <th className="p-3">الاسم</th>
-                  <th className="p-3">الهاتف</th>
-                  <th className="p-3">المدينة</th>
-                  <th className="p-3">ال{plural}</th>
-                  <th className="p-3">الإجمالي</th>
-                  <th className="p-3">التاريخ</th>
-                  <th className="p-3">الحالة</th>
-                  <th className="p-3">الدفع</th>
+                <tr className="border-b border-border text-end text-muted">
+                  <th className="p-3">{t(d, "admin.orders.table.name")}</th>
+                  <th className="p-3">{t(d, "admin.orders.table.phone")}</th>
+                  <th className="p-3">{t(d, "admin.orders.table.city")}</th>
+                  <th className="p-3">{t(d, "admin.orders.table.items", { plural })}</th>
+                  <th className="p-3">{t(d, "admin.orders.table.total")}</th>
+                  <th className="p-3">{t(d, "admin.orders.table.date")}</th>
+                  <th className="p-3">{t(d, "admin.orders.table.status")}</th>
+                  <th className="p-3">{t(d, "admin.orders.table.payment")}</th>
                   <th className="p-3"></th>
                 </tr>
               </thead>

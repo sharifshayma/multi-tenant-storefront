@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { updateOrderStatus } from "@/actions/orders";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS, ORDER_STATUS_STYLES } from "@/lib/order-status";
+import { ORDER_STATUSES, ORDER_STATUS_STYLES } from "@/lib/order-status";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LocaleProvider";
 import type { OrderStatus } from "@prisma/client";
 
 // Colored dropdown for editing an order's status directly from the orders
@@ -17,6 +18,7 @@ export function InlineOrderStatusSelect({
   orderId: string;
   status: OrderStatus;
 }) {
+  const { t } = useT();
   const [status, setStatus] = useState<OrderStatus>(initial);
   const [pending, startTransition] = useTransition();
 
@@ -24,7 +26,7 @@ export function InlineOrderStatusSelect({
     <select
       value={status}
       disabled={pending}
-      aria-label="حالة الطلب"
+      aria-label={t("admin.orders.statusAriaLabel")}
       onChange={(e) => {
         const next = e.target.value as OrderStatus;
         setStatus(next);
@@ -40,7 +42,7 @@ export function InlineOrderStatusSelect({
     >
       {ORDER_STATUSES.map((s) => (
         <option key={s} value={s} className="bg-white font-bold text-ink">
-          {ORDER_STATUS_LABELS[s]}
+          {t(`admin.orders.status.${s}`)}
         </option>
       ))}
     </select>
