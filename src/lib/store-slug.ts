@@ -32,11 +32,16 @@ export type SlugValidation =
 
 // Format + reserved-word validation for a store slug. Uniqueness is a DB
 // concern and is checked in the action, not here.
+//
+// This helper has no store/locale context, so `error` is an `errors.*`
+// dictionary KEY (e.g. "errors.slug.invalid"), not a translated message —
+// the caller (which does have the store's dictionary) must translate it
+// with `t(d, v.error)` before showing it to the user.
 export function validateStoreSlug(input: string): SlugValidation {
   const slug = slugify(input);
-  if (!slug) return { ok: false, error: "العنوان غير صالح" };
+  if (!slug) return { ok: false, error: "errors.slug.invalid" };
   if (isReservedSlug(slug)) {
-    return { ok: false, error: "هذا العنوان محجوز، اختاري عنواناً آخر" };
+    return { ok: false, error: "errors.slug.reserved" };
   }
   return { ok: true, slug };
 }

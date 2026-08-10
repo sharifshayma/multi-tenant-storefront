@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { requireStore } from "@/lib/store-context";
+import { getDictionary, t, type Locale } from "@/i18n";
 import type { MediaType } from "@prisma/client";
 
 async function revalidateBook(bookId: string, storeId: string) {
@@ -21,11 +22,12 @@ export async function attachMedia(input: {
   type: MediaType;
 }) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const book = await prisma.book.findFirst({
     where: { id: input.bookId, storeId: store.id },
     select: { id: true },
   });
-  if (!book) throw new Error("الكتاب غير موجود");
+  if (!book) throw new Error(t(d, "errors.books.notFound"));
   const maxOrder = await prisma.bookMedia.aggregate({
     where: { bookId: input.bookId },
     _max: { sortOrder: true },
@@ -58,11 +60,12 @@ export async function deleteMedia(mediaId: string) {
 
 export async function reorderMedia(bookId: string, orderedIds: string[]) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const book = await prisma.book.findFirst({
     where: { id: bookId, storeId: store.id },
     select: { id: true },
   });
-  if (!book) throw new Error("الكتاب غير موجود");
+  if (!book) throw new Error(t(d, "errors.books.notFound"));
   // Only touch media rows that actually belong to this book, so a caller
   // can't smuggle another book's media id into the ordered list.
   const ownedMedia = await prisma.bookMedia.findMany({
@@ -90,6 +93,7 @@ export async function updateBook(input: {
   priceMinor: number;
 }) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const result = await prisma.book.updateMany({
     where: { id: input.bookId, storeId: store.id },
     data: {
@@ -98,7 +102,7 @@ export async function updateBook(input: {
       priceMinor: input.priceMinor,
     },
   });
-  if (result.count === 0) throw new Error("الكتاب غير موجود");
+  if (result.count === 0) throw new Error(t(d, "errors.books.notFound"));
   await revalidateBook(input.bookId, store.id);
   revalidatePath("/admin/books");
   revalidatePath("/");

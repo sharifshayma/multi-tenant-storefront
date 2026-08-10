@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ar } from "@/i18n/dictionaries/ar";
 
 // Every action under test resolves the current store via requireStore().
 // We mock it to always return store "A" so we can assert that every
@@ -98,7 +99,7 @@ describe("orders action tenancy", () => {
 
     const result = await setOrderDiscount({ orderId: "foreign-order", discountMinor: 10 });
 
-    expect(result).toEqual({ ok: false, error: "الطلب غير موجود" });
+    expect(result).toEqual({ ok: false, error: ar.errors.orders.notFound });
     expect(orderUpdateMany).not.toHaveBeenCalled();
   });
 });

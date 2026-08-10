@@ -24,7 +24,8 @@ export function SignupForm() {
 
     const parsed = signupSchema.safeParse({ email, password, storeName });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t("auth.invalidData"));
+      // issue.message is an errors.*/admin.* dictionary KEY (see lib/validations.ts).
+      setError(t(parsed.error.issues[0]?.message ?? "auth.invalidData"));
       return;
     }
 

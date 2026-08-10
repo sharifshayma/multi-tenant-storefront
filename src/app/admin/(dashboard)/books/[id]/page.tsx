@@ -92,7 +92,10 @@ export default async function AdminBookDetailPage({
                     >
                       {entry.customerName}
                     </Link>
-                    <StatusBadge status={entry.orderStatus} />
+                    <StatusBadge
+                      status={entry.orderStatus}
+                      label={t(d, `admin.orders.status.${entry.orderStatus}`)}
+                    />
                   </div>
                   <div className="flex items-center justify-between text-sm text-muted">
                     <span>
@@ -139,7 +142,10 @@ export default async function AdminBookDetailPage({
                       </td>
                       <td className="p-3">{entry.quantity}</td>
                       <td className="p-3">
-                        <StatusBadge status={entry.orderStatus} />
+                        <StatusBadge
+                          status={entry.orderStatus}
+                          label={t(d, `admin.orders.status.${entry.orderStatus}`)}
+                        />
                       </td>
                       <td className="p-3 text-muted">
                         {new Intl.DateTimeFormat("ar", { dateStyle: "short" }).format(entry.createdAt)}

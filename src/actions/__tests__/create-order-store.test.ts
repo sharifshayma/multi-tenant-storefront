@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ar } from "@/i18n/dictionaries/ar";
 
 // createOrder must resolve the store from its route context (the storeSlug
 // carried on the checkout payload, combined with the request host) — never
@@ -87,7 +88,7 @@ describe("createOrder store resolution", () => {
 
     const result = await createOrder(baseInput);
 
-    expect(result).toEqual({ ok: false, error: "المتجر غير متوفر" });
+    expect(result).toEqual({ ok: false, error: ar.errors.checkout.storeUnavailable });
     expect(bookFindMany).not.toHaveBeenCalled();
     expect(orderCreate).not.toHaveBeenCalled();
   });

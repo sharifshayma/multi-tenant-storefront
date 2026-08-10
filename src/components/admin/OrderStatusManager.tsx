@@ -19,10 +19,10 @@ export function OrderStatusManager({
   phone: string;
   email?: string | null;
 }) {
-  const { t, dir } = useT();
+  const { t, dir, locale } = useT();
   const router = useRouter();
   const [status, setStatus] = useState(order.status);
-  const [message, setMessage] = useState(() => getStatusMessage(order.status, order));
+  const [message, setMessage] = useState(() => getStatusMessage(order.status, order, locale));
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -35,7 +35,7 @@ export function OrderStatusManager({
 
   function handleStatusChange(next: OrderStatus) {
     setStatus(next);
-    setMessage(getStatusMessage(next, order));
+    setMessage(getStatusMessage(next, order, locale));
     startTransition(() => {
       updateOrderStatus(order.id, next);
     });
@@ -88,7 +88,7 @@ export function OrderStatusManager({
           <h2 className="font-extrabold">{t("admin.orders.messageForCustomer")}</h2>
           <button
             type="button"
-            onClick={() => setMessage(getStatusMessage(status, order))}
+            onClick={() => setMessage(getStatusMessage(status, order, locale))}
             className="flex items-center gap-1 text-xs font-bold text-muted hover:text-ink"
           >
             <RotateCcw className="h-3.5 w-3.5" />

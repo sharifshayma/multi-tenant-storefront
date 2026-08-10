@@ -205,7 +205,13 @@ export type BookOrderHistoryEntry = {
   orderStatus: OrderStatus;
   createdAt: Date;
   quantity: number;
-  /** "مباشر" for a standalone order, or the collection's title if it was bundled */
+  /**
+   * "مباشر" for a standalone order, or the collection's title if it was
+   * bundled. Left as a fixed Arabic sentinel (not translated here): it's
+   * compared by exact string in src/app/admin/(dashboard)/books/[id]/page.tsx
+   * (`entry.source === "مباشر"`) to pick the display string, so changing it
+   * would require updating that comparison too. Safer to leave as-is.
+   */
   source: string;
 };
 

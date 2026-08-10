@@ -15,6 +15,69 @@ export const en: typeof ar = {
   errors: {
     unauthorized: "Not authorized",
     generic: "Something went wrong, please try again",
+    invalidPrice: "Please enter a valid price",
+    slug: {
+      invalid: "Invalid address",
+      reserved: "This address is reserved, choose another",
+      taken: "This address is used by another store",
+    },
+    store: {
+      unsupportedCurrency: "Unsupported currency",
+      unsupportedLocale: "Unsupported language",
+      invalidColor: "One of the colors is invalid",
+      invalidLogoUrl: "Invalid logo URL",
+      nameRequired: "Please enter a store name",
+    },
+    validation: {
+      invalidEmail: "Invalid email",
+      invalidPhone: "Invalid phone number",
+      passwordRequired: "Password is required",
+    },
+    checkout: {
+      nameRequired: "Please enter your full name",
+      cityRequired: "Please enter your city",
+      emptyCart: "Your cart is empty",
+      storeUnavailable: "Store unavailable",
+      bookUnavailable: "One of the books in the cart is no longer available",
+      collectionUnavailable: "One of the collections is no longer available",
+      collectionBookCountMismatch: 'Please choose {count} different books for the "{title}" collection',
+      selectedBookUnavailable: "One of the selected books is no longer available",
+    },
+    books: {
+      titleRequired: "Please enter the book title",
+      descriptionRequired: "Please enter the book description",
+      slugRequired: "Please enter a slug for the book",
+      coverImageRequired: "Please upload a cover image",
+      slugTaken: "This slug is already used by another book, please choose a different one",
+      notFound: "Book not found",
+    },
+    collections: {
+      customCountRequired: "Please specify a valid count for the customer to choose",
+      notFound: "Collection not found",
+      bookNotOwned: "One of the books doesn't belong to this store",
+    },
+    orders: {
+      notFound: "Order not found",
+      invalidDiscount: "Invalid discount value",
+      discountExceedsTotal: "Discount can't exceed the order total",
+      bookUnavailable: "One of the books is no longer available",
+      minQuantity: "Quantity must be at least 1",
+      collectionNotInOrder: "One of the collections is no longer part of the order",
+    },
+    finance: {
+      invalidAmount: "Invalid amount",
+      transactionNotFound: "Transaction not found",
+    },
+    stock: {
+      invalidQuantity: "Invalid quantity",
+      movementNotFound: "Stock movement not found",
+    },
+    signup: {
+      alreadyHaveStore: "You already have a store",
+      storeCreationFailed: "Couldn't create the store, please try again",
+      emailTaken: "This email is already in use",
+      accountCreationFailed: "Couldn't create the account, please try again",
+    },
   },
   store: {
     addToCart: "Add to cart",
@@ -159,6 +222,13 @@ export const en: typeof ar = {
         saveButton: "Save customer details",
       },
       payment: {
+        status: {
+          UNPAID: "Unpaid",
+          PARTIAL: "Partial",
+          PAID: "Fully paid",
+          OVERPAID: "Overpaid",
+          GIFT: "Gift",
+        },
         invalidAmount: "Please enter a valid amount",
         invalidDiscount: "Please enter a valid discount value",
         orderTotal: "Order total",
@@ -456,6 +526,7 @@ export const en: typeof ar = {
         statusNow: "Status now:",
         enabled: "Enabled",
         disabled: "Disabled",
+        movementNote: "Automatic stock deduction based on order status",
       },
     },
   },
@@ -481,6 +552,19 @@ export const en: typeof ar = {
       submit: "Create account",
       hasAccount: "Already have an account?",
       login: "Log in",
+    },
+  },
+  messages: {
+    greeting: "Hi {name} 👋",
+    orderNumberPrefix: "Your order #{shortId}:",
+    totalLine: "Total: {total}",
+    status: {
+      NEW: "We've received your order and will contact you soon to confirm it. 📚",
+      CONFIRMED: "Your order has been confirmed and we'll start preparing it soon. Thanks for ordering from {siteName} 💛",
+      IN_PROGRESS: "Your order is being prepared now 📦. We'll let you know as soon as it ships.",
+      SHIPPED: "Your order has shipped and is on its way to you now 🚚. We'll be in touch when it arrives.",
+      DELIVERED:
+        "We hope you enjoyed the books! 💛 Thanks for ordering from {siteName}. We'd love to hear your feedback anytime.",
     },
   },
 };

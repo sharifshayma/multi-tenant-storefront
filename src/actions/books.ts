@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireStore } from "@/lib/store-context";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export type CreateBookResult = { ok: true; bookId: string } | { ok: false; error: string };
 
@@ -14,24 +15,25 @@ export async function createBook(input: {
   coverImage: string;
 }): Promise<CreateBookResult> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
 
   const title = input.title.trim();
   const description = input.description.trim();
   const slug = input.slug.trim();
 
-  if (!title) return { ok: false, error: "الرجاء إدخال عنوان الكتاب" };
-  if (!description) return { ok: false, error: "الرجاء إدخال وصف الكتاب" };
-  if (!slug) return { ok: false, error: "الرجاء إدخال رابط (slug) للكتاب" };
-  if (!input.coverImage) return { ok: false, error: "الرجاء رفع صورة الغلاف" };
+  if (!title) return { ok: false, error: t(d, "errors.books.titleRequired") };
+  if (!description) return { ok: false, error: t(d, "errors.books.descriptionRequired") };
+  if (!slug) return { ok: false, error: t(d, "errors.books.slugRequired") };
+  if (!input.coverImage) return { ok: false, error: t(d, "errors.books.coverImageRequired") };
   if (!Number.isFinite(input.priceMinor) || input.priceMinor <= 0) {
-    return { ok: false, error: "الرجاء إدخال سعر صحيح" };
+    return { ok: false, error: t(d, "errors.invalidPrice") };
   }
 
   // slug is unique per-store at the DB level, so the existence check is
   // scoped to the caller's store (also avoids leaking another store's slugs).
   const existing = await prisma.book.findFirst({ where: { storeId: store.id, slug } });
   if (existing) {
-    return { ok: false, error: "هذا الرابط مستخدم بالفعل لكتاب آخر، الرجاء اختيار رابط مختلف" };
+    return { ok: false, error: t(d, "errors.books.slugTaken") };
   }
 
   const maxPosition = await prisma.book.aggregate({
@@ -59,11 +61,12 @@ export async function createBook(input: {
 
 export async function setBookArchived(bookId: string, isArchived: boolean) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const book = await prisma.book.findFirst({
     where: { id: bookId, storeId: store.id },
     select: { slug: true },
   });
-  if (!book) throw new Error("الكتاب غير موجود");
+  if (!book) throw new Error(t(d, "errors.books.notFound"));
   await prisma.book.update({
     where: { id: bookId },
     data: { isArchived },

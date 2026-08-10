@@ -12,7 +12,6 @@ import { minorToInput, inputToMinor } from "@/lib/money-input";
 import {
   getAmountPayable,
   getPaymentStatus,
-  PAYMENT_STATUS_LABELS,
   PAYMENT_STATUS_STYLES,
 } from "@/lib/payment-status";
 import { useT } from "@/i18n/LocaleProvider";
@@ -97,7 +96,7 @@ export function PaymentPanel({
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-extrabold">{t("admin.orders.table.payment")}</h2>
         <span className={cn("rounded-full px-3 py-1 text-xs font-bold", PAYMENT_STATUS_STYLES[status])}>
-          {PAYMENT_STATUS_LABELS[status]}
+          {t(`admin.orders.payment.status.${status}`)}
         </span>
       </div>
 

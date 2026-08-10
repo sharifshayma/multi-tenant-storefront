@@ -1,5 +1,7 @@
 import type { OrderStatus } from "@prisma/client";
 import { formatMoney } from "@/lib/format-money";
+import { getDictionary, t, type Dictionary, type Locale } from "@/i18n";
+import { SITE_NAME, SITE_NAME_EN } from "@/lib/constants";
 
 export type MessageOrderItem = { title: string; quantity: number };
 export type MessageOrderCollectionItem = { title: string; quantity: number };
@@ -9,43 +11,54 @@ export type MessageOrder = {
   customerName: string;
   totalMinor: number;
   currency: string;
+  // Number-formatting locale only (store.defaultLocale) — passed to
+  // formatMoney below. NOT the text locale for this message's wording; see
+  // the `uiLocale` param on getStatusMessage for that.
   locale: string;
   items: MessageOrderItem[];
   collectionItems: MessageOrderCollectionItem[];
 };
 
-function itemsBlock(order: MessageOrder): string {
+function itemsBlock(d: Dictionary, order: MessageOrder): string {
+  const collectionSuffix = t(d, "admin.orders.collectionSuffix");
   const lines = [
     ...order.items.map((i) => `• ${i.title} ×${i.quantity}`),
-    ...order.collectionItems.map((i) => `• ${i.title} (مجموعة) ×${i.quantity}`),
+    ...order.collectionItems.map((i) => `• ${i.title} ${collectionSuffix} ×${i.quantity}`),
   ];
   return lines.join("\n");
 }
 
-function orderSummary(order: MessageOrder): string {
+function orderSummary(d: Dictionary, order: MessageOrder): string {
   const shortId = order.id.slice(0, 8);
   const total = formatMoney(order.totalMinor, order.currency, order.locale);
-  return `طلبك رقم #${shortId}:\n${itemsBlock(order)}\nالإجمالي: ${total}`;
+  return [
+    t(d, "messages.orderNumberPrefix", { shortId }),
+    itemsBlock(d, order),
+    t(d, "messages.totalLine", { total }),
+  ].join("\n");
 }
 
-export function getStatusMessage(status: OrderStatus, order: MessageOrder): string {
-  const name = order.customerName;
-  const summary = orderSummary(order);
-
-  switch (status) {
-    case "NEW":
-      return `مرحباً ${name} 👋\n${summary}\n\nاستلمنا طلبك وسنتواصل معك قريباً لتأكيده. 📚`;
-    case "CONFIRMED":
-      return `مرحباً ${name} 👋\n${summary}\n\nتم تأكيد طلبك وسنبدأ بتجهيزه قريباً. شكراً لطلبك من جذور عربية، أجنحة عالمية 💛`;
-    case "IN_PROGRESS":
-      return `مرحباً ${name} 👋\n${summary}\n\nطلبك قيد التجهيز الآن 📦. سنعلمك فور شحنه بإذن الله.`;
-    case "SHIPPED":
-      return `مرحباً ${name} 👋\n${summary}\n\nتم شحن طلبك وهو في طريقه إليك الآن 🚚. سنتواصل معك عند الوصول.`;
-    case "DELIVERED":
-      return `مرحباً ${name} 👋\n${summary}\n\nنتمنى أن تكونوا استمتعتم بالكتب! 💛 شكراً لطلبك من جذور عربية، أجنحة عالمية. يسعدنا سماع رأيكم في أي وقت.`;
-    default:
-      return "";
-  }
+/**
+ * Renders the WhatsApp/email message the admin sends a customer about their
+ * order status. `uiLocale` is the store's UI locale (the same one driving
+ * every other piece of admin chrome the staff member sees) — deliberately
+ * NOT `order.locale`, which only controls number formatting (see
+ * MessageOrder above). Defaults to "ar" for any caller that doesn't (yet)
+ * thread the locale through.
+ */
+export function getStatusMessage(
+  status: OrderStatus,
+  order: MessageOrder,
+  uiLocale: Locale = "ar"
+): string {
+  const d = getDictionary(uiLocale);
+  const greeting = t(d, "messages.greeting", { name: order.customerName });
+  const summary = orderSummary(d, order);
+  const siteName = uiLocale === "en" ? SITE_NAME_EN : SITE_NAME;
+  const bodyKey = `messages.status.${status}`;
+  const body = t(d, bodyKey, { siteName });
+  if (body === bodyKey) return ""; // unknown status — mirrors the original default case
+  return `${greeting}\n${summary}\n\n${body}`;
 }
 
 /** Formats a local phone number (e.g. 05xxxxxxxx) into WhatsApp's international digits-only format. Defaults to Israel (972) country code. */

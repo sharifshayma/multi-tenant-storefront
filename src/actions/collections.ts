@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireStore } from "@/lib/store-context";
 import { slugify } from "@/lib/slugify";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export type CreateCollectionResult =
   | { ok: true; collectionId: string }
@@ -18,17 +19,20 @@ export async function createCollection(input: {
   requiredCount?: number;
 }): Promise<CreateCollectionResult> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
 
   const title = input.title.trim();
   const description = input.description.trim();
 
-  if (!title) return { ok: false, error: "الرجاء إدخال عنوان المجموعة" };
+  // Reuses admin.collections.form.titleRequired — same copy as the client
+  // form's own validation for this field.
+  if (!title) return { ok: false, error: t(d, "admin.collections.form.titleRequired") };
   if (!Number.isFinite(input.priceMinor) || input.priceMinor <= 0) {
-    return { ok: false, error: "الرجاء إدخال سعر صحيح" };
+    return { ok: false, error: t(d, "errors.invalidPrice") };
   }
   if (input.isCustom) {
     if (!input.requiredCount || input.requiredCount < 1) {
-      return { ok: false, error: "الرجاء تحديد عدد صحيح تختاره العميلة" };
+      return { ok: false, error: t(d, "errors.collections.customCountRequired") };
     }
   }
 
@@ -88,6 +92,7 @@ export async function updateCollection(input: {
   requiredCount?: number | null;
 }) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const result = await prisma.collection.updateMany({
     where: { id: input.collectionId, storeId: store.id },
     data: {
@@ -97,22 +102,23 @@ export async function updateCollection(input: {
       ...(input.requiredCount !== undefined ? { requiredCount: input.requiredCount } : {}),
     },
   });
-  if (result.count === 0) throw new Error("المجموعة غير موجودة");
+  if (result.count === 0) throw new Error(t(d, "errors.collections.notFound"));
   await revalidateCollection(input.collectionId, store.id);
 }
 
 export async function setCollectionBooks(collectionId: string, bookIds: string[]) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const collection = await prisma.collection.findFirst({
     where: { id: collectionId, storeId: store.id },
     select: { id: true },
   });
-  if (!collection) throw new Error("المجموعة غير موجودة");
+  if (!collection) throw new Error(t(d, "errors.collections.notFound"));
   if (bookIds.length > 0) {
     const ownedCount = await prisma.book.count({
       where: { id: { in: bookIds }, storeId: store.id },
     });
-    if (ownedCount !== bookIds.length) throw new Error("أحد الكتب لا ينتمي إلى هذا المتجر");
+    if (ownedCount !== bookIds.length) throw new Error(t(d, "errors.collections.bookNotOwned"));
   }
   await prisma.$transaction([
     prisma.collectionBook.deleteMany({ where: { collectionId } }),
