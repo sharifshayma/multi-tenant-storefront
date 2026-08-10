@@ -13,7 +13,7 @@ const MOVEMENT_OPTIONS: {
   type: StockMovementType;
   sign: 1 | -1;
 }[] = [
-  { key: "printed", label: "طباعة (إضافة مخزون)", type: "PRINTED", sign: 1 },
+  { key: "printed", label: "إنتاج (إضافة مخزون)", type: "PRINTED", sign: 1 },
   { key: "adjust_up", label: "تصحيح — زيادة", type: "ADJUSTMENT", sign: 1 },
   { key: "adjust_down", label: "تصحيح — نقصان", type: "ADJUSTMENT", sign: -1 },
   { key: "damaged", label: "تالف / فاقد", type: "DAMAGED", sign: -1 },

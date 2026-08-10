@@ -99,7 +99,7 @@ export default async function AdminOrdersPage({
         <div className="rounded-2xl border-2 border-gold/40 bg-gold/10 p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="font-extrabold">قائمة الطباعة</h2>
+              <h2 className="font-extrabold">قائمة الإنتاج</h2>
               <p className="text-sm text-muted">
                 عدد النسخ المطلوبة لكل {singular} في الطلبات المؤكدة (مؤكد)
               </p>
