@@ -20,6 +20,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { deleteMedia, reorderMedia } from "@/actions/media";
 import type { BookMediaItem } from "@/lib/types";
+import { useT } from "@/i18n/LocaleProvider";
 
 function SortableItem({
   item,
@@ -28,6 +29,7 @@ function SortableItem({
   item: BookMediaItem;
   onDelete: (id: string) => void;
 }) {
+  const { t } = useT();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id });
 
@@ -54,7 +56,7 @@ function SortableItem({
         type="button"
         onClick={() => onDelete(item.id)}
         className="absolute end-1 top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 hover:bg-red-50"
-        aria-label="حذف"
+        aria-label={t("common.delete")}
       >
         <Trash2 className="h-4 w-4" />
       </button>
@@ -76,6 +78,7 @@ export function MediaList({
   bookId: string;
   media: BookMediaItem[];
 }) {
+  const { t } = useT();
   const [items, setItems] = useState(media);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -95,7 +98,7 @@ export function MediaList({
   }
 
   if (items.length === 0) {
-    return <p className="text-sm text-muted">لا توجد صور أو فيديوهات إضافية بعد.</p>;
+    return <p className="text-sm text-muted">{t("admin.products.media.empty")}</p>;
   }
 
   return (

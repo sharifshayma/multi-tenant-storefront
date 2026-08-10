@@ -5,8 +5,10 @@ import { upload } from "@vercel/blob/client";
 import { Upload, Loader2 } from "lucide-react";
 import { attachMedia } from "@/actions/media";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function MediaUploader({ bookId }: { bookId: string }) {
+  const { t } = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export function MediaUploader({ bookId }: { bookId: string }) {
         const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
         if (file.size > maxSize) {
           throw new Error(
-            `${file.name}: الحجم أكبر من الحد المسموح (${isVideo ? "100" : "10"} ميجابايت)`
+            t("admin.products.media.sizeError", { name: file.name, max: isVideo ? "100" : "10" })
           );
         }
         const blob = await upload(file.name, file, {
@@ -35,7 +37,7 @@ export function MediaUploader({ bookId }: { bookId: string }) {
         });
       }
     } catch (err) {
-      setError((err as Error).message || "فشل الرفع");
+      setError((err as Error).message || t("admin.products.media.uploadFailed"));
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -60,11 +62,11 @@ export function MediaUploader({ bookId }: { bookId: string }) {
       >
         {uploading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> جارِ الرفع...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.products.uploading")}
           </>
         ) : (
           <>
-            <Upload className="h-4 w-4" /> رفع صور أو فيديوهات
+            <Upload className="h-4 w-4" /> {t("admin.products.media.upload")}
           </>
         )}
       </Button>
