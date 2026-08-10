@@ -11,7 +11,7 @@ export function CollectionCollage({
 }) {
   if (isCustom || books.length === 0) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gold/20 to-brand/10">
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand/20 to-brand/5">
         <Sparkles className="h-12 w-12 text-brand" strokeWidth={1.5} />
       </div>
     );

@@ -23,7 +23,7 @@ export function CollectionCard({
   return (
     <Link
       href={storeHref(basePath, `/collections/${collection.slug}`)}
-      className="flex flex-col overflow-hidden rounded-2xl border-2 border-gold/40 bg-card shadow-sm transition-shadow hover:shadow-md"
+      className="flex flex-col overflow-hidden rounded-2xl border-2 border-brand/40 bg-card shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="relative aspect-square w-full">
         <CollectionCollage books={collection.books} isCustom={collection.isCustom} />

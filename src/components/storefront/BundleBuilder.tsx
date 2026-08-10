@@ -32,7 +32,7 @@ export function BundleBuilder({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gold/40 bg-gold/10 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/40 bg-brand/10 p-4">
         <p className="font-bold">
           المحدد: <span className="text-brand">{selected.length}</span> / {requiredCount}
         </p>

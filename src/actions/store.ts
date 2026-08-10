@@ -41,8 +41,6 @@ export type BrandingInput = {
   footerText: string;
   logoUrl: string;
   brandColor: string;
-  accentColor: string;
-  goldColor: string;
   backgroundColor: string;
   textColor: string;
 };
@@ -75,18 +73,10 @@ export async function updateBranding(
   if (!name) return { ok: false, error: "الرجاء إدخال اسم المتجر" };
 
   const brandColor = colorOrNull(input.brandColor);
-  const accentColor = colorOrNull(input.accentColor);
-  const goldColor = colorOrNull(input.goldColor);
   const backgroundColor = colorOrNull(input.backgroundColor);
   const textColor = colorOrNull(input.textColor);
   const logoUrl = logoUrlOrNull(input.logoUrl);
-  if (
-    brandColor === false ||
-    accentColor === false ||
-    goldColor === false ||
-    backgroundColor === false ||
-    textColor === false
-  ) {
+  if (brandColor === false || backgroundColor === false || textColor === false) {
     return { ok: false, error: "أحد الألوان غير صالح" };
   }
   if (logoUrl === false) {
@@ -104,8 +94,6 @@ export async function updateBranding(
       footerText: orNull(input.footerText),
       logoUrl,
       brandColor,
-      accentColor,
-      goldColor,
       backgroundColor,
       textColor,
     },
