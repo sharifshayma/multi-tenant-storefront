@@ -34,7 +34,12 @@ export default async function SiteLayout({
   const { store } = ctx;
 
   const brandStyle = {
-    ...(store.brandColor ? { "--brand": store.brandColor } : {}),
+    ...(store.brandColor
+      ? {
+          "--brand": store.brandColor,
+          "--brand-dark": `color-mix(in srgb, ${store.brandColor} 82%, #000)`,
+        }
+      : {}),
     ...(store.accentColor ? { "--accent": store.accentColor } : {}),
     ...(store.goldColor ? { "--gold": store.goldColor } : {}),
   } as React.CSSProperties;

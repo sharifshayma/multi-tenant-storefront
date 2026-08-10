@@ -52,6 +52,18 @@ function colorOrNull(value: string): string | null | false {
   return isHexColor(v) ? v : false;
 }
 
+// "" -> null; a non-empty logo URL must be an https Vercel-blob URL (matches
+// next.config remotePatterns) or the action fails — otherwise <Image> 500s.
+function logoUrlOrNull(value: string): string | null | false {
+  const v = value.trim();
+  if (!v) return null;
+  try {
+    const u = new URL(v);
+    if (u.protocol === "https:" && u.hostname.endsWith(".public.blob.vercel-storage.com")) return v;
+  } catch {}
+  return false;
+}
+
 export async function updateBranding(
   input: BrandingInput,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -63,8 +75,12 @@ export async function updateBranding(
   const brandColor = colorOrNull(input.brandColor);
   const accentColor = colorOrNull(input.accentColor);
   const goldColor = colorOrNull(input.goldColor);
+  const logoUrl = logoUrlOrNull(input.logoUrl);
   if (brandColor === false || accentColor === false || goldColor === false) {
     return { ok: false, error: "أحد الألوان غير صالح" };
+  }
+  if (logoUrl === false) {
+    return { ok: false, error: "رابط الشعار غير صالح" };
   }
 
   const orNull = (s: string) => (s.trim() ? s.trim() : null);
@@ -76,7 +92,7 @@ export async function updateBranding(
       heroTitle: orNull(input.heroTitle),
       heroSubtitle: orNull(input.heroSubtitle),
       footerText: orNull(input.footerText),
-      logoUrl: orNull(input.logoUrl),
+      logoUrl,
       brandColor,
       accentColor,
       goldColor,
