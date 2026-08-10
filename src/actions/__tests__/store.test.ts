@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ar } from "@/i18n/dictionaries/ar";
 
 const { requireStore, storeFindUnique, storeUpdate } = vi.hoisted(() => ({
   requireStore: vi.fn(),
@@ -38,7 +39,7 @@ describe("updateStoreSlug", () => {
   it("rejects a slug already taken by another store", async () => {
     storeFindUnique.mockResolvedValue({ id: "other", slug: "taken" });
     const r = await updateStoreSlug("taken");
-    expect(r).toEqual({ ok: false, error: "هذا العنوان مستخدم من متجر آخر" });
+    expect(r).toEqual({ ok: false, error: ar.errors.slug.taken });
     expect(storeUpdate).not.toHaveBeenCalled();
   });
   it("is a no-op success when the slug is unchanged", async () => {
@@ -51,7 +52,7 @@ describe("updateStoreSlug", () => {
       Object.assign(new Error("Unique constraint failed"), { code: "P2002" }),
     );
     const r = await updateStoreSlug("shaymas-store");
-    expect(r).toEqual({ ok: false, error: "هذا العنوان مستخدم من متجر آخر" });
+    expect(r).toEqual({ ok: false, error: ar.errors.slug.taken });
   });
   it("propagates non-P2002 errors from update", async () => {
     storeUpdate.mockRejectedValue(new Error("boom"));

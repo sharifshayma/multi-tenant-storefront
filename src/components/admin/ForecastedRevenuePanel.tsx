@@ -57,7 +57,7 @@ export function ForecastedRevenuePanel({
             >
               <span className="font-bold text-brand">{o.customerName}</span>
               <span className="flex items-center gap-2">
-                <StatusBadge status={o.status} />
+                <StatusBadge status={o.status} label={t(`admin.orders.status.${o.status}`)} />
                 <Price
                   minor={o.outstandingMinor}
                   currency={currency}

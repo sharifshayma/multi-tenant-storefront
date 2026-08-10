@@ -6,13 +6,15 @@ import { requireStore } from "@/lib/store-context";
 import { validateStoreSlug } from "@/lib/store-slug";
 import { isHexColor } from "@/lib/hex-color";
 import { CURRENCY_CODES } from "@/lib/currencies";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export async function updateStoreCurrency(
   currency: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   if (!CURRENCY_CODES.has(currency)) {
-    return { ok: false, error: "عملة غير مدعومة" };
+    return { ok: false, error: t(d, "errors.store.unsupportedCurrency") };
   }
   await prisma.store.update({ where: { id: store.id }, data: { currency } });
   revalidatePath("/admin", "layout");
@@ -24,12 +26,15 @@ export async function updateStoreSlug(
   input: string,
 ): Promise<{ ok: true; slug: string } | { ok: false; error: string }> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
+  // validateStoreSlug returns an errors.* KEY (no store/locale context of
+  // its own) — translate it here where the store's dictionary is available.
   const v = validateStoreSlug(input);
-  if (!v.ok) return v;
+  if (!v.ok) return { ok: false, error: t(d, v.error) };
   if (v.slug === store.slug) return { ok: true, slug: v.slug };
 
   const taken = await prisma.store.findUnique({ where: { slug: v.slug } });
-  if (taken) return { ok: false, error: "هذا العنوان مستخدم من متجر آخر" };
+  if (taken) return { ok: false, error: t(d, "errors.slug.taken") };
 
   try {
     await prisma.store.update({ where: { id: store.id }, data: { slug: v.slug } });
@@ -40,7 +45,7 @@ export async function updateStoreSlug(
       "code" in err &&
       (err as { code?: string }).code === "P2002"
     ) {
-      return { ok: false, error: "هذا العنوان مستخدم من متجر آخر" };
+      return { ok: false, error: t(d, "errors.slug.taken") };
     }
     throw err;
   }
@@ -82,19 +87,20 @@ export async function updateBranding(
   input: BrandingInput,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
 
   const name = input.name.trim();
-  if (!name) return { ok: false, error: "الرجاء إدخال اسم المتجر" };
+  if (!name) return { ok: false, error: t(d, "errors.store.nameRequired") };
 
   const brandColor = colorOrNull(input.brandColor);
   const backgroundColor = colorOrNull(input.backgroundColor);
   const textColor = colorOrNull(input.textColor);
   const logoUrl = logoUrlOrNull(input.logoUrl);
   if (brandColor === false || backgroundColor === false || textColor === false) {
-    return { ok: false, error: "أحد الألوان غير صالح" };
+    return { ok: false, error: t(d, "errors.store.invalidColor") };
   }
   if (logoUrl === false) {
-    return { ok: false, error: "رابط الشعار غير صالح" };
+    return { ok: false, error: t(d, "errors.store.invalidLogoUrl") };
   }
 
   const orNull = (s: string) => (s.trim() ? s.trim() : null);
@@ -121,8 +127,9 @@ export async function updateStoreUiLocale(
   locale: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   if (locale !== "ar" && locale !== "en") {
-    return { ok: false, error: "لغة غير مدعومة" };
+    return { ok: false, error: t(d, "errors.store.unsupportedLocale") };
   }
   await prisma.store.update({ where: { id: store.id }, data: { uiLocale: locale } });
   revalidatePath("/admin", "layout");

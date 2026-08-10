@@ -12,7 +12,6 @@ import { ORDER_STATUSES } from "@/lib/order-status";
 import { getPrintList, getOrderPaymentTotals } from "@/lib/data";
 import {
   getPaymentStatus,
-  PAYMENT_STATUS_LABELS,
   PAYMENT_STATUS_STYLES,
   type PaymentStatus,
 } from "@/lib/payment-status";
@@ -200,7 +199,7 @@ export default async function AdminOrdersPage({
                         PAYMENT_STATUS_STYLES[paymentStatus]
                       )}
                     >
-                      {PAYMENT_STATUS_LABELS[paymentStatus]}
+                      {t(d, `admin.orders.payment.status.${paymentStatus}`)}
                     </span>
                     <InlineOrderStatusSelect orderId={order.id} status={order.status} />
                   </div>
@@ -283,7 +282,7 @@ export default async function AdminOrdersPage({
                           PAYMENT_STATUS_STYLES[paymentStatus]
                         )}
                       >
-                        {PAYMENT_STATUS_LABELS[paymentStatus]}
+                        {t(d, `admin.orders.payment.status.${paymentStatus}`)}
                       </span>
                     </td>
                     <td className="p-3">

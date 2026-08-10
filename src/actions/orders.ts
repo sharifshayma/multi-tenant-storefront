@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { requireStore } from "@/lib/store-context";
 import { resolveStorefrontContext } from "@/lib/storefront-context";
 import { getAutoStockEnabled } from "@/lib/settings";
+import { getDictionary, t, type Locale } from "@/i18n";
 import type { OrderStatus } from "@prisma/client";
 
 export type CreateOrderResult =
@@ -17,9 +18,14 @@ export type CreateOrderResult =
 export async function createOrder(
   input: CheckoutInput
 ): Promise<CreateOrderResult> {
+  // No store resolved yet at this point (it depends on the parsed
+  // storeSlug), so zod issue messages — which are errors.*/admin.* dictionary
+  // KEYS, not text (see lib/validations.ts) — are translated with the
+  // default "ar" dictionary here, same as signup.ts.
+  const dPreStore = getDictionary("ar");
   const parsed = checkoutSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "بيانات غير صالحة" };
+    return { ok: false, error: t(dPreStore, parsed.error.issues[0]?.message ?? "auth.invalidData") };
   }
   const data = parsed.data;
 
@@ -28,9 +34,10 @@ export async function createOrder(
     host: (await headers()).get("host") ?? "",
   });
   if (!ctx) {
-    return { ok: false, error: "المتجر غير متوفر" };
+    return { ok: false, error: t(dPreStore, "errors.checkout.storeUnavailable") };
   }
   const store = ctx.store;
+  const d = getDictionary(store.uiLocale as Locale);
 
   const bookIds = data.items.map((i) => i.bookId);
   const books = await prisma.book.findMany({
@@ -49,7 +56,7 @@ export async function createOrder(
   for (const item of data.items) {
     const book = bookMap.get(item.bookId);
     if (!book) {
-      return { ok: false, error: "أحد الكتب في السلة لم يعد متوفراً" };
+      return { ok: false, error: t(d, "errors.checkout.bookUnavailable") };
     }
     orderItems.push({
       bookId: book.id,
@@ -86,7 +93,7 @@ export async function createOrder(
   for (const item of data.collections) {
     const collection = collectionMap.get(item.collectionId);
     if (!collection) {
-      return { ok: false, error: "إحدى المجموعات لم تعد متوفرة" };
+      return { ok: false, error: t(d, "errors.checkout.collectionUnavailable") };
     }
 
     let bookIds: string[];
@@ -96,11 +103,14 @@ export async function createOrder(
       if (uniqueIds.length !== requiredCount) {
         return {
           ok: false,
-          error: `الرجاء اختيار ${requiredCount} كتب مختلفة لمجموعة "${collection.title}"`,
+          error: t(d, "errors.checkout.collectionBookCountMismatch", {
+            count: requiredCount,
+            title: collection.title,
+          }),
         };
       }
       if (!uniqueIds.every((id) => selectedBookMap.has(id))) {
-        return { ok: false, error: "أحد الكتب المختارة لم يعد متوفراً" };
+        return { ok: false, error: t(d, "errors.checkout.selectedBookUnavailable") };
       }
       bookIds = uniqueIds;
     } else {
@@ -185,11 +195,12 @@ export async function createOrder(
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const updated = await prisma.order.updateMany({
     where: { id: orderId, storeId: store.id },
     data: { status },
   });
-  if (updated.count === 0) throw new Error("الطلب غير موجود");
+  if (updated.count === 0) throw new Error(t(d, "errors.orders.notFound"));
 
   // Fulfillment (SHIPPED or DELIVERED) auto-deducts the ordered books from
   // stock — but only when the feature is enabled, and only once per order:
@@ -231,7 +242,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
                 type: "SHIPPED" as const,
                 quantity: -quantity,
                 orderId,
-                note: "خصم تلقائي من المخزون حسب حالة الطلب",
+                note: t(d, "admin.settings.autoStock.movementNote"),
                 storeId: store.id,
               })),
             });
@@ -248,8 +259,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
 
 export async function deleteOrder(orderId: string) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const result = await prisma.order.deleteMany({ where: { id: orderId, storeId: store.id } });
-  if (result.count === 0) throw new Error("الطلب غير موجود");
+  if (result.count === 0) throw new Error(t(d, "errors.orders.notFound"));
   revalidatePath("/admin/orders");
 }
 
@@ -261,19 +273,20 @@ export async function setOrderDiscount(input: {
   discountReason?: string;
 }): Promise<SetOrderDiscountResult> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
 
   const order = await prisma.order.findFirst({
     where: { id: input.orderId, storeId: store.id },
     select: { totalMinor: true },
   });
-  if (!order) return { ok: false, error: "الطلب غير موجود" };
+  if (!order) return { ok: false, error: t(d, "errors.orders.notFound") };
 
   if (!Number.isFinite(input.discountMinor) || input.discountMinor < 0) {
-    return { ok: false, error: "قيمة الخصم غير صالحة" };
+    return { ok: false, error: t(d, "errors.orders.invalidDiscount") };
   }
   const discountMinor = Math.round(input.discountMinor);
   if (discountMinor > order.totalMinor) {
-    return { ok: false, error: "لا يمكن أن يتجاوز الخصم إجمالي الطلب" };
+    return { ok: false, error: t(d, "errors.orders.discountExceedsTotal") };
   }
 
   await prisma.order.updateMany({
@@ -302,11 +315,14 @@ export async function updateOrderCustomerInfo(input: {
   notes?: string;
 }) {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
   const customerName = input.customerName.trim();
   const phone = input.phone.trim();
   const city = input.city.trim();
   if (!customerName || !phone || !city) {
-    throw new Error("الرجاء تعبئة الاسم والهاتف والمدينة");
+    // Reuses admin.orders.customerForm.validationError — same copy as the
+    // client form's own validation for this field set.
+    throw new Error(t(d, "admin.orders.customerForm.validationError"));
   }
   const result = await prisma.order.updateMany({
     where: { id: input.orderId, storeId: store.id },
@@ -318,7 +334,7 @@ export async function updateOrderCustomerInfo(input: {
       notes: input.notes?.trim() || null,
     },
   });
-  if (result.count === 0) throw new Error("الطلب غير موجود");
+  if (result.count === 0) throw new Error(t(d, "errors.orders.notFound"));
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${input.orderId}`);
 }
@@ -331,18 +347,26 @@ export async function updateOrderItems(input: {
   collectionItems: { id: string; quantity: number }[];
 }): Promise<UpdateOrderItemsResult> {
   const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
 
   if (input.items.length === 0 && input.collectionItems.length === 0) {
-    return { ok: false, error: "يجب أن يحتوي الطلب على كتاب واحد على الأقل" };
+    // Reuses admin.orders.items.minOneError — same copy/placeholder as the
+    // client-side OrderItemsEditor check for this exact rule.
+    return {
+      ok: false,
+      error: t(d, "admin.orders.items.minOneError", { item: store.itemNounSingular }),
+    };
   }
 
   const order = await prisma.order.findFirst({
     where: { id: input.orderId, storeId: store.id },
     include: { collectionItems: true },
   });
-  if (!order) return { ok: false, error: "الطلب غير موجود" };
+  if (!order) return { ok: false, error: t(d, "errors.orders.notFound") };
   if (order.status !== "NEW" && order.status !== "CONFIRMED") {
-    return { ok: false, error: "لا يمكن تعديل محتويات الطلب بعد بدء التجهيز أو الشحن" };
+    // Reuses admin.orders.cannotEditNote — same fact as the static note shown
+    // on the order detail page once processing/shipping has started.
+    return { ok: false, error: t(d, "admin.orders.cannotEditNote") };
   }
 
   const bookIds = input.items.map((i) => i.bookId);
@@ -355,14 +379,15 @@ export async function updateOrderItems(input: {
   const bookMap = new Map(books.map((b) => [b.id, b]));
 
   for (const item of input.items) {
-    if (!bookMap.has(item.bookId)) return { ok: false, error: "أحد الكتب لم يعد متوفراً" };
-    if (item.quantity < 1) return { ok: false, error: "الكمية يجب أن تكون ١ على الأقل" };
+    if (!bookMap.has(item.bookId)) return { ok: false, error: t(d, "errors.orders.bookUnavailable") };
+    if (item.quantity < 1) return { ok: false, error: t(d, "errors.orders.minQuantity") };
   }
 
   const existingCollectionMap = new Map(order.collectionItems.map((c) => [c.id, c]));
   for (const c of input.collectionItems) {
-    if (!existingCollectionMap.has(c.id)) return { ok: false, error: "إحدى المجموعات لم تعد جزءاً من الطلب" };
-    if (c.quantity < 1) return { ok: false, error: "الكمية يجب أن تكون ١ على الأقل" };
+    if (!existingCollectionMap.has(c.id))
+      return { ok: false, error: t(d, "errors.orders.collectionNotInOrder") };
+    if (c.quantity < 1) return { ok: false, error: t(d, "errors.orders.minQuantity") };
   }
   const keepIds = new Set(input.collectionItems.map((c) => c.id));
   const removedCollectionIds = order.collectionItems

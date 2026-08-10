@@ -63,10 +63,12 @@ export function CartPageClient({
 
     const parsed = checkoutSchema.safeParse(input);
     if (!parsed.success) {
+      // issue.message is an errors.*/admin.* dictionary KEY (see
+      // lib/validations.ts), not translated text — translate it here.
       const fieldErrors: Record<string, string> = {};
       for (const issue of parsed.error.issues) {
         const key = issue.path[0] as string;
-        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+        if (!fieldErrors[key]) fieldErrors[key] = t(issue.message);
       }
       setErrors(fieldErrors);
       return;

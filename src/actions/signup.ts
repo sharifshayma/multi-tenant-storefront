@@ -6,13 +6,20 @@ import { signupSchema, type SignupInput } from "@/lib/validations";
 import { uniqueStoreSlug } from "@/lib/store-slug";
 import { getCurrentUser } from "@/lib/auth-guard";
 import { getCurrentStore } from "@/lib/store-context";
+import { getDictionary, t } from "@/i18n";
 
 type SignupResult = { ok: true } | { ok: false; error: string };
+
+// There's no store yet anywhere in this file (this is the pre-store signup
+// flow), so every message is translated with the default "ar" dictionary —
+// same simplification used for createOrder's pre-store-resolution path in
+// src/actions/orders.ts.
+const d = getDictionary("ar");
 
 export async function signUpAndCreateStore(input: SignupInput): Promise<SignupResult> {
   const parsed = signupSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "بيانات غير صالحة" };
+    return { ok: false, error: t(d, parsed.error.issues[0]?.message ?? "auth.invalidData") };
   }
   const { email, password, storeName } = parsed.data;
 
@@ -25,7 +32,7 @@ export async function signUpAndCreateStore(input: SignupInput): Promise<SignupRe
   if (existingUser) {
     const existingStore = await getCurrentStore();
     if (existingStore) {
-      return { ok: false, error: "لديك متجر بالفعل" };
+      return { ok: false, error: t(d, "errors.signup.alreadyHaveStore") };
     }
     return createStoreFor(existingUser.id, storeName);
   }
@@ -58,7 +65,7 @@ async function createStoreFor(ownerId: string, storeName: string): Promise<Signu
     // or the user is left an authenticated, store-less orphan with no way
     // to recover from the form. They can retry; the recovery branch above
     // will pick their existing session back up and finish store creation.
-    return { ok: false, error: "تعذّر إنشاء المتجر، حاول مرة أخرى" };
+    return { ok: false, error: t(d, "errors.signup.storeCreationFailed") };
   }
 }
 
@@ -68,7 +75,7 @@ function mapSignUpError(error: unknown): string {
       ? (error as { body?: { message?: string } }).body?.message ?? error.message
       : "";
   if (message.includes("USER_ALREADY_EXISTS")) {
-    return "هذا البريد الإلكتروني مستخدم بالفعل";
+    return t(d, "errors.signup.emailTaken");
   }
-  return "تعذّر إنشاء الحساب، حاول مرة أخرى";
+  return t(d, "errors.signup.accountCreationFailed");
 }

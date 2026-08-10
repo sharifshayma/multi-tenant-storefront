@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ar } from "@/i18n/dictionaries/ar";
 
 const { signUpEmail, storeFindUnique, storeCreate, getCurrentUser, getCurrentStore } = vi.hoisted(
   () => ({
@@ -79,7 +80,7 @@ describe("signUpAndCreateStore", () => {
       storeName: "My Bookstore",
     });
 
-    expect(result).toEqual({ ok: false, error: "هذا البريد الإلكتروني مستخدم بالفعل" });
+    expect(result).toEqual({ ok: false, error: ar.errors.signup.emailTaken });
     expect(storeCreate).not.toHaveBeenCalled();
   });
 
@@ -116,7 +117,7 @@ describe("signUpAndCreateStore", () => {
       storeName: "My Bookstore",
     });
 
-    expect(result).toEqual({ ok: false, error: "تعذّر إنشاء المتجر، حاول مرة أخرى" });
+    expect(result).toEqual({ ok: false, error: ar.errors.signup.storeCreationFailed });
   });
 
   it("recovers an authenticated, store-less session by creating the store without re-signing-up", async () => {
@@ -149,6 +150,6 @@ describe("signUpAndCreateStore", () => {
 
     expect(signUpEmail).not.toHaveBeenCalled();
     expect(storeCreate).not.toHaveBeenCalled();
-    expect(result).toEqual({ ok: false, error: "لديك متجر بالفعل" });
+    expect(result).toEqual({ ok: false, error: ar.errors.signup.alreadyHaveStore });
   });
 });

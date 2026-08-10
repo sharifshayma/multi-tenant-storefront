@@ -38,10 +38,14 @@ describe("validateStoreSlug", () => {
     expect(validateStoreSlug("Jane's Crafts")).toEqual({ ok: true, slug: "janes-crafts" });
   });
   it("rejects input that is empty after slugify", () => {
-    expect(validateStoreSlug("!!!")).toEqual({ ok: false, error: "العنوان غير صالح" });
+    // validateStoreSlug has no store/locale context, so it returns an
+    // errors.* dictionary KEY (not translated text) — the caller translates
+    // it with the store's own dictionary. See src/actions/store.ts.
+    expect(validateStoreSlug("!!!")).toEqual({ ok: false, error: "errors.slug.invalid" });
   });
   it("rejects a reserved slug", () => {
     const r = validateStoreSlug("admin");
     expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toBe("errors.slug.reserved");
   });
 });

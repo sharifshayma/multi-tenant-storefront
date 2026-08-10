@@ -23,7 +23,8 @@ export function LoginForm() {
 
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t("auth.invalidData"));
+      // issue.message is an errors.* dictionary KEY (see lib/validations.ts).
+      setError(t(parsed.error.issues[0]?.message ?? "auth.invalidData"));
       return;
     }
 

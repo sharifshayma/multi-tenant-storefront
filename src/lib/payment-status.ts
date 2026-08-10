@@ -31,14 +31,10 @@ export function getPaymentStatus(
   return "PARTIAL";
 }
 
-export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  UNPAID: "لم يُدفع",
-  PARTIAL: "دفع جزئي",
-  PAID: "مدفوع بالكامل",
-  OVERPAID: "دُفع أكثر من اللازم",
-  GIFT: "هدية",
-};
-
+// Labels used to live here as a hardcoded Arabic map (PAYMENT_STATUS_LABELS).
+// They're now dictionary-driven under `admin.orders.payment.status.*` (same
+// key set as PaymentStatus) — translate at each locale-aware call site with
+// `t(d, \`admin.orders.payment.status.${status}\`)`.
 export const PAYMENT_STATUS_STYLES: Record<PaymentStatus, string> = {
   UNPAID: "bg-red-50 text-red-600",
   PARTIAL: "bg-amber-100 text-amber-800",

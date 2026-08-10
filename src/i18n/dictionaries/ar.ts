@@ -13,6 +13,69 @@ export const ar = {
   errors: {
     unauthorized: "غير مصرح",
     generic: "حدث خطأ، حاولي مرة أخرى",
+    invalidPrice: "الرجاء إدخال سعر صحيح",
+    slug: {
+      invalid: "العنوان غير صالح",
+      reserved: "هذا العنوان محجوز، اختاري عنواناً آخر",
+      taken: "هذا العنوان مستخدم من متجر آخر",
+    },
+    store: {
+      unsupportedCurrency: "عملة غير مدعومة",
+      unsupportedLocale: "لغة غير مدعومة",
+      invalidColor: "أحد الألوان غير صالح",
+      invalidLogoUrl: "رابط الشعار غير صالح",
+      nameRequired: "الرجاء إدخال اسم المتجر",
+    },
+    validation: {
+      invalidEmail: "بريد إلكتروني غير صالح",
+      invalidPhone: "رقم هاتف غير صالح",
+      passwordRequired: "كلمة المرور مطلوبة",
+    },
+    checkout: {
+      nameRequired: "الرجاء إدخال الاسم الكامل",
+      cityRequired: "الرجاء إدخال المدينة",
+      emptyCart: "السلة فارغة",
+      storeUnavailable: "المتجر غير متوفر",
+      bookUnavailable: "أحد الكتب في السلة لم يعد متوفراً",
+      collectionUnavailable: "إحدى المجموعات لم تعد متوفرة",
+      collectionBookCountMismatch: 'الرجاء اختيار {count} كتب مختلفة لمجموعة "{title}"',
+      selectedBookUnavailable: "أحد الكتب المختارة لم يعد متوفراً",
+    },
+    books: {
+      titleRequired: "الرجاء إدخال عنوان الكتاب",
+      descriptionRequired: "الرجاء إدخال وصف الكتاب",
+      slugRequired: "الرجاء إدخال رابط (slug) للكتاب",
+      coverImageRequired: "الرجاء رفع صورة الغلاف",
+      slugTaken: "هذا الرابط مستخدم بالفعل لكتاب آخر، الرجاء اختيار رابط مختلف",
+      notFound: "الكتاب غير موجود",
+    },
+    collections: {
+      customCountRequired: "الرجاء تحديد عدد صحيح تختاره العميلة",
+      notFound: "المجموعة غير موجودة",
+      bookNotOwned: "أحد الكتب لا ينتمي إلى هذا المتجر",
+    },
+    orders: {
+      notFound: "الطلب غير موجود",
+      invalidDiscount: "قيمة الخصم غير صالحة",
+      discountExceedsTotal: "لا يمكن أن يتجاوز الخصم إجمالي الطلب",
+      bookUnavailable: "أحد الكتب لم يعد متوفراً",
+      minQuantity: "الكمية يجب أن تكون ١ على الأقل",
+      collectionNotInOrder: "إحدى المجموعات لم تعد جزءاً من الطلب",
+    },
+    finance: {
+      invalidAmount: "المبلغ غير صالح",
+      transactionNotFound: "الحركة المالية غير موجودة",
+    },
+    stock: {
+      invalidQuantity: "الكمية غير صالحة",
+      movementNotFound: "حركة المخزون غير موجودة",
+    },
+    signup: {
+      alreadyHaveStore: "لديك متجر بالفعل",
+      storeCreationFailed: "تعذّر إنشاء المتجر، حاول مرة أخرى",
+      emailTaken: "هذا البريد الإلكتروني مستخدم بالفعل",
+      accountCreationFailed: "تعذّر إنشاء الحساب، حاول مرة أخرى",
+    },
   },
   store: {
     addToCart: "أضف إلى السلة",
@@ -157,6 +220,13 @@ export const ar = {
         saveButton: "حفظ بيانات العميل",
       },
       payment: {
+        status: {
+          UNPAID: "لم يُدفع",
+          PARTIAL: "دفع جزئي",
+          PAID: "مدفوع بالكامل",
+          OVERPAID: "دُفع أكثر من اللازم",
+          GIFT: "هدية",
+        },
         invalidAmount: "الرجاء إدخال مبلغ صحيح",
         invalidDiscount: "الرجاء إدخال قيمة خصم صحيحة",
         orderTotal: "إجمالي الطلب",
@@ -454,6 +524,9 @@ export const ar = {
         statusNow: "الحالة الآن:",
         enabled: "مُفعّل",
         disabled: "متوقف",
+        // Note stored on the auto-generated stock movement itself (not UI
+        // chrome) — see updateOrderStatus in src/actions/orders.ts.
+        movementNote: "خصم تلقائي من المخزون حسب حالة الطلب",
       },
     },
   },
@@ -479,6 +552,22 @@ export const ar = {
       submit: "إنشاء الحساب",
       hasAccount: "لديك حساب بالفعل؟",
       login: "دخول",
+    },
+  },
+  // Outgoing WhatsApp/email templates the admin sends to a customer about
+  // their order (src/lib/messages.ts). Rendered using the store's uiLocale —
+  // same locale as the rest of the admin chrome the staff member sees.
+  messages: {
+    greeting: "مرحباً {name} 👋",
+    orderNumberPrefix: "طلبك رقم #{shortId}:",
+    totalLine: "الإجمالي: {total}",
+    status: {
+      NEW: "استلمنا طلبك وسنتواصل معك قريباً لتأكيده. 📚",
+      CONFIRMED: "تم تأكيد طلبك وسنبدأ بتجهيزه قريباً. شكراً لطلبك من {siteName} 💛",
+      IN_PROGRESS: "طلبك قيد التجهيز الآن 📦. سنعلمك فور شحنه بإذن الله.",
+      SHIPPED: "تم شحن طلبك وهو في طريقه إليك الآن 🚚. سنتواصل معك عند الوصول.",
+      DELIVERED:
+        "نتمنى أن تكونوا استمتعتم بالكتب! 💛 شكراً لطلبك من {siteName}. يسعدنا سماع رأيكم في أي وقت.",
     },
   },
 };
