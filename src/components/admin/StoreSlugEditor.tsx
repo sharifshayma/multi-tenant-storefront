@@ -4,7 +4,15 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateStoreSlug } from "@/actions/store";
 
-export function StoreSlugEditor({ slug, platform }: { slug: string; platform: string }) {
+export function StoreSlugEditor({
+  slug,
+  platform,
+  onSaved,
+}: {
+  slug: string;
+  platform: string;
+  onSaved?: () => void;
+}) {
   const router = useRouter();
   const origin = platform.slice(0, platform.length - slug.length); // e.g. "https://store.thatsmy.app/"
   const [value, setValue] = useState(slug);
@@ -19,6 +27,7 @@ export function StoreSlugEditor({ slug, platform }: { slug: string; platform: st
         setValue(r.slug);
         setMsg({ ok: true, text: "تم تحديث العنوان" });
         router.refresh();
+        onSaved?.();
       } else {
         setMsg({ ok: false, text: r.error });
       }
@@ -26,13 +35,10 @@ export function StoreSlugEditor({ slug, platform }: { slug: string; platform: st
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
-      <div>
-        <h2 className="font-extrabold">عنوان المتجر</h2>
-        <p className="mt-1 text-sm text-muted">
-          تغيير العنوان يوقف عمل أي روابط قديمة على المنصة شاركتِها سابقاً. رابط النطاق المخصص لا يتأثر.
-        </p>
-      </div>
+    <div className="flex flex-col gap-3">
+      <p className="text-sm text-muted">
+        تغيير العنوان يوقف عمل أي روابط قديمة على المنصة شاركتِها سابقاً. رابط النطاق المخصص لا يتأثر.
+      </p>
       <div className="flex flex-wrap items-center gap-2">
         <span dir="ltr" className="text-sm text-muted">{origin}</span>
         <input
