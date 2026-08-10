@@ -14,9 +14,11 @@ import { minorToInput, inputToMinor } from "@/lib/money-input";
 export function NewBookForm({
   itemNounSingular,
   currency,
+  urlPrefix,
 }: {
   itemNounSingular: string;
   currency: string;
+  urlPrefix: string;
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -127,16 +129,36 @@ export function NewBookForm({
         }}
       />
 
-      <Input
-        id="newBookSlug"
-        label="الرابط (slug)"
-        dir="ltr"
-        value={slug}
-        onChange={(e) => {
-          setSlugTouched(true);
-          setSlug(e.target.value);
-        }}
-      />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="newBookSlug" className="text-sm font-bold text-ink">
+          رابط ال{itemNounSingular}
+        </label>
+        <p className="text-xs text-muted">
+          اكتبي كلمة قصيرة بالإنجليزية تظهر في نهاية الرابط.
+        </p>
+        <div
+          dir="ltr"
+          className="flex items-stretch overflow-hidden rounded-xl border border-border bg-white focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20"
+        >
+          <span className="flex items-center whitespace-nowrap bg-paper px-3 text-sm text-muted">
+            {urlPrefix}
+          </span>
+          <input
+            id="newBookSlug"
+            dir="ltr"
+            value={slug}
+            placeholder="colorful-cats"
+            onChange={(e) => {
+              setSlugTouched(true);
+              setSlug(e.target.value);
+            }}
+            onBlur={() => {
+              if (slug.trim()) setSlug(slugify(slug));
+            }}
+            className="min-w-0 flex-1 bg-white px-3 py-2.5 text-ink outline-none"
+          />
+        </div>
+      </div>
 
       <Textarea
         id="newBookDescription"

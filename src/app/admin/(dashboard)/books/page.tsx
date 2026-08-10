@@ -149,13 +149,13 @@ export default async function AdminBooksPage({
         {books.length === 0 ? (
           <p className="text-muted">لا توجد {plural} في هذا القسم.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-wrap gap-4">
             {books.map((book) => (
               <Link
                 key={book.id}
                 href={`/admin/books/${book.id}`}
                 className={cn(
-                  "flex items-center gap-4 rounded-2xl border bg-white p-4 hover:shadow-md",
+                  "flex w-full items-center gap-4 rounded-2xl border bg-white p-4 hover:shadow-md sm:w-80",
                   book.isArchived ? "border-border opacity-60" : "border-border"
                 )}
               >
@@ -178,10 +178,17 @@ export default async function AdminBooksPage({
                       </span>
                     )}
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-sm text-muted">
-                    <Price minor={book.priceMinor} currency={store.currency} locale={store.defaultLocale} />
-                    <span>{book._count.media} ملف وسائط إضافي</span>
-                    <span>طُلب {demandById.get(book.id)?.totalCount ?? 0} مرة</span>
+                  <div className="mt-1 flex flex-col gap-1 text-sm text-muted">
+                    <Price
+                      minor={book.priceMinor}
+                      currency={store.currency}
+                      locale={store.defaultLocale}
+                      className="font-bold text-ink"
+                    />
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                      <span className="whitespace-nowrap">{book._count.media} ملف وسائط إضافي</span>
+                      <span className="whitespace-nowrap">طُلب {demandById.get(book.id)?.totalCount ?? 0} مرة</span>
+                    </div>
                   </div>
                 </div>
               </Link>
