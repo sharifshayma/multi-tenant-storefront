@@ -116,7 +116,7 @@ export default async function AdminBookDetailPage({
             <div className="hidden overflow-x-auto rounded-xl border border-border sm:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-end text-muted">
+                  <tr className="border-b border-border text-start text-muted">
                     <th className="p-3">{t(d, "admin.products.orderHistory.table.customer")}</th>
                     <th className="p-3">{t(d, "admin.products.orderHistory.table.type")}</th>
                     <th className="p-3">{t(d, "admin.products.orderHistory.table.quantity")}</th>

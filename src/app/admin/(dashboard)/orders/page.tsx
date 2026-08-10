@@ -231,7 +231,7 @@ export default async function AdminOrdersPage({
           <div className="hidden overflow-x-auto rounded-2xl border border-border bg-white sm:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-end text-muted">
+                <tr className="border-b border-border text-start text-muted">
                   <th className="p-3">{t(d, "admin.orders.table.name")}</th>
                   <th className="p-3">{t(d, "admin.orders.table.phone")}</th>
                   <th className="p-3">{t(d, "admin.orders.table.city")}</th>
