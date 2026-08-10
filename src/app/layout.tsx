@@ -9,7 +9,7 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://arabstories.shayma.me"),
+  metadataBase: new URL("https://shop.example.com"),
   title: "جذور عربية، أجنحة عالمية | كتب أطفال ثنائية اللغة",
   description:
     "سلسلة كتب أطفال ثنائية اللغة (عربي-إنجليزي) تحكي قصص شخصيات عربية ملهمة. اطلبي الآن بأسعار مناسبة.",

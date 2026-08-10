@@ -2,17 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/store-slug";
 import type { Prisma } from "@prisma/client";
 
-// Tenant #1: the existing bilingual bookstore ("Arab Roots, Global Wings",
-// جذور عربية، أجنحة عالمية), adopted as the first store in a multi-tenant
-// world. Money is NOT converted here — priceNis stays shekels, which is
-// correct for an ILS store.
-export const DEFAULT_STORE_SLUG = "shaymas-books";
-export const DEFAULT_STORE_NAME = "Arab Roots, Global Wings";
-export const DEFAULT_STORE_CURRENCY = "ILS";
+// The first store (tenant #1) seeded on a fresh install. Every field below is
+// overridable via buildStoreData opts for other environments or re-use.
+export const DEFAULT_STORE_SLUG = "my-store";
+export const DEFAULT_STORE_NAME = "My Store";
+export const DEFAULT_STORE_CURRENCY = "USD";
 export const DEFAULT_STORE_LOCALE = "ar";
-export const DEFAULT_STORE_CUSTOM_DOMAIN = "arabstories.shayma.me";
-export const DEFAULT_STORE_ITEM_NOUN_SINGULAR = "كتاب";
-export const DEFAULT_STORE_ITEM_NOUN_PLURAL = "كتب";
+export const DEFAULT_STORE_CUSTOM_DOMAIN = "shop.example.com";
+export const DEFAULT_STORE_ITEM_NOUN_SINGULAR = "منتج";
+export const DEFAULT_STORE_ITEM_NOUN_PLURAL = "منتجات";
 
 export type BuildStoreDataOpts = {
   slug?: string;
@@ -60,7 +58,7 @@ async function adoptStore(ownerEmail: string, opts: BuildStoreDataOpts = {}) {
   // store or clobber an already-adopted one. The `update` clause is
   // deliberately narrow — it only (re)stamps the item-noun fields, so that
   // re-running this script against an already-adopted tenant #1 store (e.g.
-  // at prod deploy, after this task ships) backfills "كتاب"/"كتب" onto a row
+  // at prod deploy, after this task ships) backfills "منتج"/"منتجات" onto a row
   // that was created before these columns existed. It does not touch other
   // already-adopted fields (name, currency, etc.).
   const store = await prisma.store.upsert({

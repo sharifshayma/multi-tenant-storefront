@@ -7,26 +7,26 @@ beforeEach(() => findUnique.mockReset());
 
 describe("resolveStorefrontContext", () => {
   it("custom-domain host: resolves the store by host, basePath empty", async () => {
-    findUnique.mockResolvedValue({ id: "s1", slug: "shaymas-books", customDomain: "arabstories.shayma.me" });
-    const ctx = await resolveStorefrontContext({ slugParam: "anything", host: "arabstories.shayma.me" });
+    findUnique.mockResolvedValue({ id: "s1", slug: "my-store", customDomain: "shop.example.com" });
+    const ctx = await resolveStorefrontContext({ slugParam: "anything", host: "shop.example.com" });
     expect(ctx).toEqual({
-      store: { id: "s1", slug: "shaymas-books", customDomain: "arabstories.shayma.me" },
+      store: { id: "s1", slug: "my-store", customDomain: "shop.example.com" },
       basePath: "",
     });
-    expect(findUnique).toHaveBeenCalledWith({ where: { customDomain: "arabstories.shayma.me" } });
+    expect(findUnique).toHaveBeenCalledWith({ where: { customDomain: "shop.example.com" } });
   });
   it("custom-domain host: still resolves after the store's slug changes", async () => {
     // slug is now "new-slug" but the host lookup does not depend on the slug
-    findUnique.mockResolvedValue({ id: "s1", slug: "new-slug", customDomain: "arabstories.shayma.me" });
-    const ctx = await resolveStorefrontContext({ slugParam: "shaymas-books", host: "arabstories.shayma.me" });
+    findUnique.mockResolvedValue({ id: "s1", slug: "new-slug", customDomain: "shop.example.com" });
+    const ctx = await resolveStorefrontContext({ slugParam: "my-store", host: "shop.example.com" });
     expect(ctx?.store.slug).toBe("new-slug");
     expect(ctx?.basePath).toBe("");
-    expect(findUnique).toHaveBeenCalledWith({ where: { customDomain: "arabstories.shayma.me" } });
+    expect(findUnique).toHaveBeenCalledWith({ where: { customDomain: "shop.example.com" } });
   });
   it("custom-domain host: normalizes port and case", async () => {
-    findUnique.mockResolvedValue({ id: "s1", slug: "shaymas-books", customDomain: "arabstories.shayma.me" });
-    await resolveStorefrontContext({ slugParam: null, host: "ARABSTORIES.shayma.me:443" });
-    expect(findUnique).toHaveBeenCalledWith({ where: { customDomain: "arabstories.shayma.me" } });
+    findUnique.mockResolvedValue({ id: "s1", slug: "my-store", customDomain: "shop.example.com" });
+    await resolveStorefrontContext({ slugParam: null, host: "SHOP.EXAMPLE.COM:443" });
+    expect(findUnique).toHaveBeenCalledWith({ where: { customDomain: "shop.example.com" } });
   });
   it("platform host: basePath is /{slug}, resolved by slug", async () => {
     findUnique.mockResolvedValue({ id: "s2", slug: "janes-crafts", customDomain: null });

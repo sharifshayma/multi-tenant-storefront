@@ -18,7 +18,7 @@ beforeEach(() => {
   requireStore.mockReset();
   storeFindUnique.mockReset();
   storeUpdate.mockReset();
-  requireStore.mockResolvedValue({ id: "s1", slug: "shaymas-books" });
+  requireStore.mockResolvedValue({ id: "s1", slug: "my-store" });
   storeFindUnique.mockResolvedValue(null);
 });
 
@@ -43,8 +43,8 @@ describe("updateStoreSlug", () => {
     expect(storeUpdate).not.toHaveBeenCalled();
   });
   it("is a no-op success when the slug is unchanged", async () => {
-    const r = await updateStoreSlug("shaymas-books");
-    expect(r).toEqual({ ok: true, slug: "shaymas-books" });
+    const r = await updateStoreSlug("my-store");
+    expect(r).toEqual({ ok: true, slug: "my-store" });
     expect(storeUpdate).not.toHaveBeenCalled();
   });
   it("maps a P2002 unique-constraint race on update to the friendly error", async () => {

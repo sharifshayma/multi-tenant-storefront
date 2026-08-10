@@ -3,7 +3,7 @@ import { slugify, isReservedSlug, uniqueStoreSlug, validateStoreSlug } from "@/l
 
 describe("slugify", () => {
   it("lowercases and hyphenates", () => {
-    expect(slugify("Shayma's Books")).toBe("shaymas-books");
+    expect(slugify("My Store")).toBe("my-store");
   });
   it("strips leading/trailing separators", () => {
     expect(slugify("  Hello!!  ")).toBe("hello");
