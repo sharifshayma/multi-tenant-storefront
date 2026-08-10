@@ -28,13 +28,11 @@ export default async function StoreHome({
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <section className="mb-10 text-center">
         <h1 className="text-3xl font-extrabold text-ink sm:text-4xl">
-          جذور عربية، أجنحة عالمية
+          {ctx.store.heroTitle ?? ctx.store.name}
         </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-muted">
-          سلسلة كتب أطفال ثنائية اللغة (عربي-إنجليزي)، تروي قصص شخصيات عربية
-          ألهمت العالم. أضيفي ال{plural} إلى سلتك واملئي
-          بياناتك، وسنتواصل معك هاتفياً لتنسيق التوصيل والدفع.
-        </p>
+        {ctx.store.heroSubtitle && (
+          <p className="mx-auto mt-3 max-w-2xl text-muted">{ctx.store.heroSubtitle}</p>
+        )}
       </section>
 
       {collections.length > 0 && (
