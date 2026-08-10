@@ -17,6 +17,10 @@ export async function POST(request: Request) {
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         const isVideo = /\.(mp4|mov|webm|quicktime)$/i.test(pathname);
         return {
+          // Unique filenames so re-uploads / same-named files across stores
+          // never collide (Vercel Blob rejects duplicate paths otherwise, and
+          // allowOverwrite would let one store clobber another's blob).
+          addRandomSuffix: true,
           allowedContentTypes: [
             "image/jpeg",
             "image/png",
