@@ -570,4 +570,28 @@ export const ar = {
         "نتمنى أن تكونوا استمتعتم بالكتب! 💛 شكراً لطلبك من {siteName}. يسعدنا سماع رأيكم في أي وقت.",
     },
   },
+  // Transactional emails sent via Resend (src/lib/resend.ts). Rendered in
+  // the SENDING STORE's uiLocale (not a fixed locale) — resend.ts receives
+  // storeUiLocale/storeName from its caller for every send.
+  email: {
+    orderNotification: {
+      subject: "طلب جديد رقم #{shortId} من {storeName} — {customerName}",
+      heading: "طلب جديد — {storeName}",
+      status: "الحالة:",
+      name: "الاسم:",
+      phone: "الهاتف:",
+      email: "البريد الإلكتروني:",
+      city: "المدينة:",
+      notes: "ملاحظات:",
+      total: "الإجمالي:",
+      orderNumber: "رقم الطلب:",
+      listSeparator: "، ",
+    },
+    otp: {
+      subject: "رمز تغيير كلمة المرور",
+      heading: "رمز تغيير كلمة المرور",
+      instructions: "استخدمي هذا الرمز لتعيين كلمة مرور جديدة:",
+      expiry: "ينتهي الرمز خلال بضع دقائق. إن لم تطلبي هذا التغيير، تجاهلي هذه الرسالة.",
+    },
+  },
 };
