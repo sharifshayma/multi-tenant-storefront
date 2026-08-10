@@ -12,6 +12,7 @@ export const en: typeof ar = {
     saving: "Saving...",
     savedCheck: "Saved ✓",
     close: "Close",
+    product: { singular: "product", plural: "products" },
   },
   currencies: {
     USD: "US Dollar",

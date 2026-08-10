@@ -10,6 +10,7 @@ export const ar = {
     saving: "جارِ الحفظ...",
     savedCheck: "تم الحفظ ✓",
     close: "إغلاق",
+    product: { singular: "منتج", plural: "منتجات" },
   },
   currencies: {
     USD: "دولار أمريكي",
