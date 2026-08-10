@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Archive, ArchiveRestore } from "lucide-react";
 import { setBookArchived } from "@/actions/books";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function ArchiveToggleButton({
   bookId,
@@ -14,6 +15,7 @@ export function ArchiveToggleButton({
   isArchived: boolean;
   itemNounSingular: string;
 }) {
+  const { t } = useT();
   const [archived, setArchived] = useState(initialArchived);
   const [pending, startTransition] = useTransition();
 
@@ -36,7 +38,7 @@ export function ArchiveToggleButton({
       )}
     >
       {archived ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
-      {archived ? "إلغاء الأرشفة" : `أرشفة ال${itemNounSingular}`}
+      {archived ? t("admin.products.archive.unarchive") : t("admin.products.archive.archiveItem", { singular: itemNounSingular })}
     </button>
   );
 }

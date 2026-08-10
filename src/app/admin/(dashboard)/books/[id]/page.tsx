@@ -11,6 +11,7 @@ import { MediaUploader } from "@/components/admin/MediaUploader";
 import { MediaList } from "@/components/admin/MediaList";
 import { ArchiveToggleButton } from "@/components/admin/ArchiveToggleButton";
 import { StatusBadge } from "@/components/ui/Badge";
+import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function AdminBookDetailPage({
   const store = await getCurrentStore();
   if (!store) redirect("/admin/login");
   const { singular, plural } = storeNoun(store);
+  const d = getDictionary(store.uiLocale as Locale);
 
   const { id } = await params;
   const [book, orderHistory] = await Promise.all([
@@ -41,14 +43,14 @@ export default async function AdminBookDetailPage({
           className="flex items-center gap-1 text-sm font-bold text-muted hover:text-ink"
         >
           <ArrowRight className="h-4 w-4" />
-          العودة إلى ال{plural}
+          {t(d, "admin.products.backToItems", { plural })}
         </Link>
         <ArchiveToggleButton bookId={book.id} isArchived={book.isArchived} itemNounSingular={singular} />
       </div>
 
       {book.isArchived && (
         <p className="rounded-xl bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800">
-          هذا ال{singular} مؤرشف حالياً ولا يظهر للعملاء في المتجر.
+          {t(d, "admin.products.archivedNotice", { singular })}
         </p>
       )}
 
@@ -72,9 +74,11 @@ export default async function AdminBookDetailPage({
       </div>
 
       <div className="rounded-2xl border border-border bg-white p-5">
-        <h2 className="mb-4 font-extrabold">سجل الطلبات ({orderHistory.length})</h2>
+        <h2 className="mb-4 font-extrabold">
+          {t(d, "admin.products.orderHistory.heading", { n: orderHistory.length })}
+        </h2>
         {orderHistory.length === 0 ? (
-          <p className="text-sm text-muted">لم يُطلب هذا ال{singular} بعد.</p>
+          <p className="text-sm text-muted">{t(d, "admin.products.orderHistory.empty", { singular })}</p>
         ) : (
           <>
             {/* Mobile: stacked cards */}
@@ -91,7 +95,11 @@ export default async function AdminBookDetailPage({
                     <StatusBadge status={entry.orderStatus} />
                   </div>
                   <div className="flex items-center justify-between text-sm text-muted">
-                    <span>{entry.source === "مباشر" ? "طلب مباشر" : `ضمن مجموعة: ${entry.source}`}</span>
+                    <span>
+                      {entry.source === "مباشر"
+                        ? t(d, "admin.products.orderHistory.directOrder")
+                        : t(d, "admin.products.orderHistory.withinCollection", { name: entry.source })}
+                    </span>
                     <span>× {entry.quantity}</span>
                   </div>
                   <div className="text-xs text-muted">
@@ -105,12 +113,12 @@ export default async function AdminBookDetailPage({
             <div className="hidden overflow-x-auto rounded-xl border border-border sm:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-right text-muted">
-                    <th className="p-3">العميل</th>
-                    <th className="p-3">النوع</th>
-                    <th className="p-3">الكمية</th>
-                    <th className="p-3">حالة الطلب</th>
-                    <th className="p-3">التاريخ</th>
+                  <tr className="border-b border-border text-end text-muted">
+                    <th className="p-3">{t(d, "admin.products.orderHistory.table.customer")}</th>
+                    <th className="p-3">{t(d, "admin.products.orderHistory.table.type")}</th>
+                    <th className="p-3">{t(d, "admin.products.orderHistory.table.quantity")}</th>
+                    <th className="p-3">{t(d, "admin.products.orderHistory.table.status")}</th>
+                    <th className="p-3">{t(d, "admin.products.orderHistory.table.date")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -125,7 +133,9 @@ export default async function AdminBookDetailPage({
                         </Link>
                       </td>
                       <td className="p-3">
-                        {entry.source === "مباشر" ? "مباشر" : `مجموعة: ${entry.source}`}
+                        {entry.source === "مباشر"
+                          ? t(d, "admin.products.orderHistory.direct")
+                          : t(d, "admin.products.orderHistory.collectionPrefix", { name: entry.source })}
                       </td>
                       <td className="p-3">{entry.quantity}</td>
                       <td className="p-3">
@@ -145,7 +155,7 @@ export default async function AdminBookDetailPage({
 
       <div className="rounded-2xl border border-border bg-white p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-extrabold">صور وفيديوهات إضافية</h2>
+          <h2 className="font-extrabold">{t(d, "admin.products.additionalMedia")}</h2>
           <MediaUploader bookId={book.id} />
         </div>
         <MediaList

@@ -5,6 +5,7 @@ import { updateBook } from "@/actions/media";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { minorToInput, inputToMinor } from "@/lib/money-input";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function BookEditForm({
   bookId,
@@ -19,6 +20,7 @@ export function BookEditForm({
   priceMinor: number;
   currency: string;
 }) {
+  const { t } = useT();
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [price, setPrice] = useState(minorToInput(initialPrice));
@@ -39,20 +41,20 @@ export function BookEditForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <Input
         id="title"
-        label="العنوان"
+        label={t("admin.products.form.titleLabel")}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
       <Textarea
         id="description"
-        label="الوصف"
+        label={t("admin.products.form.descriptionLabel")}
         rows={4}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
       <Input
         id="priceMinor"
-        label={`السعر (${currency})`}
+        label={t("admin.products.form.priceLabel", { currency })}
         type="number"
         min={0}
         step="0.01"
@@ -61,7 +63,7 @@ export function BookEditForm({
         onChange={(e) => setPrice(e.target.value)}
       />
       <Button type="submit" disabled={saving} className="self-start">
-        {saving ? "جارِ الحفظ..." : saved ? "تم الحفظ ✓" : "حفظ التعديلات"}
+        {saving ? t("common.saving") : saved ? t("common.savedCheck") : t("admin.products.form.saveChanges")}
       </Button>
     </form>
   );

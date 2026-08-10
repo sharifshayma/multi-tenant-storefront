@@ -10,6 +10,7 @@ import { slugify } from "@/lib/slugify";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { minorToInput, inputToMinor } from "@/lib/money-input";
+import { useT } from "@/i18n/LocaleProvider";
 
 export function NewBookForm({
   itemNounSingular,
@@ -20,6 +21,7 @@ export function NewBookForm({
   currency: string;
   urlPrefix: string;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -38,11 +40,11 @@ export function NewBookForm({
     if (!file) return;
     setError(null);
     if (!file.type.startsWith("image/")) {
-      setError("الرجاء اختيار ملف صورة لصورة الغلاف");
+      setError(t("admin.products.form.errors.selectImage"));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setError("حجم الصورة أكبر من الحد المسموح (10 ميجابايت)");
+      setError(t("admin.products.form.errors.imageTooLarge"));
       return;
     }
     setUploading(true);
@@ -53,7 +55,7 @@ export function NewBookForm({
       });
       setCoverImage(blob.url);
     } catch (err) {
-      setError((err as Error).message || "فشل رفع الصورة");
+      setError((err as Error).message || t("admin.products.form.errors.uploadFailed"));
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -65,7 +67,7 @@ export function NewBookForm({
     setError(null);
     const priceMinor = inputToMinor(price);
     if (!title.trim() || !description.trim() || !slug.trim() || !coverImage || !priceMinor) {
-      setError("الرجاء تعبئة جميع الحقول ورفع صورة الغلاف");
+      setError(t("admin.products.form.errors.fillAllFields"));
       return;
     }
     setSaving(true);
@@ -81,7 +83,7 @@ export function NewBookForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-5">
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-bold text-ink">صورة الغلاف</span>
+        <span className="text-sm font-bold text-ink">{t("admin.products.form.coverImage")}</span>
         <input
           ref={inputRef}
           type="file"
@@ -96,7 +98,7 @@ export function NewBookForm({
             </div>
           ) : (
             <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-border text-xs text-muted">
-              لا توجد صورة
+              {t("admin.products.form.noImage")}
             </div>
           )}
           <Button
@@ -107,11 +109,12 @@ export function NewBookForm({
           >
             {uploading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" /> جارِ الرفع...
+                <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.products.uploading")}
               </>
             ) : (
               <>
-                <Upload className="h-4 w-4" /> {coverImage ? "تغيير الصورة" : "رفع صورة الغلاف"}
+                <Upload className="h-4 w-4" />{" "}
+                {coverImage ? t("admin.products.form.changeImage") : t("admin.products.form.uploadCoverImage")}
               </>
             )}
           </Button>
@@ -120,7 +123,7 @@ export function NewBookForm({
 
       <Input
         id="newBookTitle"
-        label="العنوان"
+        label={t("admin.products.form.titleLabel")}
         value={title}
         onChange={(e) => {
           const value = e.target.value;
@@ -131,10 +134,10 @@ export function NewBookForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="newBookSlug" className="text-sm font-bold text-ink">
-          رابط ال{itemNounSingular}
+          {t("admin.products.form.slugLabel", { singular: itemNounSingular })}
         </label>
         <p className="text-xs text-muted">
-          اكتبي كلمة قصيرة بالإنجليزية تظهر في نهاية الرابط.
+          {t("admin.products.form.slugHint")}
         </p>
         <div
           dir="ltr"
@@ -162,7 +165,7 @@ export function NewBookForm({
 
       <Textarea
         id="newBookDescription"
-        label="الوصف"
+        label={t("admin.products.form.descriptionLabel")}
         rows={4}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -170,7 +173,7 @@ export function NewBookForm({
 
       <Input
         id="newBookPrice"
-        label={`السعر (${currency})`}
+        label={t("admin.products.form.priceLabel", { currency })}
         type="number"
         min={0}
         step="0.01"
@@ -182,7 +185,7 @@ export function NewBookForm({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Button type="submit" disabled={saving || uploading} className="self-start">
-        {saving ? "جارِ الإنشاء..." : `إنشاء ال${itemNounSingular}`}
+        {saving ? t("admin.products.form.creating") : t("admin.products.form.create", { singular: itemNounSingular })}
       </Button>
     </form>
   );
