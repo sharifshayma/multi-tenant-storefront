@@ -16,6 +16,13 @@ model Store {
   defaultLocale    String          @default("en")
   itemNounSingular String          @default("منتج")
   itemNounPlural   String          @default("منتجات")
+  heroTitle        String?
+  heroSubtitle     String?         @db.Text
+  footerText       String?         @db.Text
+  logoUrl          String?
+  brandColor       String?
+  accentColor      String?
+  goldColor        String?
   customDomain     String?         @unique
   ownerId          String
   owner            User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
