@@ -123,6 +123,14 @@ async function resetTransactionalData(storeId: string) {
   await prisma.order.deleteMany({ where: { storeId } });
 }
 
+// Remove the existing catalog so slugs dropped from the demo data don't
+// linger. Must run AFTER resetTransactionalData (orders/stock reference books).
+// CollectionBook and BookMedia cascade when their Collection/Book is deleted.
+async function resetCatalog(storeId: string) {
+  await prisma.collection.deleteMany({ where: { storeId } });
+  await prisma.book.deleteMany({ where: { storeId } });
+}
+
 function requireId(map: Map<string, string>, key: string, kind: string): string {
   const id = map.get(key);
   if (!id) throw new Error(`Demo seed: missing ${kind} id for "${key}"`);
@@ -132,8 +140,11 @@ function requireId(map: Map<string, string>, key: string, kind: string): string 
 async function main() {
   const ownerId = await ensureDemoUser();
   const store = await ensureDemoStore(ownerId);
-  const { bookIdBySlug, collectionIdBySlug } = await seedCatalog(store.id);
+  // Clear transactional data first (it references books), then wipe and
+  // rebuild the catalog so removed slugs don't accumulate across re-seeds.
   await resetTransactionalData(store.id);
+  await resetCatalog(store.id);
+  const { bookIdBySlug, collectionIdBySlug } = await seedCatalog(store.id);
 
   const now = new Date();
   const orders = generateOrders({
