@@ -76,6 +76,25 @@ to `buildStoreData`, to shape your first store.
 | `npm run db:migrate` | Apply Prisma migrations (`prisma migrate deploy`) |
 | `npm run create-user -- <email> <password> "<name>"` | Create an admin account |
 | `npm run adopt-store -- <owner-email>` | Seed / adopt the first store |
+| `npm run seed:demo` | Seed the isolated demo tenant (see below) |
+
+## Demo environment
+
+Spin up an isolated demo tenant preseeded with a full book catalog plus realistic
+orders, customers, finance, and stock — enough to explore every admin screen:
+
+```bash
+npm run seed:demo
+```
+
+This creates (and is safe to re-run to reset):
+
+- a demo store at `/demo` ("Demo Bookshop")
+- a demo login — **`demo@demo.store` / `demodemo1`**
+- 14 books, 5 collections, ~40 orders across all statuses, transactions, and stock movements
+
+The seed only ever touches the demo store; your other tenants are untouched. Data is
+deterministic (fixed PRNG seed), so repeated runs produce the same demo.
 
 ## Deployment
 
