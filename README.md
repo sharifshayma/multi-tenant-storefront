@@ -28,6 +28,46 @@ store + back office they fully control.
   revenue, and stock movements per item.
 - **Configurable currency** and email notifications (via Resend) for new orders.
 
+## Screenshots
+
+_From the preseeded demo tenant (`npm run seed:demo`)._
+
+### Storefront (customer-facing)
+
+**Home** — themed hero, special-price collections, and the product grid.
+
+![Storefront home](docs/screenshots/storefront-home.jpg)
+
+**Product catalog** — every product with its cover, price, and one-tap add to cart.
+
+![Storefront catalog](docs/screenshots/storefront-catalog.jpg)
+
+**Cart & checkout** — delivery details only; no online payment — the shop follows up to arrange delivery and payment.
+
+![Cart and checkout](docs/screenshots/storefront-checkout.jpg)
+
+### Admin dashboard
+
+**Orders & print list** — status/payment filters plus a per-product "copies to print" list for confirmed orders.
+
+![Admin orders](docs/screenshots/admin-orders.jpg)
+
+**Product editor** — edit title, description, price, and cover, with per-product order history.
+
+![Admin product editor](docs/screenshots/admin-product-editor.jpg)
+
+**Finance** — revenue / expense / net totals, forecasted revenue from open orders, and a transaction log.
+
+![Admin finance](docs/screenshots/admin-finance.jpg)
+
+**Stock** — copies on hand and estimated value per product, plus stock-movement recording.
+
+![Admin stock](docs/screenshots/admin-stock.jpg)
+
+**Settings** — store link and per-store branding (name, hero copy, colors, logo).
+
+![Admin settings](docs/screenshots/admin-settings.jpg)
+
 ## Tech stack
 
 - [Next.js](https://nextjs.org) 16 (App Router, React Server Components) · React 19
