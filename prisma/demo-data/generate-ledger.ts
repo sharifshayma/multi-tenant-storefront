@@ -31,10 +31,10 @@ export interface GenerateLedgerOpts {
 
 const EXPENSE_CATEGORIES = ["printing", "ads", "shipping", "supplies"];
 const EXPENSE_DESC: Record<string, string> = {
-  printing: "طباعة دفعة كتب",
-  ads: "حملة إعلانية",
-  shipping: "رسوم شحن",
-  supplies: "مستلزمات تغليف",
+  printing: "Book print run",
+  ads: "Ad campaign",
+  shipping: "Shipping fees",
+  supplies: "Packaging supplies",
 };
 
 export function generateLedger(opts: GenerateLedgerOpts): {
@@ -53,7 +53,7 @@ export function generateLedger(opts: GenerateLedgerOpts): {
       type: "REVENUE",
       amountMinor: o.totalMinor,
       category: "sales",
-      description: `مبيعات الطلب ${o.ref}`,
+      description: `Sale for order ${o.ref}`,
       orderRef: o.ref,
       date: o.createdAt,
     });
@@ -103,7 +103,7 @@ export function generateLedger(opts: GenerateLedgerOpts): {
       type: "PRINTED",
       quantity: printed,
       orderRef: null,
-      note: "دفعة طباعة أولية",
+      note: "Initial print run",
       createdAt: windowStart,
     });
     if (damaged > 0) {
@@ -112,7 +112,7 @@ export function generateLedger(opts: GenerateLedgerOpts): {
         type: "DAMAGED",
         quantity: damaged,
         orderRef: null,
-        note: "تلف أثناء التخزين",
+        note: "Damaged in storage",
         createdAt: new Date(now.getTime() - randInt(rng, 1, windowDays) * DAY_MS),
       });
     }
@@ -122,7 +122,7 @@ export function generateLedger(opts: GenerateLedgerOpts): {
         type: "ADJUSTMENT",
         quantity: adjustment,
         orderRef: null,
-        note: "جرد المخزون",
+        note: "Inventory count",
         createdAt: new Date(now.getTime() - randInt(rng, 1, windowDays) * DAY_MS),
       });
     }
