@@ -87,14 +87,27 @@ orders, customers, finance, and stock — enough to explore every admin screen:
 npm run seed:demo
 ```
 
-This creates (and is safe to re-run to reset):
+Like the other scripts, this reads the database connection from the environment.
+Run it locally against `.env.local` with:
 
-- a demo store at `/demo` ("Demo Bookshop")
-- a demo login — **`demo@demo.store` / `demodemo1`**
-- 14 books, 5 collections, ~40 orders across all statuses, transactions, and stock movements
+```bash
+npx tsx --env-file=.env.local prisma/seed-demo.ts
+```
 
-The seed only ever touches the demo store; your other tenants are untouched. Data is
-deterministic (fixed PRNG seed), so repeated runs produce the same demo.
+It creates (and is safe to re-run to reset):
+
+- a demo store — **Demo Bookshop**, storefront at `/demo`
+- a demo admin login — **`demo@demo.store` / `demodemo1`** (sign in at `/admin/login`)
+- 14 books, 5 collections, ~40 orders across all statuses, plus matching
+  transactions and stock movements, so the finance and stock screens are populated
+
+**Access it:** browse the storefront at `<your-host>/demo`, or sign in to the
+dashboard at `<your-host>/admin/login` with the demo credentials to see the orders,
+finance P&L, and stock levels.
+
+The seed only ever touches the demo store — your other tenants are untouched. All
+generated content is deterministic (fixed PRNG seed); only the order/transaction
+dates shift to stay relative to "today," so re-running reproduces the same demo.
 
 ## Deployment
 
