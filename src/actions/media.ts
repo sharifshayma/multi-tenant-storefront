@@ -127,10 +127,11 @@ export async function updateBookCover(input: { bookId: string; coverImage: strin
   });
   if (!existing) throw new Error(t(d, "errors.books.notFound"));
 
-  await prisma.book.updateMany({
+  const result = await prisma.book.updateMany({
     where: { id: input.bookId, storeId: store.id },
     data: { coverImage: url },
   });
+  if (result.count === 0) throw new Error(t(d, "errors.books.notFound"));
 
   // Best-effort cleanup of the replaced blob; never touch static seed paths.
   if (existing.coverImage !== url && isVercelBlobUrl(existing.coverImage)) {

@@ -28,6 +28,19 @@ describe("isVercelBlobUrl", () => {
     expect(isVercelBlobUrl("https://evil.example.com/a.jpg")).toBe(false);
   });
 
+  it("rejects suffix-spoofing and label-splicing of the blob host", () => {
+    // trailing extra domain
+    expect(
+      isVercelBlobUrl("https://x.public.blob.vercel-storage.com.attacker.com/a.jpg"),
+    ).toBe(false);
+    // no dot before "public" — not a subdomain of the allowed host
+    expect(isVercelBlobUrl("https://xpublic.blob.vercel-storage.com/a.jpg")).toBe(false);
+    // userinfo trick: real hostname is evil.com
+    expect(
+      isVercelBlobUrl("https://public.blob.vercel-storage.com@evil.com/a.jpg"),
+    ).toBe(false);
+  });
+
   it("rejects empty / non-URL input", () => {
     expect(isVercelBlobUrl("")).toBe(false);
     expect(isVercelBlobUrl("not a url")).toBe(false);
