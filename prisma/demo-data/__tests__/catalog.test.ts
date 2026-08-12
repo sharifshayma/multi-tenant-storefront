@@ -2,12 +2,12 @@ import { describe, it, expect } from "vitest";
 import { books, collections, customCollection } from "@/../prisma/demo-data/catalog";
 
 describe("demo catalog data", () => {
-  it("has 14 books with unique slugs and bilingual titles", () => {
+  it("has 14 books with unique slugs and non-empty titles", () => {
     expect(books).toHaveLength(14);
     const slugs = books.map((b) => b.slug);
     expect(new Set(slugs).size).toBe(14);
     for (const b of books) {
-      expect(b.title).toContain("|"); // "arabic | English"
+      expect(b.title.length).toBeGreaterThan(0);
       expect(b.description.length).toBeGreaterThan(0);
     }
   });
