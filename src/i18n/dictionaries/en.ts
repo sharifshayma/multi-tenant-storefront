@@ -65,6 +65,7 @@ export const en: typeof ar = {
       descriptionRequired: "Please enter the book description",
       slugRequired: "Please enter a slug for the book",
       coverImageRequired: "Please upload a cover image",
+      invalidCoverUrl: "Invalid cover image URL",
       slugTaken: "This slug is already used by another book, please choose a different one",
       notFound: "Book not found",
     },

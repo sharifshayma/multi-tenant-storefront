@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +6,7 @@ import { getCurrentStore } from "@/lib/store-context";
 import { storeNoun } from "@/lib/store-noun";
 import { getBookOrderHistory } from "@/lib/data";
 import { BookEditForm } from "@/components/admin/BookEditForm";
+import { BookCoverCard } from "@/components/admin/BookCoverCard";
 import { MediaUploader } from "@/components/admin/MediaUploader";
 import { MediaList } from "@/components/admin/MediaList";
 import { ArchiveToggleButton } from "@/components/admin/ArchiveToggleButton";
@@ -55,15 +55,7 @@ export default async function AdminBookDetailPage({
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[auto_1fr]">
-        <div className="relative h-40 w-40 shrink-0 overflow-hidden rounded-2xl border border-border bg-white">
-          <Image
-            src={book.coverImage}
-            alt={book.title}
-            fill
-            sizes="160px"
-            className="object-contain p-3"
-          />
-        </div>
+        <BookCoverCard bookId={book.id} coverImage={book.coverImage} title={book.title} />
         <BookEditForm
           bookId={book.id}
           title={book.title}

@@ -63,6 +63,7 @@ export const ar = {
       descriptionRequired: "الرجاء إدخال وصف الكتاب",
       slugRequired: "الرجاء إدخال رابط (slug) للكتاب",
       coverImageRequired: "الرجاء رفع صورة الغلاف",
+      invalidCoverUrl: "رابط صورة الغلاف غير صالح",
       slugTaken: "هذا الرابط مستخدم بالفعل لكتاب آخر، الرجاء اختيار رابط مختلف",
       notFound: "الكتاب غير موجود",
     },
