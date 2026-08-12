@@ -44,8 +44,8 @@ export interface GenerateOrdersOpts {
   customers: DemoCustomer[];
 }
 
-const DISCOUNT_REASONS = ["عرض خاص", "عميل مميز", "شحن مجاني"];
-const NOTES = [null, "يرجى التغليف كهدية", "التوصيل بعد الظهر", "اتصلوا قبل الشحن"];
+const DISCOUNT_REASONS = ["Special offer", "Loyal customer", "Free shipping"];
+const NOTES = [null, "Please gift-wrap", "Deliver in the afternoon", "Call before shipping"];
 
 function statusForAge(rng: () => number, ageDays: number, windowDays: number): OrderStatus {
   const frac = ageDays / windowDays;
