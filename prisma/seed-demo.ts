@@ -34,7 +34,12 @@ async function ensureDemoStore(ownerId: string) {
     customDomain: null,
     defaultLocale: "en",
   });
-  return prisma.store.upsert({ where: { slug: DEMO_STORE.slug }, update: {}, create: data });
+  return prisma.store.upsert({
+    where: { slug: DEMO_STORE.slug },
+    // Apply the locale on re-seed too, so an existing demo store flips ar -> en.
+    update: { defaultLocale: "en" },
+    create: data,
+  });
 }
 
 async function seedCatalog(storeId: string) {
