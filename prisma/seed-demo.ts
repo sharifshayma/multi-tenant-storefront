@@ -142,9 +142,13 @@ async function main() {
   const store = await ensureDemoStore(ownerId);
   // Clear transactional data first (it references books), then wipe and
   // rebuild the catalog so removed slugs don't accumulate across re-seeds.
+  // Progress logs: these DB writes to a remote database can take a while.
+  console.log("Resetting demo data…");
   await resetTransactionalData(store.id);
   await resetCatalog(store.id);
+  console.log("Rebuilding catalog (14 books, 5 collections)…");
   const { bookIdBySlug, collectionIdBySlug } = await seedCatalog(store.id);
+  console.log("Generating orders & ledger…");
 
   const now = new Date();
   const orders = generateOrders({
