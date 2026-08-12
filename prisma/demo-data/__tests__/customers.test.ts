@@ -20,8 +20,8 @@ describe("demo book prices", () => {
     for (const b of books) {
       const p = DEMO_BOOK_PRICE_MINOR[b.slug];
       expect(Number.isInteger(p)).toBe(true);
-      expect(p).toBeGreaterThanOrEqual(3500);
-      expect(p).toBeLessThanOrEqual(5500);
+      expect(p).toBeGreaterThanOrEqual(1500);
+      expect(p).toBeLessThanOrEqual(2400);
     }
   });
 });

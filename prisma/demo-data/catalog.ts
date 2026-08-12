@@ -20,133 +20,141 @@ export interface DemoCustomCollection {
 
 export const books: DemoBook[] = [
   {
-    slug: "amal-clooney",
-    title: "أمل كلوني: صوت العدالة | Amal Clooney: The Voice of Justice",
+    slug: "stellas-solar-system",
+    title: "Stella's Solar System Adventure",
     description:
-      "قصة أمل كلوني الحقيقية، من طفولتها في بيروت إلى محامية عالمية تدافع عن العدالة وحقوق الإنسان. كتاب ملهم يعلّم الأطفال قيمة الشجاعة والدفاع عمّا هو صواب.",
+      "Blast off into space with Stella! This interactive book takes young readers on a journey past roaring rockets and glowing planets. Packed with fun facts about our solar system, it is the perfect launchpad for little astronomers to learn about gravity, orbits, and the stars.",
   },
   {
-    slug: "huda-kattan",
-    title:
-      "هدى قطّان: الفتاة التي أضاءت العالم | Huda Kattan: The Girl Who Shined Bright",
+    slug: "tiny-seed-journey",
+    title: "The Tiny Seed's Big Journey",
     description:
-      "رحلة هدى قطّان من فتاة عراقية الجذور في تينيسي إلى رائدة أعمال عالمية في عالم الجمال. قصة عن الثقة بالنفس والإبداع وتحقيق الأحلام مهما كانت البدايات صعبة.",
+      "Follow the incredible life cycle of a seed as it grows into a magnificent tree. With beautiful illustrations and easy-to-understand science, this book teaches children about photosynthesis, roots, and the everyday wonders of nature right in their own backyard.",
   },
   {
-    slug: "mo-salah",
-    title: "محمد صلاح: الملك المصري | Mo Salah: The Egyptian King",
+    slug: "rusty-robot-bridge",
+    title: "Rusty the Robot Builds a Bridge",
     description:
-      "من قرية صغيرة في مصر إلى أعظم ملاعب العالم، تحكي هذه القصة كفاح محمد صلاح وإصراره وتواضعه رغم الشهرة، لتلهم الأطفال بأن الأحلام الكبيرة تبدأ بخطوة واحدة.",
+      "Join Rusty the Robot as he uses basic engineering principles to help his friends cross a river! This engaging story introduces early STEM concepts, structural design, and the power of teamwork. Perfect for little tinkerers and future builders.",
   },
   {
-    slug: "zaha-hadid",
-    title: "زها حديد: ملكة المنحنيات | Zaha Hadid: The Queen of Curves",
+    slug: "kitchen-science-lab",
+    title: "My First Kitchen Science Lab",
     description:
-      "قصة زها حديد، المعمارية العراقية التي غيّرت شكل العمارة العالمية بخيالها الجريء وإصرارها على كسر القواعد. إلهام للأطفال ليحلموا بلا حدود.",
+      "Turn your kitchen into a laboratory! This hands-on book features 15 safe, easy, and exciting experiments that explain the basics of chemistry and physics using everyday household items. Step-by-step instructions make learning messy, fun, and highly educational.",
   },
   {
-    slug: "farouk-el-baz",
-    title: "فاروق الباز: ملك القمر | Farouk El-Baz: The King of the Moon",
+    slug: "great-shapes-mystery",
+    title: "The Great Shapes Mystery",
     description:
-      "قصة فاروق الباز، العالم المصري الذي ساعد في استكشاف القمر، وتحوّل من طفل فضولي إلى عالم فضاء عالمي. حكاية عن قوة الفضول والعلم.",
+      "Someone has stolen the town's missing triangles! Join Detective Daisy as she uses geometry, logic, and spatial reasoning to crack the case. A fun, interactive story that teaches children how to identify shapes, angles, and patterns in the real world.",
   },
   {
-    slug: "salem-saleh",
-    title: "سالم صالح: الأستاذ الكبير | Salem Saleh: The Grandmaster",
+    slug: "coding-with-cody",
+    title: "Coding with Cody the Caterpillar",
     description:
-      "قصة سالم صالح، بطل الشطرنج الإماراتي الذي تعلّم أن الهدوء والتفكير العميق يقودان إلى النصر. حكاية عن الصبر والتركيز وقوة العقل.",
+      "Cody needs to navigate a tricky garden maze to find his favorite leaf. By giving Cody simple, step-by-step instructions, young readers will learn the fundamentals of algorithms, sequencing, and basic coding concepts—no computer required!",
   },
   {
-    slug: "yusra-mardini",
-    title:
-      "يسرى مارديني: السبّاحة الأولمبية | Yusra Mardini: The Olympic Swimmer",
+    slug: "amazing-human-machine",
+    title: "Inside the Amazing Human Machine",
     description:
-      "رحلة يسرى مارديني المؤثرة من دمشق إلى الألعاب الأولمبية، قصة عن الشجاعة والأمل التي أنقذت بها حياة آخرين في رحلة عبور البحر.",
+      "Shrink down to the size of a blood cell and take a guided tour of the human body! This fascinating book explains how the heart pumps, how lungs breathe, and how the brain controls it all, using kid-friendly diagrams and fun facts.",
   },
   {
-    slug: "rami-malek",
-    title: "رامي مالك: الممثل الهوليودي | Rami Malek: The Hollywood Star",
+    slug: "wind-and-water",
+    title: "The Power of Wind and Water",
     description:
-      "قصة رامي مالك، أول ممثل عربي يفوز بجائزة الأوسكار لأفضل ممثل، وكيف حافظ على هويته وثقته بنفسه ليحقق حلمه في هوليوود.",
+      "How do windmills spin and why do dams generate electricity? Discover the incredible science behind renewable energy. This colorful guide introduces kids to physics and sustainability, showing how we can harness nature to power our world.",
   },
   {
-    slug: "hazza-al-mansouri",
-    title: "هزاع المنصوري: رائد الفضاء | Hazza Al Mansouri: The Astronaut",
+    slug: "meet-the-elements",
+    title: "Meet the Elements: The Universe's Building Blocks",
     description:
-      "من صحراء ليوا إلى محطة الفضاء الدولية، قصة هزاع المنصوري، أول رائد فضاء إماراتي، الذي أثبت أن الأحلام الكبيرة يمكن أن تصل إلى النجوم.",
+      "Get to know the tiny particles that make up everything around us! This playful introduction to chemistry personifies the most common elements, teaching kids how oxygen, carbon, and hydrogen team up to create the world as we know it.",
   },
   {
-    slug: "omar-yaghi",
-    title: "عمر ياغي: صائد الماء | Omar Yaghi: The Water Catcher",
+    slug: "journey-to-earths-core",
+    title: "Journey to the Core of the Earth",
     description:
-      "قصة عمر ياغي الحقيقية، من طفل فلسطيني في الأردن إلى عالم كيمياء حائز على جائزة نوبل، اخترع طريقة لاصطياد الماء من الهواء. حكاية عن الفضول والإصرار.",
+      "Grab your pickaxe! This geological adventure takes kids beneath the dirt and soil, past fossilized dinosaur bones, through the rocky mantle, and all the way to the Earth's fiery core. A brilliant introduction to plate tectonics and volcanoes.",
   },
   {
-    slug: "rama-duwaji",
-    title:
-      "راما دوجي: السيدة الأولى لمدينة نيويورك | Rama Duwaji: The First Lady of New York City",
+    slug: "junior-paleontologist",
+    title: "The Junior Paleontologist's Handbook",
     description:
-      "قصة راما دوجي، الفنانة السورية الأصل التي تحوّل شغفها بالرسم إلى مسيرة فنية عالمية، لتصبح السيدة الأولى الأصغر سناً لمدينة نيويورك.",
+      "Unearth the secrets of the dinosaurs! This interactive book acts as a field guide for aspiring fossil hunters. Learn how fossils are formed, how to identify ancient footprints, and what the Earth looked like millions of years ago.",
   },
   {
-    slug: "amjad-massad",
-    title:
-      "أمجد مسعد: المؤسس لشركة ريبلت | Amjad Massad: The Founder of Replit",
+    slug: "busy-bees-big-job",
+    title: "The Busy Bee's Big Job",
     description:
-      "قصة أمجد مسعد الذي تعلّم البرمجة في مقهى إنترنت بالأردن، ليؤسس لاحقاً منصة Replit التي يستخدمها ملايين الأشخاص حول العالم لتعلّم البرمجة.",
+      "Follow Bella the Bee on her daily flight from flower to flower. This beautifully illustrated book highlights the vital role of pollinators in our ecosystem, teaching children about plant reproduction, nectar, and environmental conservation.",
   },
   {
-    slug: "edward-said",
-    title:
-      "إدوارد سعيد: من أعاد رواية القصة | Edward Said: The Man Who Retold the Story",
+    slug: "where-do-puddles-go",
+    title: "Where Do Puddles Go? A Book About Weather",
     description:
-      "قصة إدوارد سعيد، المولود في القدس، الذي كرّس حياته لتصحيح الصورة عن شعبه من خلال الكتابة والتعليم، وعلّم العالم أن لكل إنسان الحق في أن يروي قصته بنفسه.",
+      "Follow a single drop of water as it evaporates into the clouds, freezes into snow, and rains back down! This engaging story breaks down the water cycle and explains how different weather patterns are formed across the globe.",
   },
   {
-    slug: "achraf-hakimi",
-    title: "أشرف حكيمي: أسد المغرب | Achraf Hakimi: The Lion of Morocco",
+    slug: "deep-dive-ocean",
+    title: "Deep Dive: Zones of the Ocean",
     description:
-      "قصة أشرف حكيمي، الذي حقق حلمه بالكرة وقاد المغرب لتصبح أول منتخب أفريقي وعربي يصل لنصف نهائي كأس العالم، مؤكداً أن الإصرار والفخر بالجذور يصنعان الأبطال.",
+      "Take a submarine ride from the sunlit coral reefs all the way down to the mysterious midnight zone! Children will discover bizarre deep-sea creatures, learn about water pressure, and understand the delicate balance of marine ecosystems.",
   },
 ];
 
 export const collections: DemoCollection[] = [
   {
-    slug: "women-leaders",
-    title: "قائدات ملهمات",
+    slug: "space-earth",
+    title: "Space & Earth Explorers",
     description:
-      "خمس قصص عن نساء عربيات غيّرن مجالاتهن بالشجاعة والإصرار — من القانون والعمارة إلى الرياضة والفن.",
-    priceMinor: 17500,
-    bookSlugs: ["amal-clooney", "huda-kattan", "zaha-hadid", "yusra-mardini", "rama-duwaji"],
+      "Four cosmic and earthly adventures — from the solar system to the ocean floor, with stops for the water cycle and the planet's fiery core.",
+    priceMinor: 6400,
+    bookSlugs: [
+      "stellas-solar-system",
+      "journey-to-earths-core",
+      "where-do-puddles-go",
+      "deep-dive-ocean",
+    ],
   },
   {
-    slug: "science",
-    title: "علماء ومبتكرون",
-    description: "أربع قصص عن عقول عربية أبدعت في العلم والفضاء والتكنولوجيا.",
-    priceMinor: 14000,
-    bookSlugs: ["farouk-el-baz", "hazza-al-mansouri", "omar-yaghi", "amjad-massad"],
+    slug: "living-world",
+    title: "The Living World",
+    description:
+      "Four stories about living things — a growing seed, the human body, busy pollinators, and the dinosaurs that came before us.",
+    priceMinor: 6400,
+    bookSlugs: [
+      "tiny-seed-journey",
+      "amazing-human-machine",
+      "busy-bees-big-job",
+      "junior-paleontologist",
+    ],
   },
   {
-    slug: "activism",
-    title: "أصوات التغيير",
-    description: "أربع قصص عن أشخاص استخدموا أصواتهم للدفاع عن العدالة والهوية والإنسانية.",
-    priceMinor: 14000,
-    bookSlugs: ["amal-clooney", "yusra-mardini", "rama-duwaji", "edward-said"],
+    slug: "build-code",
+    title: "Build & Code",
+    description:
+      "Three hands-on adventures in engineering, geometry, and coding for little builders and problem-solvers.",
+    priceMinor: 4900,
+    bookSlugs: ["rusty-robot-bridge", "great-shapes-mystery", "coding-with-cody"],
   },
   {
-    slug: "sports",
-    title: "أبطال الرياضة",
-    description: "أربع قصص عن أبطال عرب أثبتوا للعالم قوة الإصرار في الملاعب.",
-    priceMinor: 14000,
-    bookSlugs: ["mo-salah", "achraf-hakimi", "yusra-mardini", "salem-saleh"],
+    slug: "hands-on-science",
+    title: "Hands-On Science Lab",
+    description:
+      "Three experiment-packed guides to chemistry, physics, and the science hiding in everyday life.",
+    priceMinor: 5200,
+    bookSlugs: ["kitchen-science-lab", "meet-the-elements", "wind-and-water"],
   },
 ];
 
 export const customCollection: DemoCustomCollection = {
   slug: "build-your-own",
-  title: "اختاري ٥ كتب بنفسك",
+  title: "Build Your Own Bundle — Pick Any 5",
   description:
-    "اختاري أي ٥ كتب من السلسلة بسعر مخفّض — نفس القصص المفضلة لديكِ، بسعر أفضل.",
-  priceMinor: 17500,
+    "Choose any 5 books from the series at a discounted bundle price — your favorite stories, your way.",
+  priceMinor: 8000,
   requiredCount: 5,
 };

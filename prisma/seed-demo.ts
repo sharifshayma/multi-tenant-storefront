@@ -32,7 +32,7 @@ async function ensureDemoStore(ownerId: string) {
     slug: DEMO_STORE.slug,
     name: DEMO_STORE.name,
     customDomain: null,
-    defaultLocale: "ar",
+    defaultLocale: "en",
   });
   return prisma.store.upsert({ where: { slug: DEMO_STORE.slug }, update: {}, create: data });
 }
