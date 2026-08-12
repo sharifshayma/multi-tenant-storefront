@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { requireStore } from "@/lib/store-context";
+import { isVercelBlobUrl } from "@/lib/blob-url";
 import { getDictionary, t, type Locale } from "@/i18n";
 import type { MediaType } from "@prisma/client";
 
@@ -103,6 +104,43 @@ export async function updateBook(input: {
     },
   });
   if (result.count === 0) throw new Error(t(d, "errors.books.notFound"));
+  await revalidateBook(input.bookId, store.id);
+  revalidatePath("/admin/books");
+  revalidatePath("/");
+}
+
+// Replace a book's cover image. The new value must be a Vercel Blob URL
+// (produced by the /api/admin/upload flow); anything else is rejected so a
+// bad URL can't 500 <Image>. Scoped to the caller's store. The previous
+// cover is deleted from blob storage only when it was itself a blob upload —
+// seeded covers are static `/images/...` paths and are left untouched.
+export async function updateBookCover(input: { bookId: string; coverImage: string }) {
+  const store = await requireStore();
+  const d = getDictionary(store.uiLocale as Locale);
+
+  const url = input.coverImage.trim();
+  if (!isVercelBlobUrl(url)) throw new Error(t(d, "errors.books.invalidCoverUrl"));
+
+  const existing = await prisma.book.findFirst({
+    where: { id: input.bookId, storeId: store.id },
+    select: { coverImage: true },
+  });
+  if (!existing) throw new Error(t(d, "errors.books.notFound"));
+
+  await prisma.book.updateMany({
+    where: { id: input.bookId, storeId: store.id },
+    data: { coverImage: url },
+  });
+
+  // Best-effort cleanup of the replaced blob; never touch static seed paths.
+  if (existing.coverImage !== url && isVercelBlobUrl(existing.coverImage)) {
+    try {
+      await del(existing.coverImage);
+    } catch (err) {
+      console.error("Failed to delete old cover blob", err);
+    }
+  }
+
   await revalidateBook(input.bookId, store.id);
   revalidatePath("/admin/books");
   revalidatePath("/");
