@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
@@ -26,6 +27,11 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className={`${cairo.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-paper text-ink font-sans">
         <CartProvider>{children}</CartProvider>
+              <Script
+          src="https://umami-iota-six-97.vercel.app/script.js"
+          data-website-id="a8ea4e6c-edcc-495d-b048-aea18e804434"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
