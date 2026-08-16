@@ -63,6 +63,7 @@ export function OrderStatusManager({
           value={status}
           disabled={pending}
           onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
+          data-umami-event="order-status-change"
           className="rounded-lg border border-border bg-white px-3 py-1.5 text-sm font-bold disabled:opacity-50"
         >
           {ORDER_STATUSES.map((s) => (

@@ -78,6 +78,7 @@ export function AddToCartButton({
           handleAdd(qty);
           setQty(1);
         }}
+        data-umami-event="add-to-cart"
         className="flex-1"
       >
         {added ? (

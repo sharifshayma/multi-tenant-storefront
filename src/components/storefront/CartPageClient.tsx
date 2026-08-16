@@ -214,7 +214,7 @@ export function CartPageClient({
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
           />
           {submitError && <p className="text-sm text-red-600">{submitError}</p>}
-          <Button type="submit" disabled={submitting} size="lg">
+          <Button type="submit" disabled={submitting} size="lg" data-umami-event="place-order">
             {submitting ? t("store.cart.submitting") : t("store.cart.placeOrder")}
           </Button>
           <p className="text-center text-xs text-muted">

@@ -21,6 +21,7 @@ export function AddCollectionToCartButton({
   return (
     <Button
       size={size}
+      data-umami-event="add-collection-to-cart"
       onClick={() => {
         addCollection(
           {
