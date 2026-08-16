@@ -18,7 +18,7 @@ export default async function DashboardLayout({
 
   const store = await getCurrentStore();
   const { plural } = store ? storeNoun(store) : { plural: "منتجات" };
-  const locale = (store?.uiLocale ?? "ar") as Locale;
+  const locale = (store?.uiLocale ?? "en") as Locale;
   const d = getDictionary(locale);
 
   return (

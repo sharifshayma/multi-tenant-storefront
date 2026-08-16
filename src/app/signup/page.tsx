@@ -10,7 +10,7 @@ export default async function SignupPage() {
   }
 
   return (
-    <LocaleProvider locale="ar">
+    <LocaleProvider locale="en">
       <div className="flex min-h-screen items-center justify-center p-4">
         <SignupForm />
       </div>

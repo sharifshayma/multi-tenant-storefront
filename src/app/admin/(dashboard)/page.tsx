@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentStore } from "@/lib/store-context";
 import { storeNoun } from "@/lib/store-noun";
 import { getFinanceSummary, getStockLevels } from "@/lib/data";
+import { storefrontUrls } from "@/lib/store-url";
 import { Price } from "@/components/ui/Price";
+import { StorefrontLinkCard } from "@/components/admin/StorefrontLinkCard";
 import { getDictionary, t, type Locale } from "@/i18n";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +16,7 @@ export default async function AdminHomePage() {
   if (!store) redirect("/admin/login");
   const { plural } = storeNoun(store);
   const d = getDictionary(store.uiLocale as Locale);
+  const urls = storefrontUrls(store);
 
   const [newCount, totalCount, bookCount, collectionCount, finance, stockLevels] = await Promise.all([
     prisma.order.count({ where: { status: "NEW", storeId: store.id } }),
@@ -29,6 +32,7 @@ export default async function AdminHomePage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-extrabold">{t(d, "admin.home.welcome")}</h1>
+      <StorefrontLinkCard slug={store.slug} platform={urls.platform} customDomain={urls.customDomain} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link
           href="/admin/orders"

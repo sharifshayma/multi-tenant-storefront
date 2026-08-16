@@ -55,7 +55,7 @@ async function createStoreFor(ownerId: string, storeName: string): Promise<Signu
     );
 
     await prisma.store.create({
-      data: { slug, name: storeName, ownerId },
+      data: { slug, name: storeName, ownerId, uiLocale: "en" },
     });
 
     return { ok: true };

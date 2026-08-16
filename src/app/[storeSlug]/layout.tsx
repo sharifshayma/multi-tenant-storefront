@@ -34,7 +34,7 @@ export default async function SiteLayout({
   const ctx = await resolveStorefrontContext({ slugParam: storeSlug, host });
   if (!ctx) notFound();
   const { store } = ctx;
-  const locale = (store.uiLocale ?? "ar") as Locale;
+  const locale = (store.uiLocale ?? "en") as Locale;
 
   // Storefront colors: a store's own colors, else neutral defaults so an
   // unconfigured store looks unbranded — NOT the platform's warm book palette
